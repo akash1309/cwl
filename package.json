@@ -1,0 +1,44 @@
+{
+  "name": "railweb",
+  "version": "1.0.0",
+  "description": "A website for handling the procurement of items by railways.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "babel ./app -d build",
+    "build:watch": "babel ./app -d build --watch",
+    "build:client": "webpack --config ./webpack.config.js/",
+    "build:watch:client": "webpack --config ./webpack.config.js/ --watch",
+    "build:prod": "npm run build && npm run build:client",
+    "start": "npm run build:prod && NODE_ENV=production node ./build/server/index.js",
+    "start:dev": "parallelshell 'npm run build:watch' 'npm run build:watch:client' 'nodemon ./build/server/index.js'"
+  },
+  "author": "Akash Goyal",
+  "license": "MIT",
+  "dependencies": {
+    "@material-ui/core": "^1.2.0",
+    "axios": "^0.18.0",
+    "cors": "^2.8.4",
+    "express": "^4.16.3",
+    "html-webpack-plugin": "^3.2.0",
+    "material-ui": "^0.20.1",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
+    "react-router-dom": "^4.2.2",
+    "react-tap-event-plugin": "^3.0.3",
+    "webpack-dev-server": "^3.1.4"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.11",
+    "nodemon": "^1.17.5",
+    "parallelshell": "^3.0.2",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.10.2",
+    "webpack-command": "^0.2.0"
+  }
+}
