@@ -15,11 +15,11 @@ export default function App(props) {
 
     return (
         <div>
-            <Switch>
-                <Route path="/" exact component={Dashboard} />
-                <Route path="/pokemon" exact render={() => (<Redirect to="/pokemon/ability/telepathy" />)} />
-                <Route path="/pokemon/ability/:ability" render={(location) => (<List pokemon={pokemon.list} location={location} />)} />
-            </Switch>
+          <Switch>
+            <Route path="/" exact component={Dashboard} />
+            <Route path="/pokemon" exact render={() => (<Redirect to="/pokemon/ability/telepathy" />)} />
+            <Route path="/pokemon/ability/:ability" render={(location) => (<List pokemon={pokemon.list} location={location} />)} />
+          </Switch>
         </div>
     )
 };

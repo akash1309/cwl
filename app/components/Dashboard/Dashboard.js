@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import { baseUrl } from './../../config/url';
+
 import axios from 'axios';
 import {
   AppBar,
@@ -13,8 +15,10 @@ class Dashboard extends Component {
   constructor(props){
     super(props);
     this.state={
-      username:'',
-      password:''
+      mobile:'',
+      password:'',
+      confirmPassword:'',
+      flag: -1
     }
   }
 
@@ -25,25 +29,60 @@ class Dashboard extends Component {
           <div>
 
             <AppBar
-              title="Login"
+              title="CWL Login"
             />
 
-            <div style={styles.containerStyle}>
-              <TextField
-                hintText="Enter your Username"
-                floatingLabelText="Username"
-                onChange = {(event,newValue) => this.setState({username:newValue})}
-                style={{ marginTop: 20, marginBottom: -20}}
-              />
-              <br/>
-              <TextField
-                type="password"
-                hintText="Enter your Password"
-                floatingLabelText="Password"
-                onChange = {(event,newValue) => this.setState({password:newValue})}
-              />
-              <br/>
-              <RaisedButton label="Submit" primary={true} style={styles.buttonStyle} onClick={(event) => this.handleClick(event)}/>
+            <div style={styles.outerContainerStyle}>
+              <div style={styles.innerContainerStyle}>
+                <TextField
+                  hintText="Enter your mobile number"
+                  floatingLabelText="Mobile Number"
+                  onChange = {(event,newValue) => this.setState({mobile:newValue, flag: -1})}
+                  style={{ marginTop: 10 }}
+                />
+
+                {
+                  this.state.flag == -1 ?
+                  <RaisedButton label="Next" primary={true} style={styles.buttonStyle} onClick={(event) => this.handleClick(event)}/>
+                  : null
+                }
+                {
+                  this.state.flag == 1 ?
+                  <div style={styles.outerContainerStyle}>
+                    <TextField
+                      type="password"
+                      hintText="Enter Password"
+                      floatingLabelText="Password"
+                      onChange = {(event,newValue) => this.setState({password:newValue})}
+                      style={{ marginTop: -10 }}
+                    />
+                    <br/>
+                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} onClick={() => this.setState({ flag: 0 })}/>
+                  </div>
+                  : null
+                }
+                {
+                  this.state.flag == 0 ?
+                  <div style={styles.outerContainerStyle}>
+                    <TextField
+                      type="password"
+                      hintText="Enter Password"
+                      floatingLabelText="Password"
+                      onChange = {(event,newValue) => this.setState({password:newValue})}
+                      style={{ marginTop: -10 }}
+                    />
+                    <TextField
+                      type="password"
+                      hintText="Enter Confirm Password"
+                      floatingLabelText="Confirm Password"
+                      onChange = {(event,newValue) => this.setState({confirmPassword:newValue})}
+                      style={{ marginTop: -10 }}
+                    />
+                  <RaisedButton label="Sign Up" primary={true} style={styles.buttonStyle} onClick={() => this.setState({ flag: 1 })}/>
+                  </div>
+                  : null
+                }
+              </div>
             </div>
 
           </div>
@@ -54,52 +93,21 @@ class Dashboard extends Component {
   }
 
   handleClick(event){
+    var that = this;
+    var apiUrl = baseUrl + "/signup/" + this.state.mobile;
 
-    var apiBaseUrl = "http://localhost:8080/purchaseorder/add";
-    var self = this;
-    var payload={
-"order_number": "1001",
-"order_date": "12-08-2017",
-"storeofficer_id": "ftgyhujk",
-"itemdetails": {
-	"specification": "fghjjk",
-	"quantity_rate": "12",
-	"duties_charges": "500",
-	"delivery_date": "12-10-2017"
-},
-"vendor_info": {
-	"code": "12",
-	"email": "fghj@gmail.com",
-	"address": "fghjk"
-
-},
-"tender_info": {
-	"tender_no": "45",
-	"tender_type": "fghj",
-	"opened_on": "20-08-2017"
-},
-"offer_no": "12456",
-"offer_date": "12-08-2018"
-};
-
-    axios.post(apiBaseUrl, payload)
+    axios.get(apiUrl)
     .then(function (response) {
       console.log(response);
-      if(response.data.code == 200){
-        console.log("Login successfull");
-
-      }
-      else if(response.data.code == 204){
-        console.log("Username password do not match");
-        alert("username password do not match")
+      if(response.status == 200){
+        that.setState({ flag: response.data.flag });
       }
       else{
-        console.log("Username does not exists");
-        alert("Username does not exist");
+        alert(response.data.message);
       }
     })
     .catch(function (error) {
-      console.log(error);
+      alert(error.message);
     });
 
   }
@@ -108,18 +116,21 @@ class Dashboard extends Component {
 }
 
 const styles = {
-  parentContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    margin: 100
-
-  },
-  containerStyle: {
+  outerContainerStyle: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center'
+  },
+  innerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    margin: 70,
+    padding: 30
   },
   buttonStyle: {
     margin: 15
