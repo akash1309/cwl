@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { baseUrl } from './../../config/url';
+import { baseUrl, signupUrl } from './../../config/url';
 
 import axios from 'axios';
 import {
@@ -10,7 +10,7 @@ import {
 } from 'material-ui';
 
 
-class Dashboard extends Component {
+class Login extends Component {
 
   constructor(props){
     super(props);
@@ -95,7 +95,7 @@ class Dashboard extends Component {
   handleClick(event){
 
     var that = this;
-    var apiUrl = baseUrl + "/signup/" + this.state.mobile;
+    var apiUrl = baseUrl + signupUrl + this.state.mobile;
 
     axios.get(apiUrl)
     .then(function (response) {
@@ -133,4 +133,4 @@ const styles = {
   }
 };
 
-export default Dashboard;
+export default Login;
