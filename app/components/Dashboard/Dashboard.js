@@ -93,25 +93,21 @@ class Dashboard extends Component {
   }
 
   handleClick(event){
+
     var that = this;
     var apiUrl = baseUrl + "/signup/" + this.state.mobile;
 
     axios.get(apiUrl)
     .then(function (response) {
-      console.log(response);
       if(response.status == 200){
         that.setState({ flag: response.data.flag });
       }
-      else{
-        alert(response.data.message);
-      }
     })
     .catch(function (error) {
-      alert(error.message);
+      alert(error.response.data.message);
     });
 
   }
-
 
 }
 
