@@ -10,7 +10,7 @@
     "build:client": "webpack --config ./webpack.config.js/",
     "build:watch:client": "webpack --config ./webpack.config.js/ --watch",
     "build:prod": "npm run build && npm run build:client",
-    "start": "npm run build:prod && NODE_ENV=production node ./build/server/index.js",
+    "start": "npm run build:prod && NODE_ENV=production && node ./build/server/index.js",
     "start:dev": "parallelshell 'npm run build:watch' 'npm run build:watch:client' 'nodemon ./build/server/index.js'"
   },
   "author": "Akash Goyal",
@@ -40,5 +40,13 @@
     "style-loader": "^0.21.0",
     "webpack": "^4.10.2",
     "webpack-command": "^0.2.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akash1309/cwl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/akash1309/cwl/issues"
+  },
+  "homepage": "https://github.com/akash1309/cwl#readme"
 }

@@ -1,2 +1,2 @@
 export const baseUrl = "http://localhost:8000";
-export const signupUrl = "/signup/";
+export const signupUrl = "/validate/";

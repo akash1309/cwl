@@ -99,11 +99,13 @@ class Login extends Component {
 
     axios.get(apiUrl)
     .then(function (response) {
+      console.log(response);
       if(response.status == 200){
         that.setState({ flag: response.data.flag });
       }
     })
     .catch(function (error) {
+      console.log(error.response);
       alert(error.response.data.message);
     });
 
