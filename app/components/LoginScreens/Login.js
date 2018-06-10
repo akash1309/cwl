@@ -1,6 +1,12 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { baseUrl, signupUrl } from './../../config/url';
+import { baseUrl, signupUrl, validateUrl } from './../../config/url';
+import {
+    Redirect,
+    Route,
+    Switch,
+    Link
+} from 'react-router-dom';
 
 import axios from 'axios';
 import {
@@ -14,11 +20,13 @@ class Login extends Component {
 
   constructor(props){
     super(props);
+    console.log("loginProps", props);
     this.state={
       mobile:'',
       password:'',
       confirmPassword:'',
-      flag: -1
+      flag: -1,
+      role:''
     }
   }
 
@@ -57,7 +65,7 @@ class Login extends Component {
                       style={{ marginTop: -10 }}
                     />
                     <br/>
-                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} onClick={() => this.setState({ flag: 0 })}/>
+                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} />
                   </div>
                   : null
                 }
@@ -78,7 +86,7 @@ class Login extends Component {
                       onChange = {(event,newValue) => this.setState({confirmPassword:newValue})}
                       style={{ marginTop: -10 }}
                     />
-                  <RaisedButton label="Sign Up" primary={true} style={styles.buttonStyle} onClick={() => this.setState({ flag: 1 })}/>
+                  <RaisedButton label="Sign Up" primary={true} style={styles.buttonStyle} onClick={(event) => {this.handleSignUp(event)}}/>
                   </div>
                   : null
                 }
@@ -95,17 +103,71 @@ class Login extends Component {
   handleClick(event){
 
     var that = this;
-    var apiUrl = baseUrl + signupUrl + this.state.mobile;
+    var apiUrl = baseUrl + validateUrl + this.state.mobile;
 
     axios.get(apiUrl)
     .then(function (response) {
+      console.log(response);
       if(response.status == 200){
-        that.setState({ flag: response.data.flag });
+        that.setState({ flag: response.data.flag , role: response.data.role });
       }
     })
     .catch(function (error) {
       alert(error.response.data.message);
     });
+
+  }
+
+  handleSignUp(event){
+
+
+    var password = this.state.password;
+    var confirmPassword = this.state.confirmPassword;
+
+    if(password != confirmPassword)
+    {
+      alert("Password and ConfirmPassword fields are not matching.");
+      return;
+    }
+
+    var apiUrl = baseUrl + signupUrl;
+
+    axios.post(apiUrl , {
+      "mobile" : this.state.mobile,
+      "password" : password
+
+    })
+    .then(response => {
+        if(response.status == 200) {
+          console.log(response);
+
+          if(this.state.role == "Cee")
+          {
+              this.props.history.push("/cee");
+          }
+          else if(this.state.role == "DyCee")
+          {
+              this.props.history.push("/dycee");
+          }
+          else if(this.state.role == "Inspector")
+          {
+              this.props.history.push("/inspector");
+          }
+          else if(this.state.role == "Vendor")
+          {
+              this.props.history.push("/vendor");
+          }
+          else if(this.state.role == "StoreOfficer")
+          {
+              this.props.history.push("/storeofficer");
+          }
+
+        }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    })
+
 
   }
 
