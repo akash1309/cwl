@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { baseUrl, signupUrl, validateUrl } from './../../config/url';
+import { baseUrl, signupUrl, validateUrl, loginUrl } from './../../config/url';
 import {
     Redirect,
     Route,
@@ -65,7 +65,7 @@ class Login extends Component {
                       style={{ marginTop: -10 }}
                     />
                     <br/>
-                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} />
+                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} onClick={(event) => {this.handleLogin(event)}} />
                   </div>
                   : null
                 }
@@ -119,6 +119,47 @@ class Login extends Component {
 
   }
 
+  handleLogin(event){
+    var apiUrl = baseUrl+loginUrl;
+    axios.post(apiUrl,{
+      "mobile" : this.state.mobile,
+      "password" : this.state.password
+    })
+    .then(response => {
+        if(response.status == 200) {
+          console.log(response);
+          //console.log("ROle is"+this.state.role);
+          if(this.state.role == "CEE")
+          {
+              this.props.history.push("/cee");
+          }
+          else if(this.state.role == "DyCEE")
+          {
+              this.props.history.push("/dycee");
+          }
+          else if(this.state.role == "Inspector")
+          {
+              this.props.history.push("/inspector");
+          }
+          else if(this.state.role == "Vendor")
+          {
+              this.props.history.push("/vendor");
+          }
+          else if(this.state.role == "StoreOfficer")
+          {
+              this.props.history.push("/storeofficer");
+          }
+
+        }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    });
+
+  }
+
+
+
   handleSignUp(event){
 
 
@@ -142,11 +183,11 @@ class Login extends Component {
         if(response.status == 200) {
           console.log(response);
 
-          if(this.state.role == "Cee")
+          if(this.state.role == "CEE")
           {
               this.props.history.push("/cee");
           }
-          else if(this.state.role == "DyCee")
+          else if(this.state.role == "DyCEE")
           {
               this.props.history.push("/dycee");
           }
