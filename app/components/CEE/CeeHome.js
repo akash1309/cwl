@@ -69,7 +69,12 @@ class CeeHome extends React.Component {
       alldycee : [],
       length : 0,
       flag : 0,
-      open : false
+      open : false,
+      name :'',
+      email : '',
+      mobile : '',
+      location : '',
+      dycee : false,
     }
     this._toggle = this._toggle.bind(this);
     //this.allDyCee = this.allDyCee.bind(this);
@@ -89,7 +94,9 @@ _toggle(e) {
  }
 
   render() {
+      console.log("hey");
     return (
+
       <div>
         <MuiThemeProvider>
           <div>
@@ -108,7 +115,7 @@ _toggle(e) {
                   <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"Inspector")} } />
                   <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"Vendor")} } />
                   <Divider />
-                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} />
+                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({dycee : true}) }} />
                   <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} />
                   <Divider />
                   <MenuItem primaryText="Get links" leftIcon={<ContentLink />} />
@@ -137,11 +144,57 @@ _toggle(e) {
              </Table>
              </div>
             : null }
+
+            {
+              this.state.dycee == true ?
+              <div>
+                <MuiThemeProvider>
+                  <div>
+                    <div style={styles.outerContainerStyle}>
+                      <div style={styles.innerContainerStyle}>
+                        <TextField
+                          hintText="Name"
+                          floatingLabelText="Name"
+                          onChange = {(event,newValue) => this.setState({name:newValue})}
+                          style={{ marginTop: 10 }}
+                        />
+
+                        <TextField
+                          hintText="Email"
+                          floatingLabelText="Email"
+                          onChange = {(event,newValue) => this.setState({email:newValue})}
+                          style={{ marginTop: 10 }}
+                        />
+                        <TextField
+                          hintText="Mobile"
+                          floatingLabelText="Mobile"
+                          onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                          style={{ marginTop: 10 }}
+                        />
+                        <TextField
+                          hintText="Location"
+                          floatingLabelText="Location"
+                          onChange = {(event,newValue) => this.setState({location:newValue})}
+                          style={{ marginTop: 10 }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </MuiThemeProvider>
+              </div>
+
+                      : null
+            }
+
+
+
+
           </div>
         </MuiThemeProvider>
       </div>
     );
   }
+
 
 
   allDyCee(event,role){
@@ -200,6 +253,31 @@ rowsHandler()
   }
   return <TableBody>{cells}</TableBody>;
 }
+
+
 }
+const styles = {
+  outerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  innerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    margin: 70,
+    padding: 30
+  },
+  buttonStyle: {
+    margin: 15
+  }
+};
+
+
 
 export default CeeHome ;
