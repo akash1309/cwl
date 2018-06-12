@@ -28,7 +28,7 @@ class Login extends Component {
       flag: -1,
       role:''
     }
-  }
+  };
 
   render() {
     return (
