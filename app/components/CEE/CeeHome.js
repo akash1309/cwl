@@ -13,13 +13,18 @@ import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl } from './../../config/url';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
 
 import axios from 'axios';
 import {
   AppBar,
   RaisedButton,
-  TextField, IconButton, SvgIcon, Table, TableBody, TableCell, TableHead, TableRow,
+  TextField, IconButton, SvgIcon,
 } from 'material-ui';
 
 const GitHubIcon = (props) => (
@@ -67,6 +72,8 @@ class CeeHome extends React.Component {
       open : false
     }
     this._toggle = this._toggle.bind(this);
+    //this.allDyCee = this.allDyCee.bind(this);
+  //  this.rowsHandler = this.rowsHandler.bind(this);
   };
 
 _toggle(e) {
@@ -78,7 +85,7 @@ _toggle(e) {
     status = false
   }
   this.setState({open : status});
-  //console.log(status);
+  console.log(status);
  }
 
   render() {
@@ -87,7 +94,7 @@ _toggle(e) {
         <MuiThemeProvider>
           <div>
             <AppBar title="CEE Home" iconElementLeft={
-                <IconButton
+              <IconButton
                 onClick={ this._toggle } >
                 <GitHubIcon />
                 </IconButton>
@@ -140,7 +147,6 @@ _toggle(e) {
   allDyCee(event){
 
   var that = this;
-
  that.setState({ open : !that.state.open});
 
   var apiUrl=baseUrl + allDyCeeUrl;
