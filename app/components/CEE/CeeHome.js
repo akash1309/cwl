@@ -11,7 +11,7 @@ import ContentCopy from 'material-ui/svg-icons/content/content-copy';
 import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
-import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl } from './../../config/url';
+import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl, allInspectorUrl , allStoreOfficerUrl, allVendorUrl } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -103,10 +103,10 @@ _toggle(e) {
             { this.state.open == true ?
               <Paper style={style.paper}>
                 <Menu ref="Menu">
-                  <MenuItem primaryText="All DyCEE" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.allDyCee(event) }}/>
-                  <MenuItem primaryText="All Store Officers" leftIcon={<RemoveRedEye />} />
-                  <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} />
-                  <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} />
+                  <MenuItem primaryText="All DyCEE" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.allDyCee(event,"DyCEE") }}/>
+                  <MenuItem primaryText="All Store Officers" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"StoreOfficer")} } />
+                  <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"Inspector")} } />
+                  <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"Vendor")} } />
                   <Divider />
                   <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} />
                   <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} />
@@ -144,13 +144,27 @@ _toggle(e) {
   }
 
 
-  allDyCee(event){
+  allDyCee(event,role){
 
+console.log(role);
   var that = this;
  that.setState({ open : !that.state.open});
-
-  var apiUrl=baseUrl + allDyCeeUrl;
-
+ var apiUrl;
+  if(role=="DyCEE")
+   {apiUrl=baseUrl + allDyCeeUrl;}
+  else if(role=="Inspector")
+  {
+    apiUrl=baseUrl + allInspectorUrl;
+  }
+  else if(role=="StoreOfficer")
+  {
+    apiUrl=baseUrl + allStoreOfficerUrl;
+  }
+  else if(role=="Vendor")
+  {
+    apiUrl=baseUrl + allVendorUrl;
+  }
+  console.log(apiUrl);
   axios.get(apiUrl)
   .then( response => {
     console.log(response);
