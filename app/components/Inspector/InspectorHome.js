@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-
 import axios from 'axios';
 import {
   AppBar,
   RaisedButton,
   TextField
 } from 'material-ui';
+
 
 class InspectorHome extends React.Component {
 
@@ -24,6 +24,7 @@ class InspectorHome extends React.Component {
           <AppBar
             title="Inspector Home"
           />
+          
           </div>
         </MuiThemeProvider>
       </div>

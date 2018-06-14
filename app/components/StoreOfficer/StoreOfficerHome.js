@@ -1,18 +1,100 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Paper from 'material-ui/Paper';
+import Menu from 'material-ui/Menu';
+import MenuItem from 'material-ui/MenuItem';
+import RemoveRedEye from 'material-ui/svg-icons/image/remove-red-eye';
+import PersonAdd from 'material-ui/svg-icons/social/person-add';
+import ContentLink from 'material-ui/svg-icons/content/link';
+import Divider from 'material-ui/Divider';
+import ContentCopy from 'material-ui/svg-icons/content/content-copy';
+import Download from 'material-ui/svg-icons/file/file-download';
+import Delete from 'material-ui/svg-icons/action/delete';
+import FontIcon from 'material-ui/FontIcon';
+import { withStyles } from '@material-ui/core/styles';
+import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl } from './../../config/url';
 
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
 
 import axios from 'axios';
 import {
   AppBar,
   RaisedButton,
-  TextField
+  TextField,IconButton, SvgIcon,
 } from 'material-ui';
+
+const GitHubIcon = (props) => (
+    <SvgIcon {...props}>
+        {<path
+            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>}
+    </SvgIcon>
+);
+
+
+const style = {
+  paper: {
+    display: 'inline-block',
+    float: 'left',
+    margin: '0 32px 16px 0',
+    position : 'absolute',
+    zIndex: '1'
+  },
+  rightIcon: {
+    textAlign: 'center',
+    lineHeight: '24px',
+  },
+  tablediv : {
+    margin: '5px 5px 5px 5px',
+  },
+};
+
+const CustomTableCell = withStyles(theme => ({
+  head: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  body: {
+    fontSize: 14,
+  },
+}))(TableCell);
 
 class StoreOfficerHome extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {
+    getall : [],
+    length : 0,
+    open : false ,
+    order_number : '' ,
+    order_date : '' ,
+    itemdetails : '' ,
+    vendor_info : '' ,
+    tender_info : '' ,
+    offer_no : '' ,
+    offer_date : '',
+    flag : 0,
+    location : '',
+    _id : "5b168744338c9e480617e683",
+    role : "Vendor"
+   }
+   this._toggle = this._toggle.bind(this);
+ };
+
+ _toggle(e) {
+   var status = this.state.open;
+   if(status == false) {
+     status = true
+   }
+   else {
+     status = false
+   }
+   this.setState({open : status});
+   console.log(status);
   }
 
   render() {
@@ -20,14 +102,324 @@ class StoreOfficerHome extends React.Component {
       <div>
         <MuiThemeProvider>
           <div>
-          <AppBar
-            title="StoreOfficer Home"
-          />
+          <AppBar title="StoreOfficer Home" iconElementLeft={
+            <IconButton
+              onClick={ this._toggle } >
+              <GitHubIcon />
+              </IconButton>
+          } />
+
+          { this.state.open == true ?
+         <Paper style={style.paper}>
+             <Menu ref="Menu" disableAutoFocus={true}>
+             <MenuItem primaryText="Place Purchase_Order" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.setState( {flag : 1 , open : !this.state.open }) }} />
+             <MenuItem primaryText="Intimate_DyCee" leftIcon={<RemoveRedEye />} />
+             <Divider />
+             <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
+             <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />} />
+             <MenuItem primaryText="All Purchase Orders" leftIcon={<RemoveRedEye />} />
+             <Divider />
+             <MenuItem primaryText="Add Vendor" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 3, open : !this.state.open }) }}/>
+             <MenuItem primaryText="Add Items" leftIcon={<PersonAdd />} />
+             <Divider />
+             <MenuItem primaryText="Delete Items" leftIcon={<Delete />} />
+             <MenuItem primaryText="Cancel Purchase_Order" leftIcon={<RemoveRedEye />} />
+             <Divider />
+             <MenuItem primaryText="Update My_Infomation" leftIcon={<ContentLink />} />
+
+           </Menu>
+         </Paper>
+         : null
+         }
+
+         { this.state.flag == 2 ?
+
+          <div>
+          <Table style={style.tablediv}>
+            <TableHead>
+               <TableRow>
+                 <CustomTableCell width="25%">Id</CustomTableCell>
+                 <CustomTableCell width="15%">Name</CustomTableCell>
+                 <CustomTableCell width="25%">Email</CustomTableCell>
+                 <CustomTableCell width="15%">Mobile</CustomTableCell>
+                 <CustomTableCell width="15%">Location</CustomTableCell>
+               </TableRow>
+             </TableHead>
+
+             {this.rowsHandler()}
+
+
+          </Table>
+          </div>
+         : null }
+
+
+          {
+             this.state.flag == 1 ?
+              <div>
+               <MuiThemeProvider>
+                 <div>
+                   <div style={styles.outerContainerStyle}>
+                     <div style={styles.innerContainerStyle}>
+                     <TextField
+                       hintText="storeofficer_id"
+                       floatingLabelText="storeofficer_id"
+                       value = "5b168744338c9e480617e683"
+                       style={{ marginTop: 10 }}
+                     />
+                       <TextField
+                         hintText="Order_Number"
+                         floatingLabelText="Order_Number"
+                         onChange = {(event,newValue) => this.setState({order_number:newValue })}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Order_Date"
+                         floatingLabelText="Order_Date"
+                         onChange = {(event,newValue) => this.setState({order_date:newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Items_Detail"
+                         floatingLabelText="Items_Detail"
+                         multiLine={true}
+                         rows={3}
+                         rowsMax={5}
+                         onChange = {(event,newValue) => this.setState({itemdetails:newValue })}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Vendor_Info"
+                         floatingLabelText="Vendor_Info"
+                         multiLine={true}
+                         rows={3}
+                         rowsMax={5}
+                         onChange = {(event,newValue) => this.setState({vendor_info:newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Tendor_Info"
+                         floatingLabelText="Tendor_Info"
+                         multiLine={true}
+                         rows={3}
+                         rowsMax={4}
+                         onChange = {(event,newValue) => this.setState({ tender_info :newValue })}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Offer_No"
+                         floatingLabelText="Offer_No"
+                         onChange = {(event,newValue) => this.setState({offer_no :newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Offer_Date"
+                         floatingLabelText="Offer_Date"
+                         onChange = {(event,newValue) => this.setState({offer_date :newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <br/>
+                       <RaisedButton label="Place Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.place_order(event)}} />
+
+
+                     </div>
+                   </div>
+                 </div>
+               </MuiThemeProvider>
+             </div>
+
+
+                     : null
+           }
+
+           {
+             this.state.flag == 3 ?
+             <div>
+               <MuiThemeProvider>
+                 <div>
+                   <div style={styles.outerContainerStyle}>
+                     <div style={styles.innerContainerStyle}>
+                     <TextField
+                       hintText="storeofficer_id"
+                       floatingLabelText="storeofficer_id"
+                       value = { this.state._id }
+                       style={{ marginTop: 10 }}
+                     />
+                       <TextField
+                         hintText="Name"
+                         floatingLabelText="Name"
+                         errorText="This field is required"
+                         onChange = {(event,newValue) => this.setState({name:newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Email"
+                         floatingLabelText="Email"
+                         errorText="This field is required"
+                         onChange = {(event,newValue) => this.setState({email:newValue })}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Mobile"
+                         floatingLabelText="Mobile"
+                         errorText="This field is required"
+                         onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         hintText="Location"
+                         floatingLabelText="Location"
+                         errorText="This field is required"
+                         onChange = {(event,newValue) => this.setState({location:newValue})}
+                         style={{ marginTop: 10 }}
+                       />
+                       <TextField
+                         defaultValue= {this.state.role}
+                         style={{ marginTop: 10 }}
+                       />
+                       <br/>
+                       <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addVendor(event)}} />
+
+                     </div>
+                   </div>
+                 </div>
+               </MuiThemeProvider>
+             </div>
+           //  this.state.dycee = false
+
+                     : null
+           }
+
           </div>
         </MuiThemeProvider>
       </div>
+
     );
   }
+
+  addVendor(event){
+    var that=this;
+    var apiUrl=baseUrl + addVendorUrl;
+    axios.post(apiUrl,{
+        "name" : that.state.name ,
+        "mobile" : that.state.mobile,
+        "email" : that.state.email,
+        "role" : that.state.role,
+        "_id" : that.state._id,
+        "location" : that.state.location
+    })
+   .then(response => {
+       if(response.status == 200){
+          alert("Vendor added successfully!");
+         }
+         else if(response.status == 204) {
+           alert("Vendor is already present!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
+
+  }
+
+
+  place_order(event){
+    var that=this;
+    var apiUrl=baseUrl + addPurchaseOrderUrl;
+    axios.post(apiUrl,{
+        "order_number" : that.state.order_number ,
+        "order_date" :  that.state.order_date,
+        "itemdetails" : that.state.itemdetails,
+        "vendor_info" : that.state.vendor_info,
+        "tender_info" : that.state.tender_info,
+        "offer_no" :    that.state.offer_no,
+        "offer_date" : that.state.offer_date,
+        "storeofficer_id" : that.state._id
+    })
+   .then(response => {
+       if(response.status == 200){
+          alert("Order placed successfully!");
+         }
+         else if(response.status == 204) {
+           alert("Order is already present!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
+
+  }
+
+
+
+  getall(event,role){
+
+  console.log(role);
+  var that = this;
+  that.setState({ open : !that.state.open });
+  var apiUrl= baseUrl + allVendorUrl;
+
+  console.log(apiUrl);
+  axios.get(apiUrl)
+  .then( response => {
+    console.log(response);
+    if(response.status == 200){
+      that.setState({ getall : response.data , length : response.data.length  , flag :2});
+    }
+    //);
+  })
+  .catch(error => {
+    console.log(error.response);
+    alert(error.response.data.message);
+  });
+
+  }
+
+  singlerowHandler(i) {
+    var cells = [];
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+
+    return <TableRow>{cells}</TableRow>
+  }
+  rowsHandler()
+  {
+    var cells = [];
+    var i;
+    for(i=0; i<this.state.getall.length ;i++)
+    {
+      cells.push(this.singlerowHandler(i))
+    }
+    return <TableBody>{cells}</TableBody>;
+  }
+
 }
 
+
+const styles = {
+  outerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  innerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    margin: 70,
+    padding: 30,
+    width : '300px',
+    height :'950px'
+  },
+  buttonStyle: {
+    margin: 15
+  }
+};
 export default StoreOfficerHome ;
