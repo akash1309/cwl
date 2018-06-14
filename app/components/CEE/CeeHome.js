@@ -11,7 +11,7 @@ import ContentCopy from 'material-ui/svg-icons/content/content-copy';
 import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
-import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl, allInspectorUrl , allStoreOfficerUrl, allVendorUrl } from './../../config/url';
+import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl, allInspectorUrl , allStoreOfficerUrl, allVendorUrl, addDyCEEUrl } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -66,13 +66,20 @@ class CeeHome extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      alldycee : [],
+      getall : [],
       length : 0,
       flag : 0,
-      open : false
+      open : false,
+      name :'',
+      email : '',
+      mobile : '',
+      location : '',
+      dycee : false,
+      role : "DyCEE",
+      _id : this.props.location.state._id
     }
     this._toggle = this._toggle.bind(this);
-    //this.allDyCee = this.allDyCee.bind(this);
+    //this.getall = this.getall.bind(this);
   //  this.rowsHandler = this.rowsHandler.bind(this);
   };
 
@@ -90,6 +97,7 @@ _toggle(e) {
 
   render() {
     return (
+
       <div>
         <MuiThemeProvider>
           <div>
@@ -102,13 +110,14 @@ _toggle(e) {
 
             { this.state.open == true ?
               <Paper style={style.paper}>
-                <Menu ref="Menu">
-                  <MenuItem primaryText="All DyCEE" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.allDyCee(event,"DyCEE") }}/>
-                  <MenuItem primaryText="All Store Officers" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"StoreOfficer")} } />
-                  <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"Inspector")} } />
-                  <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.allDyCee(event,"Vendor")} } />
+                <Menu ref="Menu" disableAutoFocus={true}>
+                  <MenuItem primaryText="All DyCEE" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.getall(event,"DyCEE") }}/>
+                  <MenuItem primaryText="All Store Officers" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"StoreOfficer")} } />
+                  <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Inspector")} } />
+                  <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
+                  <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />}  />
                   <Divider />
-                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} />
+                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({dycee : true , flag : 0, open : !this.state.open }) }} />
                   <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} />
                   <Divider />
                   <MenuItem primaryText="Get links" leftIcon={<ContentLink />} />
@@ -137,18 +146,105 @@ _toggle(e) {
              </Table>
              </div>
             : null }
+
+            {
+              this.state.dycee == true ?
+              <div>
+                <MuiThemeProvider>
+                  <div>
+                    <div style={styles.outerContainerStyle}>
+                      <div style={styles.innerContainerStyle}>
+                      <TextField
+                        hintText="Cee_id"
+                        floatingLabelText="Cee_id"
+                        value = { this.state._id }
+                        style={{ marginTop: 10 }}
+                      />
+                        <TextField
+                          hintText="Name"
+                          floatingLabelText="Name"
+                          errorText="This field is required"
+                          onChange = {(event,newValue) => this.setState({name:newValue , flag:2})}
+                          style={{ marginTop: 10 }}
+                        />
+                        <TextField
+                          hintText="Email"
+                          floatingLabelText="Email"
+                          errorText="This field is required"
+                          onChange = {(event,newValue) => this.setState({email:newValue , flag:2})}
+                          style={{ marginTop: 10 }}
+                        />
+                        <TextField
+                          hintText="Mobile"
+                          floatingLabelText="Mobile"
+                          errorText="This field is required"
+                          onChange = {(event,newValue) => this.setState({mobile:newValue , flag:2})}
+                          style={{ marginTop: 10 }}
+                        />
+                        <TextField
+                          hintText="Location"
+                          floatingLabelText="Location"
+                          errorText="This field is required"
+                          onChange = {(event,newValue) => this.setState({location:newValue , flag:2})}
+                          style={{ marginTop: 10 }}
+                        />
+                        <TextField
+                          defaultValue= {this.state.role}
+                          style={{ marginTop: 10 }}
+                        />
+                        <br/>
+                        <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addDyCEE(event)}} />
+
+                      </div>
+                    </div>
+                  </div>
+                </MuiThemeProvider>
+              </div>
+            //  this.state.dycee = false
+
+                      : null
+            }
+
+
+
+
           </div>
         </MuiThemeProvider>
       </div>
     );
   }
 
+  addDyCEE(event){
+    var that=this;
+    var apiUrl=baseUrl + addDyCEEUrl;
+    axios.post(apiUrl,{
+        "name" : that.state.name ,
+        "mobile" : that.state.mobile,
+        "location" : that.state.location,
+        "email" : that.state.email,
+        "role" : that.state.role,
+        "cee_id" : that.state._id
+    })
+   .then(response => {
+       if(response.status == 200){
+          alert("DyCee added successfully!");
+         }
+         else if(response.status == 204) {
+           alert("DyCee is already present!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
 
-  allDyCee(event,role){
+  }
+
+
+  getall(event,role){
 
 console.log(role);
   var that = this;
- that.setState({ open : !that.state.open});
+ that.setState({ open : !that.state.open , dycee : false});
  var apiUrl;
   if(role=="DyCEE")
    {apiUrl=baseUrl + allDyCeeUrl;}
@@ -169,7 +265,7 @@ console.log(role);
   .then( response => {
     console.log(response);
     if(response.status == 200){
-      that.setState({ alldycee : response.data , length : response.data.length , flag : 1 });
+      that.setState({ getall : response.data , length : response.data.length , flag : 1 });
     }
     //);
   })
@@ -182,11 +278,11 @@ console.log(role);
 
 singlerowHandler(i) {
   var cells = [];
-  cells.push(<CustomTableCell width="25%">{this.state.alldycee[i]._id}</CustomTableCell>)
-  cells.push(<CustomTableCell width="15%">{this.state.alldycee[i].name}</CustomTableCell>)
-  cells.push(<CustomTableCell width="25%">{this.state.alldycee[i].email}</CustomTableCell>)
-  cells.push(<CustomTableCell width="15%">{this.state.alldycee[i].mobile}</CustomTableCell>)
-  cells.push(<CustomTableCell width="15%">{this.state.alldycee[i].location}</CustomTableCell>)
+  cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
+  cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+  cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
+  cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
+  cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
 
   return <TableRow>{cells}</TableRow>
 }
@@ -194,12 +290,37 @@ rowsHandler()
 {
   var cells = [];
   var i;
-  for(i=0; i<this.state.alldycee.length ;i++)
+  for(i=0; i<this.state.getall.length ;i++)
   {
     cells.push(this.singlerowHandler(i))
   }
   return <TableBody>{cells}</TableBody>;
 }
+
+
 }
+const styles = {
+  outerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  innerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    margin: 70,
+    padding: 30
+  },
+  buttonStyle: {
+    margin: 15
+  }
+};
+
+
 
 export default CeeHome ;

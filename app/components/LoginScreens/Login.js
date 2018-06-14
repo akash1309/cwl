@@ -26,7 +26,8 @@ class Login extends Component {
       password:'',
       confirmPassword:'',
       flag: -1,
-      role:''
+      role:'',
+      _id : ''
     }
   };
 
@@ -109,7 +110,7 @@ class Login extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.setState({ flag: response.data.flag , role: response.data.role });
+        that.setState({ flag: response.data.flag , role: response.data.role, _id : response.data._id });
       }
     })
     .catch(function (error) {
@@ -120,6 +121,7 @@ class Login extends Component {
   }
 
   handleLogin(event){
+    var that = this;
     var apiUrl = baseUrl+loginUrl;
     axios.post(apiUrl,{
       "mobile" : this.state.mobile,
@@ -131,7 +133,10 @@ class Login extends Component {
           //console.log("ROle is"+this.state.role);
           if(this.state.role == "CEE")
           {
-              this.props.history.push("/cee");
+              this.props.history.push({
+                pathname : '/cee',
+                state : { _id : that.state._id }
+              });
           }
           else if(this.state.role == "DyCEE")
           {
@@ -185,7 +190,10 @@ class Login extends Component {
 
           if(this.state.role == "CEE")
           {
-              this.props.history.push("/cee");
+            this.props.history.push({
+              pathname : '/cee',
+              state : { _id : that.state._id }
+            });
           }
           else if(this.state.role == "DyCEE")
           {
