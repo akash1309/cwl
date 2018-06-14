@@ -12,7 +12,7 @@ import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl } from './../../config/url';
+import { baseUrl ,  allVendorUrl , getInfoUrl , addPurchaseOrderUrl ,addVendorUrl , updateInfoUrl  } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -70,6 +70,13 @@ class StoreOfficerHome extends React.Component {
     this.state = {
     getall : [],
     length : 0,
+    _id : props.location.state._id,
+    name : '',
+    email : '',
+    mobile : '',
+    location : '',
+    password : '',
+    flag : -1,
     open : false ,
     order_number : '' ,
     order_date : '' ,
@@ -80,7 +87,6 @@ class StoreOfficerHome extends React.Component {
     offer_date : '',
     flag : 0,
     location : '',
-    _id : "5b168744338c9e480617e683",
     role : "Vendor"
    }
    this._toggle = this._toggle.bind(this);
@@ -165,7 +171,7 @@ class StoreOfficerHome extends React.Component {
                      <TextField
                        hintText="storeofficer_id"
                        floatingLabelText="storeofficer_id"
-                       value = "5b168744338c9e480617e683"
+                       value = {this.state._id}
                        style={{ marginTop: 10 }}
                      />
                        <TextField
