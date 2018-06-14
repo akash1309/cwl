@@ -2,7 +2,8 @@ const routes = [
     '/',
     '/cee' ,
     '/storeofficer' ,
-    '/vendor'
+    '/vendor',
+    '/dycee'
 ]
 
 export default routes;

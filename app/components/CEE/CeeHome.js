@@ -11,7 +11,7 @@ import ContentCopy from 'material-ui/svg-icons/content/content-copy';
 import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
-import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl, allInspectorUrl , allStoreOfficerUrl, allVendorUrl, addDyCEEUrl } from './../../config/url';
+import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl, allInspectorUrl , allStoreOfficerUrl, allVendorUrl, addDyCEEUrl, getInfoUrl, updateInfoUrl } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -55,6 +55,7 @@ const CustomTableCell = withStyles(theme => ({
   head: {
     backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
+    fontSize : 14
   },
   body: {
     fontSize: 14,
@@ -74,7 +75,6 @@ class CeeHome extends React.Component {
       email : '',
       mobile : '',
       location : '',
-      dycee : false,
       role : "DyCEE",
       _id : this.props.location.state._id
     }
@@ -117,8 +117,8 @@ _toggle(e) {
                   <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
                   <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />}  />
                   <Divider />
-                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({dycee : true , flag : 0, open : !this.state.open }) }} />
-                  <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} />
+                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 2, open : !this.state.open }) }} />
+                  <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} onClick={(event) => this.getPreviousInfo(event)} />
                   <Divider />
                   <MenuItem primaryText="Get links" leftIcon={<ContentLink />} />
 
@@ -148,7 +148,7 @@ _toggle(e) {
             : null }
 
             {
-              this.state.dycee == true ?
+              this.state.flag == 2 ?
               <div>
                 <MuiThemeProvider>
                   <div>
@@ -164,28 +164,28 @@ _toggle(e) {
                           hintText="Name"
                           floatingLabelText="Name"
                           errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({name:newValue , flag:2})}
+                          onChange = {(event,newValue) => this.setState({name:newValue})}
                           style={{ marginTop: 10 }}
                         />
                         <TextField
                           hintText="Email"
                           floatingLabelText="Email"
                           errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({email:newValue , flag:2})}
+                          onChange = {(event,newValue) => this.setState({email:newValue})}
                           style={{ marginTop: 10 }}
                         />
                         <TextField
                           hintText="Mobile"
                           floatingLabelText="Mobile"
                           errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({mobile:newValue , flag:2})}
+                          onChange = {(event,newValue) => this.setState({mobile:newValue})}
                           style={{ marginTop: 10 }}
                         />
                         <TextField
                           hintText="Location"
                           floatingLabelText="Location"
                           errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({location:newValue , flag:2})}
+                          onChange = {(event,newValue) => this.setState({location:newValue})}
                           style={{ marginTop: 10 }}
                         />
                         <TextField
@@ -205,7 +205,62 @@ _toggle(e) {
                       : null
             }
 
+            { this.state.flag == 3 ?
+            <div style={styles.outerContainerStyle}>
+              <div style={styles.innerContainerStyleUpdate}>
+              <div>
+              <span className="glyphicon glyphicon-check" aria-hidden="true" />
+              <TextField
+                hintText="Enter Dycee id"
+                floatingLabelText="Id"
+                value = {this.state._id}
+                style={{ marginLeft: 10 ,marginRight : 10, marginTop : 5}}
+              />
+              </div>
+              <div>
+              <span className="glyphicon glyphicon-user" aria-hidden="true" />
+              <TextField
+                hintText="Enter name"
+                floatingLabelText="Name"
+                value = {this.state.name}
+                onChange = {(event,newValue) => this.setState({name:newValue})}
+                style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+              />
+              </div>
+              <div>
+              <span className="glyphicon glyphicon-lock" aria-hidden="true" />
+              <TextField
+                hintText="Enter password"
+                floatingLabelText="Password"
+                value = {this.state.password}
+                onChange = {(event,newValue) => this.setState({password:newValue})}
+                style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+              /></div>
+              <div>
+              <span className="glyphicon glyphicon-phone" aria-hidden="true" />
+              <TextField
+                hintText="Enter mobile number"
+                floatingLabelText="Mobile Number"
+                value = {this.state.mobile}
+                onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
+              /></div>
+              <div>
+              <span className="glyphicon glyphicon-envelope" aria-hidden="true" />
+              <TextField
+                hintText="Enter email"
+                floatingLabelText="Email"
+                value = {this.state.email}
+                onChange = {(event,newValue) => this.setState({email:newValue})}
+                style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+              /></div>
 
+              <RaisedButton label="UPDATE" primary={true} style={styles.buttonStyle} onClick={(event) => this.updateInfo(event)}/>
+
+              </div>
+            </div>
+            : null
+          }
 
 
           </div>
@@ -239,12 +294,59 @@ _toggle(e) {
 
   }
 
+  getPreviousInfo(event){
 
-  getall(event,role){
+    var that = this;
+    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+
+    axios.get(apiUrl)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, password : response.data.password, flag:3, open : !this.state.open});
+      }
+      else if(response.status == 404) {
+        alert("No CEE found with this id");
+      }
+    })
+    .catch(function (error) {
+        alert(error.response.data.message);
+    })
+  }
+
+  updateInfo(event){
+
+    var that = this;
+    var apiUrl = baseUrl + updateInfoUrl;
+
+    axios.post(apiUrl,{
+      "_id" : that.state._id,
+      "name" : that.state.name,
+      "mobile" : that.state.mobile,
+      "email" : that.state.email,
+      "password" : that.state.password,
+      "role" : "CEE"
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        alert("Information is updated successfully!");
+      }
+      else if(response.status == 204) {
+        alert("Mobile number to be updated is already present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+getall(event,role){
 
 console.log(role);
   var that = this;
- that.setState({ open : !that.state.open , dycee : false});
+ that.setState({ open : !that.state.open });
  var apiUrl;
   if(role=="DyCEE")
    {apiUrl=baseUrl + allDyCeeUrl;}

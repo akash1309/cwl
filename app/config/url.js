@@ -10,3 +10,6 @@ export const allVendorUrl="/vendor/all/";
 export const addDyCEEUrl="/dycee/add/";
 export const addPurchaseOrderUrl ="/purchaseorder/add/";
 export const addVendorUrl ="/vendor/add/";
+export const inspectorUrl="/inspector/add/";
+export const getInfoUrl = "/user/";
+export const updateInfoUrl = '/updateinfo/';
