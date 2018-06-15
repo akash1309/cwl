@@ -12,7 +12,7 @@ import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl } from './../../config/url';
+import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl ,addItemUrl , allItemUrl } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -41,7 +41,7 @@ const style = {
     float: 'left',
     margin: '0 32px 16px 0',
     position : 'absolute',
-    zIndex: '2'
+    zIndex: '1'
   },
   rightIcon: {
     textAlign: 'center',
@@ -78,6 +78,13 @@ class StoreOfficerHome extends React.Component {
     this.state = {
     getall : [],
     length : 0,
+    _id : props.location.state._id,
+    name : '',
+    email : '',
+    mobile : '',
+    location : '',
+    password : '',
+    flag : -1,
     open : false ,
     order_number : '' ,
     order_date : '' ,
@@ -98,11 +105,13 @@ class StoreOfficerHome extends React.Component {
     offer_date : '',
     flag : 0,
     location : '',
-    _id : "5b168744338c9e480617e683",
-    role : "Vendor"
+    role : "Vendor",
+    model_number : '',
+    name  :       '',
+    quantity:      ''
    }
    this._toggle = this._toggle.bind(this);
-   this.updateState = this.updateState.bind(this);
+
  };
 
  _toggle(e) {
@@ -117,12 +126,6 @@ class StoreOfficerHome extends React.Component {
    console.log(status);
   }
 
-  updateState(event) {
-
-    const {name, value} = event.target;
-    let items = {...this.state.itemdetails, [name]: value};
-    this.setState({items});
-  }
 
   render() {
     return (
@@ -143,11 +146,11 @@ class StoreOfficerHome extends React.Component {
              <MenuItem primaryText="Intimate_DyCee" leftIcon={<RemoveRedEye />} />
              <Divider />
              <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
-             <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />} />
+             <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"AllItems")} }/>
              <MenuItem primaryText="All Purchase Orders" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} }  />
              <Divider />
              <MenuItem primaryText="Add Vendor" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 3, open : !this.state.open }) }}/>
-             <MenuItem primaryText="Add Items" leftIcon={<PersonAdd />} />
+             <MenuItem primaryText="Add Items" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 7, open : !this.state.open }) }}/>
              <Divider />
              <MenuItem primaryText="Delete Items" leftIcon={<Delete />} />
              <MenuItem primaryText="Cancel Purchase_Order" leftIcon={<RemoveRedEye />} />
@@ -191,7 +194,7 @@ class StoreOfficerHome extends React.Component {
                      <TextField
                        hintText="storeofficer_id"
                        floatingLabelText="storeofficer_id"
-                       value = "5b168744338c9e480617e683"
+                       value = {this.state._id}
                        style={{ marginTop: 10 }}
                      />
 
@@ -442,6 +445,27 @@ class StoreOfficerHome extends React.Component {
            : null
          }
 
+
+         { this.state.flag == 6 ?
+
+          <div>
+          <Table style={style.tablediv}>
+            <TableHead>
+               <TableRow>
+                 <CustomTableCell width="25%">Model_number</CustomTableCell>
+                 <CustomTableCell width="15%">Item Name</CustomTableCell>
+                 <CustomTableCell width="25%">Quantity</CustomTableCell>
+                 </TableRow>
+             </TableHead>
+
+             {this.rowsHandler("AllItems")}
+
+
+          </Table>
+          </div>
+         : null }
+
+
          { this.state.flag == 5 ?
 
           <div>
@@ -464,6 +488,44 @@ class StoreOfficerHome extends React.Component {
           </Table>
           </div>
          : null }
+
+         {
+           this.state.flag == 7 ?
+           <div>
+             <MuiThemeProvider>
+               <div>
+                 <div style={styles.outerContainerStyle}>
+                   <div style={styles.innerContainerStyle}>
+                     <TextField
+                       hintText="Model_number"
+                       floatingLabelText="Model_number"
+                       onChange = {(event,newValue) => this.setState({model_number:newValue})}
+                       style={{ marginTop: 10 }}
+                     />
+                     <TextField
+                       hintText="Name"
+                       floatingLabelText="Name"
+                       onChange = {(event,newValue) => this.setState({name:newValue })}
+                       style={{ marginTop: 10 }}
+                     />
+                     <TextField
+                       hintText="Quantity"
+                       floatingLabelText="Quantity"
+                       onChange = {(event,newValue) => this.setState({quantity:newValue})}
+                       style={{ marginTop: 10 }}
+                     />
+                     <br/>
+                     <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addItems(event)}} />
+
+                   </div>
+                 </div>
+               </div>
+             </MuiThemeProvider>
+           </div>
+         //  this.state.dycee = false
+
+                   : null
+         }
 
           </div>
         </MuiThemeProvider>
@@ -489,6 +551,28 @@ class StoreOfficerHome extends React.Component {
          }
          else if(response.status == 204) {
            alert("Vendor is already present!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
+
+  }
+
+  addItems(event){
+    var that=this;
+    var apiUrl=baseUrl + addItemUrl;
+    axios.post(apiUrl,{
+        "model_number" : that.state.model_number ,
+        "name" : that.state.name,
+        "quantity" : that.state.quantity
+    })
+   .then(response => {
+       if(response.status == 200){
+          alert("Item added successfully!");
+         }
+         else if(response.status == 204) {
+           alert("Item is already present!");
          }
       })
    .catch(error => {
@@ -591,9 +675,13 @@ class StoreOfficerHome extends React.Component {
   {
     apiUrl += allVendorUrl;
   }
-  else if(type = "Purchase_Order")
+  else if(type == "Purchase_Order")
   {
     apiUrl += allPurchaseOrderUrl;
+  }
+  else if(type == "AllItems")
+  {
+    apiUrl += allItemUrl;
   }
 
   console.log(apiUrl);
@@ -606,8 +694,11 @@ class StoreOfficerHome extends React.Component {
     else if(response.status == 200 && type == "Purchase_Order"){
       that.setState({ getall : response.data , length : response.data.length  , flag :5});
     }
+    else if(response.status == 200 && type == "AllItems"){
+      that.setState({ getall : response.data , length : response.data.length  , flag :6});
     //);
-  })
+  }
+})
   .catch(error => {
     console.log(error.response);
     alert(error.response.data.message);
@@ -635,6 +726,12 @@ class StoreOfficerHome extends React.Component {
       cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_no}</CustomTableCell>)
       cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_date}</CustomTableCell>)
 
+    }
+    else if(type == "AllItems")
+    {
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].model_number}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].quantity}</CustomTableCell>)
     }
 
     return <TableRow>{cells}</TableRow>
@@ -678,4 +775,5 @@ const styles = {
     margin: 15
   }
 };
+
 export default StoreOfficerHome ;

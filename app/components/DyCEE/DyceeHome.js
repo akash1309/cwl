@@ -10,10 +10,17 @@ import Divider from 'material-ui/Divider';
 import ContentCopy from 'material-ui/svg-icons/content/content-copy';
 import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
-//import FontIcon from 'material-ui/FontIcon';
 import FontIcon from 'react-toolbox/lib/font_icon';
 import {Glyphicon} from 'react-bootstrap';
-import { baseUrl, inspectorUrl, getInfoUrl, updateInfoUrl } from './../../config/url';
+import { withStyles } from '@material-ui/core/styles';
+import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl ,addItemUrl , allItemUrl , allInspectorUrl } from './../../config/url';
+
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+
 import axios from 'axios';
 import {
   AppBar,
@@ -28,7 +35,7 @@ const GitHubIcon = (props) => (
     </SvgIcon>
 );
 
-const style = {
+/*const style = {
   paper: {
     display: 'inline-block',
     float: 'left',
@@ -39,6 +46,35 @@ const style = {
     lineHeight: '24px',
   },
 };
+*/
+const style = {
+  paper: {
+    display: 'inline-block',
+    float: 'left',
+    margin: '0 32px 16px 0',
+    position : 'absolute',
+    zIndex: '1'
+  },
+  rightIcon: {
+    textAlign: 'center',
+    lineHeight: '24px',
+  },
+  tablediv : {
+    margin: '5px 5px 5px 5px',
+  },
+};
+
+const CustomTableCell = withStyles(theme => ({
+  head: {
+    backgroundColor: theme.palette.common.black,
+    color: theme.palette.common.white,
+    fontSize : 14
+  },
+  body: {
+    fontSize: 14,
+  },
+}))(TableCell);
+
 
 class DyCeeHome extends React.Component {
 
@@ -46,6 +82,8 @@ class DyCeeHome extends React.Component {
     super(props);
 
     this.state = {
+      getall : [],
+      length : 0,
       _id : props.location.state._id,
       name : '',
       email : '',
@@ -53,7 +91,31 @@ class DyCeeHome extends React.Component {
       location : '',
       password : '',
       flag : -1,
-      open : false
+      open : false ,
+      order_number : '' ,
+      order_date : '' ,
+      itemdetails : {} ,
+      specification:  '',
+      quantity_rate:  '',
+      duties_charges: '',
+      delivery_date:  '',
+      vendor_info : {} ,
+      code:     '',
+      email :   '',
+      address : '',
+      tender_info : {} ,
+      tender_no:     '',
+      tender_type:   '',
+      opened_on :    '',
+      offer_no : '' ,
+      offer_date : '',
+      flag : 0,
+      location : '',
+      role : "DyCEE",
+      model_number : '',
+      name  :       '',
+      quantity:      ''
+
     }
     this._toggle = this._toggle.bind(this);
   };
@@ -86,18 +148,65 @@ class DyCeeHome extends React.Component {
           { this.state.open == true ?
             <Paper style={style.paper}>
                <Menu disableAutoFocus={true}>
-                 <MenuItem primaryText="Add Inspector" leftIcon={<PersonAdd />} onClick={(event) => this.setState({flag : 1})} />
+               <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.getall(event,"AllItems")} }/>
+               <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.getall(event,"Vendor")} }/>
+               <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.getall(event,"Inspector")} }/>
+               <Divider />
+               <MenuItem primaryText="Add Inspector" leftIcon={<PersonAdd />} onClick={(event) => this.setState({flag : 1})} />
+                 <Divider />
+                 <MenuItem primaryText="All Purchase_Order" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} }  />
+                 <MenuItem primaryText="All I.C." leftIcon={<RemoveRedEye />} />
+                 <Divider />
+                 <MenuItem primaryText="Corrigendum Approval" leftIcon={<ContentCopy />} />
+                 <MenuItem primaryText="Approval Letter" leftIcon={<ContentCopy />} />
+                 <Divider />
                  <MenuItem primaryText="Update My_Infomation" leftIcon={<RemoveRedEye />} onClick={(event) => this.getPreviousInfo(event)} />
-                 <MenuItem primaryText="Get links" leftIcon={<ContentLink />} />
-                 <Divider />
-                 <MenuItem primaryText="Make a copy" leftIcon={<ContentCopy />} />
-                 <MenuItem primaryText="Download" leftIcon={<Download />} />
-                 <Divider />
-                 <MenuItem primaryText="Remove" leftIcon={<Delete />} />
                </Menu>
             </Paper>
             : null
             }
+
+            { this.state.flag == 7 ?
+
+             <div>
+             <Table style={style.tablediv}>
+               <TableHead>
+                  <TableRow>
+                    <CustomTableCell width="25%">Id</CustomTableCell>
+                    <CustomTableCell width="15%">Name</CustomTableCell>
+                    <CustomTableCell width="25%">Email</CustomTableCell>
+                    <CustomTableCell width="15%">Mobile</CustomTableCell>
+                    <CustomTableCell width="15%">Location</CustomTableCell>
+                  </TableRow>
+                </TableHead>
+
+                {this.rowsHandler("Vendor")}
+
+
+             </Table>
+             </div>
+            : null }
+
+            { this.state.flag == 8 ?
+
+             <div>
+             <Table style={style.tablediv}>
+               <TableHead>
+                  <TableRow>
+                    <CustomTableCell width="25%">Id</CustomTableCell>
+                    <CustomTableCell width="15%">Name</CustomTableCell>
+                    <CustomTableCell width="25%">Email</CustomTableCell>
+                    <CustomTableCell width="15%">Mobile</CustomTableCell>
+                    <CustomTableCell width="15%">Location</CustomTableCell>
+                  </TableRow>
+                </TableHead>
+
+                {this.rowsHandler("Inspector")}
+
+
+             </Table>
+             </div>
+            : null }
 
             { this.state.flag == 1 ?
             <div style={styles.outerContainerStyle}>
@@ -216,6 +325,50 @@ class DyCeeHome extends React.Component {
           : null
         }
 
+        { this.state.flag == 6 ?
+
+         <div>
+         <Table style={style.tablediv}>
+           <TableHead>
+              <TableRow>
+                <CustomTableCell width="25%">Model_number</CustomTableCell>
+                <CustomTableCell width="15%">Item Name</CustomTableCell>
+                <CustomTableCell width="25%">Quantity</CustomTableCell>
+                </TableRow>
+            </TableHead>
+
+            {this.rowsHandler("AllItems")}
+
+
+         </Table>
+         </div>
+        : null }
+
+
+        { this.state.flag == 5 ?
+
+         <div>
+         <Table style={style.tablediv}>
+           <TableHead>
+              <TableRow>
+                <CustomTableCell width="15%">Order_Number</CustomTableCell>
+                <CustomTableCell width="15%">Order_Date</CustomTableCell>
+                <CustomTableCell width="25%">Item_Details</CustomTableCell>
+                <CustomTableCell width="25%">Tender_Info</CustomTableCell>
+                <CustomTableCell width="25%">Vendor_Info</CustomTableCell>
+                <CustomTableCell width="15%">Offer_No</CustomTableCell>
+                <CustomTableCell width="15%">Offer_Date</CustomTableCell>
+              </TableRow>
+            </TableHead>
+
+            {this.rowsHandler("Purchase_Order")}
+
+
+         </Table>
+         </div>
+        : null }
+
+
           </div>
         </MuiThemeProvider>
       </div>
@@ -300,6 +453,104 @@ updateInfo(event){
     alert(error.response.data.message);
   });
 }
+
+getall(event,type){
+
+var that = this;
+that.setState({ open : !that.state.open });
+let apiUrl = baseUrl;
+if(type == "Vendor")
+{
+  apiUrl += allVendorUrl;
+}
+else if(type == "Purchase_Order")
+{
+  apiUrl += allPurchaseOrderUrl;
+}
+else if(type == "AllItems")
+{
+  apiUrl += allItemUrl;
+}
+else if(type == "Inspector")
+{
+  apiUrl += allInspectorUrl;
+}
+
+console.log(apiUrl);
+axios.get(apiUrl)
+.then( response => {
+  console.log(response);
+  if(response.status == 200 && type == "Vendor"){
+    that.setState({ getall : response.data , length : response.data.length  , flag :7});
+  }
+  else if(response.status == 200 && type == "Purchase_Order"){
+    that.setState({ getall : response.data , length : response.data.length  , flag :5});
+  }
+  else if(response.status == 200 && type == "AllItems"){
+    that.setState({ getall : response.data , length : response.data.length  , flag :6});
+  }
+  else if(response.status == 200 && type == "Inspector"){
+    that.setState({ getall : response.data , length : response.data.length  , flag :8});
+
+}
+})
+.catch(error => {
+  console.log(error.response);
+  alert(error.response.data.message);
+});
+
+}
+
+singlerowHandler(i,type) {
+  var cells = [];
+  if(type == "Vendor")
+  {
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+  }
+  else if(type == "Purchase_Order")
+  {
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_number}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_date}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{"Specification : "+this.state.getall[i].itemdetails["specification"]} <br/> {"Quantity_rate : "+this.state.getall[i].itemdetails["quantity_rate"]} <br/> {"Duties_charges : "+this.state.getall[i].itemdetails["duties_charges"]} <br/> {"Delivery_date : "+this.state.getall[i].itemdetails["delivery_date"]}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{"Tender_number : "+this.state.getall[i].tender_info["tender_no"]} <br/> {"Tender_type : "+ this.state.getall[i].tender_info["tender_type"]} <br/> {"Opened_on : "+this.state.getall[i].tender_info["opened_on"]}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{"Code : "+this.state.getall[i].vendor_info["code"]} <br/> {"Email : "+this.state.getall[i].vendor_info["email"]} <br/> {"Address : "+this.state.getall[i].vendor_info["address"]}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_no}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_date}</CustomTableCell>)
+
+  }
+  else if(type == "AllItems")
+  {
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].model_number}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].quantity}</CustomTableCell>)
+  }
+  else if(type == "Inspector")
+  {
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+  }
+
+  return <TableRow>{cells}</TableRow>
+}
+
+rowsHandler(type)
+{
+  var cells = [];
+  var i;
+  for(i=0; i<this.state.getall.length ;i++)
+  {
+    cells.push(this.singlerowHandler(i,type))
+  }
+  return <TableBody>{cells}</TableBody>;
+}
+
 
 }
 const styles = {
