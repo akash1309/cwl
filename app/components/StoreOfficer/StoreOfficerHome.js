@@ -12,7 +12,7 @@ import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl } from './../../config/url';
+import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -41,7 +41,7 @@ const style = {
     float: 'left',
     margin: '0 32px 16px 0',
     position : 'absolute',
-    zIndex: '1'
+    zIndex: '2'
   },
   rightIcon: {
     textAlign: 'center',
@@ -50,6 +50,14 @@ const style = {
   tablediv : {
     margin: '5px 5px 5px 5px',
   },
+  rowC : {
+    display : 'flex',
+    'flex-direction' : 'row'
+  },
+  row : {
+    display : 'flex',
+    'flex-direction' : 'column'
+  }
 };
 
 const CustomTableCell = withStyles(theme => ({
@@ -73,9 +81,19 @@ class StoreOfficerHome extends React.Component {
     open : false ,
     order_number : '' ,
     order_date : '' ,
-    itemdetails : '' ,
-    vendor_info : '' ,
-    tender_info : '' ,
+    itemdetails : {} ,
+    specification:  '',
+    quantity_rate:  '',
+    duties_charges: '',
+    delivery_date:  '',
+    vendor_info : {} ,
+    code:     '',
+    email :   '',
+    address : '',
+    tender_info : {} ,
+    tender_no:     '',
+    tender_type:   '',
+    opened_on :    '',
     offer_no : '' ,
     offer_date : '',
     flag : 0,
@@ -84,6 +102,7 @@ class StoreOfficerHome extends React.Component {
     role : "Vendor"
    }
    this._toggle = this._toggle.bind(this);
+   this.updateState = this.updateState.bind(this);
  };
 
  _toggle(e) {
@@ -96,6 +115,13 @@ class StoreOfficerHome extends React.Component {
    }
    this.setState({open : status});
    console.log(status);
+  }
+
+  updateState(event) {
+
+    const {name, value} = event.target;
+    let items = {...this.state.itemdetails, [name]: value};
+    this.setState({items});
   }
 
   render() {
@@ -118,7 +144,7 @@ class StoreOfficerHome extends React.Component {
              <Divider />
              <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
              <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />} />
-             <MenuItem primaryText="All Purchase Orders" leftIcon={<RemoveRedEye />} />
+             <MenuItem primaryText="All Purchase Orders" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} }  />
              <Divider />
              <MenuItem primaryText="Add Vendor" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 3, open : !this.state.open }) }}/>
              <MenuItem primaryText="Add Items" leftIcon={<PersonAdd />} />
@@ -147,7 +173,7 @@ class StoreOfficerHome extends React.Component {
                </TableRow>
              </TableHead>
 
-             {this.rowsHandler()}
+             {this.rowsHandler("Vendor")}
 
 
           </Table>
@@ -168,57 +194,117 @@ class StoreOfficerHome extends React.Component {
                        value = "5b168744338c9e480617e683"
                        style={{ marginTop: 10 }}
                      />
-                       <TextField
-                         hintText="Order_Number"
-                         floatingLabelText="Order_Number"
-                         onChange = {(event,newValue) => this.setState({order_number:newValue })}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Order_Date"
-                         floatingLabelText="Order_Date"
-                         onChange = {(event,newValue) => this.setState({order_date:newValue})}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Items_Detail"
-                         floatingLabelText="Items_Detail"
-                         multiLine={true}
-                         rows={3}
-                         rowsMax={5}
-                         onChange = {(event,newValue) => this.setState({itemdetails:newValue })}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Vendor_Info"
-                         floatingLabelText="Vendor_Info"
-                         multiLine={true}
-                         rows={3}
-                         rowsMax={5}
-                         onChange = {(event,newValue) => this.setState({vendor_info:newValue})}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Tendor_Info"
-                         floatingLabelText="Tendor_Info"
-                         multiLine={true}
-                         rows={3}
-                         rowsMax={4}
-                         onChange = {(event,newValue) => this.setState({ tender_info :newValue })}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Offer_No"
-                         floatingLabelText="Offer_No"
-                         onChange = {(event,newValue) => this.setState({offer_no :newValue})}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Offer_Date"
-                         floatingLabelText="Offer_Date"
-                         onChange = {(event,newValue) => this.setState({offer_date :newValue})}
-                         style={{ marginTop: 10 }}
-                       />
+
+
+                       <div style={style.rowC}>
+                         <div style={style.row}>
+                           <TextField
+                             hintText="Order_Number"
+                             floatingLabelText="Order_Number"
+                             onChange = {(event,newValue) => this.setState({order_number:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                           <TextField
+                             hintText="Order_Date"
+                             floatingLabelText="Order_Date"
+                             onChange = {(event,newValue) => this.setState({order_date:newValue})}
+                             style={{ marginTop: 10 }}
+                           />
+                         </div>
+                         <div style = {{marginLeft : 30}} >
+                           <TextField
+                             hintText="Item Specification"
+                             floatingLabelText="Specification"
+                             name="specification"
+                             multiLine={true}
+                             rows={3}
+                             rowsMax={5}
+                             onChange = {(event,newValue) => this.setState({specification:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                           <TextField
+                             hintText="Quantity/Rate"
+                             floatingLabelText="Quantity/Rate"
+                             onChange = {(event,newValue) => this.setState({quantity_rate:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                           <TextField
+                             hintText="Duties/Charges"
+                             floatingLabelText="Duties/Charges"
+                             onChange = {(event,newValue) => this.setState({duties_charges:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                           <TextField
+                             hintText="Delivery Date"
+                             floatingLabelText="Delivery Date"
+                             onChange = {(event,newValue) => this.setState({delivery_date:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                         </div>
+                       </div>
+
+                       <div style={style.rowC}>
+                         <div>
+                           <TextField
+                             hintText="Vendor code"
+                             floatingLabelText="Code"
+                             onChange = {(event,newValue) => this.setState({code:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                           <TextField
+                             hintText="Email"
+                             floatingLabelText="Email"
+                             onChange = {(event,newValue) => this.setState({email:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                           <TextField
+                             hintText="Address"
+                             floatingLabelText="Address"
+                             multiLine={true}
+                             rows={3}
+                             rowsMax={5}
+                             onChange = {(event,newValue) => this.setState({address:newValue })}
+                             style={{ marginTop: 10, marginRight : 30 }}
+                           />
+                         </div>
+                         <div>
+                         <TextField
+                           hintText="Tender number"
+                           floatingLabelText="Tender number"
+                           onChange = {(event,newValue) => this.setState({tender_no:newValue })}
+                           style={{ marginTop: 10 }}
+                         />
+                         <TextField
+                           hintText="Tender type"
+                           floatingLabelText="Tender type"
+                           onChange = {(event,newValue) => this.setState({tender_type:newValue })}
+                           style={{ marginTop: 10 }}
+                         />
+                         <TextField
+                           hintText="Opened on"
+                           floatingLabelText="Opened on"
+                           onChange = {(event,newValue) => this.setState({opened_on:newValue })}
+                           style={{ marginTop: 10 }}
+                         />
+                         </div>
+                       </div>
+
+                       <div style={style.rowC}>
+
+                           <TextField
+                             hintText="Offer_No"
+                             floatingLabelText="Offer_No"
+                             onChange = {(event,newValue) => this.setState({offer_no:newValue })}
+                             style={{ marginTop: 10 , marginRight : 30}}
+                           />
+                           <TextField
+                             hintText="Offer_Date"
+                             floatingLabelText="Offer_Date"
+                             onChange = {(event,newValue) => this.setState({offer_date:newValue })}
+                             style={{ marginTop: 10 }}
+                           />
+                       </div>
+
                        <br/>
                        <RaisedButton label="Place Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.place_order(event)}} />
 
@@ -356,6 +442,29 @@ class StoreOfficerHome extends React.Component {
            : null
          }
 
+         { this.state.flag == 5 ?
+
+          <div>
+          <Table style={style.tablediv}>
+            <TableHead>
+               <TableRow>
+                 <CustomTableCell width="15%">Order_Number</CustomTableCell>
+                 <CustomTableCell width="15%">Order_Date</CustomTableCell>
+                 <CustomTableCell width="25%">Item_Details</CustomTableCell>
+                 <CustomTableCell width="25%">Tender_Info</CustomTableCell>
+                 <CustomTableCell width="25%">Vendor_Info</CustomTableCell>
+                 <CustomTableCell width="15%">Offer_No</CustomTableCell>
+                 <CustomTableCell width="15%">Offer_Date</CustomTableCell>
+               </TableRow>
+             </TableHead>
+
+             {this.rowsHandler("Purchase_Order")}
+
+
+          </Table>
+          </div>
+         : null }
+
           </div>
         </MuiThemeProvider>
       </div>
@@ -392,6 +501,12 @@ class StoreOfficerHome extends React.Component {
   place_order(event){
     var that=this;
     var apiUrl=baseUrl + addPurchaseOrderUrl;
+
+    var _itemdetails = '{ "specification" : "'+that.state.specification+'" , "quantity_rate" : "'+that.state.quantity_rate+'" , "duties_charges" : "'+that.state.duties_charges+'" , "delivery_date" : "'+that.state.delivery_date+'" }';
+    var _vendor_info = '{ "code" : "'+that.state.code+'" , "email" : "'+that.state.email+'" , "address" : "'+that.state.address+'" }';
+    var _tender_info = '{ "tender_no" : "'+that.state.tender_no+'" , "tender_type" : "'+that.state.tender_type+'" , "opened_on" : "'+that.state.opened_on+'" }';
+
+    that.setState({itemdetails : JSON.parse(_itemdetails) , vendor_info : JSON.parse(_vendor_info) , tender_info : JSON.parse(_tender_info)});
     axios.post(apiUrl,{
         "order_number" : that.state.order_number ,
         "order_date" :  that.state.order_date,
@@ -467,19 +582,29 @@ class StoreOfficerHome extends React.Component {
   }
 
 
-  getall(event,role){
+  getall(event,type){
 
-  console.log(role);
   var that = this;
   that.setState({ open : !that.state.open });
-  var apiUrl= baseUrl + allVendorUrl;
+  let apiUrl = baseUrl;
+  if(type == "Vendor")
+  {
+    apiUrl += allVendorUrl;
+  }
+  else if(type = "Purchase_Order")
+  {
+    apiUrl += allPurchaseOrderUrl;
+  }
 
   console.log(apiUrl);
   axios.get(apiUrl)
   .then( response => {
     console.log(response);
-    if(response.status == 200){
+    if(response.status == 200 && type == "Vendor"){
       that.setState({ getall : response.data , length : response.data.length  , flag :2});
+    }
+    else if(response.status == 200 && type == "Purchase_Order"){
+      that.setState({ getall : response.data , length : response.data.length  , flag :5});
     }
     //);
   })
@@ -490,23 +615,37 @@ class StoreOfficerHome extends React.Component {
 
   }
 
-  singlerowHandler(i) {
+  singlerowHandler(i,type) {
     var cells = [];
-    cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
-    cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
-    cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
-    cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
-    cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+    if(type == "Vendor")
+    {
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+    }
+    else if(type == "Purchase_Order")
+    {
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_number}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_date}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{"Specification : "+this.state.getall[i].itemdetails["specification"]} <br/> {"Quantity_rate : "+this.state.getall[i].itemdetails["quantity_rate"]} <br/> {"Duties_charges : "+this.state.getall[i].itemdetails["duties_charges"]} <br/> {"Delivery_date : "+this.state.getall[i].itemdetails["delivery_date"]}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{"Tender_number : "+this.state.getall[i].tender_info["tender_no"]} <br/> {"Tender_type : "+ this.state.getall[i].tender_info["tender_type"]} <br/> {"Opened_on : "+this.state.getall[i].tender_info["opened_on"]}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{"Code : "+this.state.getall[i].vendor_info["code"]} <br/> {"Email : "+this.state.getall[i].vendor_info["email"]} <br/> {"Address : "+this.state.getall[i].vendor_info["address"]}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_no}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_date}</CustomTableCell>)
+
+    }
 
     return <TableRow>{cells}</TableRow>
   }
-  rowsHandler()
+  rowsHandler(type)
   {
     var cells = [];
     var i;
     for(i=0; i<this.state.getall.length ;i++)
     {
-      cells.push(this.singlerowHandler(i))
+      cells.push(this.singlerowHandler(i,type))
     }
     return <TableBody>{cells}</TableBody>;
   }
@@ -519,7 +658,9 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    width : '1000px',
+    height :'1000px'
   },
   innerContainerStyle: {
     display: 'flex',
@@ -530,7 +671,7 @@ const styles = {
     borderRadius: 25,
     margin: 70,
     padding: 30,
-    width : '300px',
+    width : '900px',
     height :'950px'
   },
   buttonStyle: {
