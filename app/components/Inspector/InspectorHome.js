@@ -12,7 +12,7 @@ import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl, inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl } from './../../config/url';
+import { baseUrl, allPurchaseOrderUrl , inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl } from './../../config/url';
 
 
 import Table from '@material-ui/core/Table';
@@ -65,6 +65,7 @@ const CustomTableCell = withStyles(theme => ({
   },
 }))(TableCell);
 
+
 class InspectorHome extends React.Component {
 
   constructor(props) {
@@ -82,9 +83,19 @@ class InspectorHome extends React.Component {
     open : false ,
     order_number : '' ,
     order_date : '' ,
-    itemdetails : '' ,
-    vendor_info : '' ,
-    tender_info : '' ,
+    itemdetails : {} ,
+    specification:  '',
+    quantity_rate:  '',
+    duties_charges: '',
+    delivery_date:  '',
+    vendor_info : {} ,
+    code:     '',
+    email :   '',
+    address : '',
+    tender_info : {} ,
+    tender_no:     '',
+    tender_type:   '',
+    opened_on :    '',
     offer_no : '' ,
     offer_date : '',
     flag : 0,
@@ -92,6 +103,7 @@ class InspectorHome extends React.Component {
     role : "Inspector"
   }
     this._toggle = this._toggle.bind(this);
+    this.updateState = this.updateState.bind(this);
   }
 
   _toggle(e) {
@@ -105,6 +117,14 @@ class InspectorHome extends React.Component {
     this.setState({open : status});
     console.log(status);
    }
+
+     updateState(event) {
+
+       const {name, value} = event.target;
+       let items = {...this.state.itemdetails, [name]: value};
+       this.setState({items});
+     }
+
 
   render() {
     return (
@@ -122,7 +142,7 @@ class InspectorHome extends React.Component {
          <Paper style={style.paper}>
              <Menu ref="Menu" disableAutoFocus={true}>
              <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
-             <MenuItem primaryText="All Purchase_Order" leftIcon={<RemoveRedEye />} />
+             <MenuItem primaryText="All Purchase_Order" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} }/>
              <Divider />
              <MenuItem primaryText="Intimate Vendor" leftIcon={<RemoveRedEye />} />
              <Divider />
@@ -154,12 +174,13 @@ class InspectorHome extends React.Component {
                </TableRow>
              </TableHead>
 
-             {this.rowsHandler()}
+             {this.rowsHandler("Vendor")}
 
 
           </Table>
           </div>
          : null }
+
 
          { this.state.flag == 3 ?
          <div style={styles.outerContainerStyle}>
@@ -225,6 +246,30 @@ class InspectorHome extends React.Component {
          </div>
          : null
        }
+
+       { this.state.flag == 5 ?
+
+        <div>
+        <Table style={style.tablediv}>
+          <TableHead>
+             <TableRow>
+               <CustomTableCell width="15%">Order_Number</CustomTableCell>
+               <CustomTableCell width="15%">Order_Date</CustomTableCell>
+               <CustomTableCell width="25%">Item_Details</CustomTableCell>
+               <CustomTableCell width="25%">Tender_Info</CustomTableCell>
+               <CustomTableCell width="25%">Vendor_Info</CustomTableCell>
+               <CustomTableCell width="15%">Offer_No</CustomTableCell>
+               <CustomTableCell width="15%">Offer_Date</CustomTableCell>
+             </TableRow>
+           </TableHead>
+
+           {this.rowsHandler("Purchase_Order")}
+
+
+        </Table>
+        </div>
+       : null }
+
           </div>
         </MuiThemeProvider>
       </div>
@@ -280,19 +325,29 @@ class InspectorHome extends React.Component {
     });
   }
 
-  getall(event,role){
+  getall(event,type){
 
-  console.log(role);
   var that = this;
   that.setState({ open : !that.state.open });
-  var apiUrl= baseUrl + allVendorUrl;
+  let apiUrl = baseUrl;
+  if(type == "Vendor")
+  {
+    apiUrl += allVendorUrl;
+  }
+  else if(type = "Purchase_Order")
+  {
+    apiUrl += allPurchaseOrderUrl;
+  }
 
   console.log(apiUrl);
   axios.get(apiUrl)
   .then( response => {
     console.log(response);
-    if(response.status == 200){
+    if(response.status == 200 && type == "Vendor"){
       that.setState({ getall : response.data , length : response.data.length  , flag :2});
+    }
+    else if(response.status == 200 && type == "Purchase_Order"){
+      that.setState({ getall : response.data , length : response.data.length  , flag :5});
     }
     //);
   })
@@ -303,27 +358,40 @@ class InspectorHome extends React.Component {
 
   }
 
-  singlerowHandler(i) {
+  singlerowHandler(i,type) {
     var cells = [];
-    cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
-    cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
-    cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
-    cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
-    cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+    if(type == "Vendor")
+    {
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+    }
+    else if(type == "Purchase_Order")
+    {
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_number}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_date}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{"Specification : "+this.state.getall[i].itemdetails["specification"]} <br/> {"Quantity_rate : "+this.state.getall[i].itemdetails["quantity_rate"]} <br/> {"Duties_charges : "+this.state.getall[i].itemdetails["duties_charges"]} <br/> {"Delivery_date : "+this.state.getall[i].itemdetails["delivery_date"]}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{"Tender_number : "+this.state.getall[i].tender_info["tender_no"]} <br/> {"Tender_type : "+ this.state.getall[i].tender_info["tender_type"]} <br/> {"Opened_on : "+this.state.getall[i].tender_info["opened_on"]}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{"Code : "+this.state.getall[i].vendor_info["code"]} <br/> {"Email : "+this.state.getall[i].vendor_info["email"]} <br/> {"Address : "+this.state.getall[i].vendor_info["address"]}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_no}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_date}</CustomTableCell>)
+
+    }
 
     return <TableRow>{cells}</TableRow>
   }
-  rowsHandler()
+  rowsHandler(type)
   {
     var cells = [];
     var i;
     for(i=0; i<this.state.getall.length ;i++)
     {
-      cells.push(this.singlerowHandler(i))
+      cells.push(this.singlerowHandler(i,type))
     }
     return <TableBody>{cells}</TableBody>;
   }
-
 
 }
 

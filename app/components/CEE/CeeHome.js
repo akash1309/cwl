@@ -115,7 +115,6 @@ _toggle(e) {
                   <MenuItem primaryText="All Store Officers" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"StoreOfficer")} } />
                   <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Inspector")} } />
                   <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
-                  <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />}  />
                   <Divider />
                   <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 2, open : !this.state.open }) }} />
                   <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} onClick={(event) => this.getPreviousInfo(event)} />
@@ -211,7 +210,7 @@ _toggle(e) {
               <div>
               <span className="glyphicon glyphicon-check" aria-hidden="true" />
               <TextField
-                hintText="Enter Dycee id"
+                hintText="Enter id"
                 floatingLabelText="Id"
                 value = {this.state._id}
                 style={{ marginLeft: 10 ,marginRight : 10, marginTop : 5}}
@@ -303,7 +302,7 @@ _toggle(e) {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, password : response.data.password, flag:3, open : !this.state.open});
+          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, password : response.data.password, flag:3, open : !that.state.open});
       }
       else if(response.status == 404) {
         alert("No CEE found with this id");
@@ -315,6 +314,8 @@ _toggle(e) {
   }
 
   updateInfo(event){
+
+    console.log("inside updateInfo");
 
     var that = this;
     var apiUrl = baseUrl + updateInfoUrl;
