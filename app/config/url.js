@@ -13,3 +13,4 @@ export const addVendorUrl ="/vendor/add/";
 export const inspectorUrl="/inspector/add/";
 export const getInfoUrl = "/user/";
 export const updateInfoUrl = '/updateinfo/';
+export const allPurchaseOrderUrl = '/purchaseorder/all/';
