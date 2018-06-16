@@ -12,7 +12,7 @@ import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl, allPurchaseOrderUrl , inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl } from './../../config/url';
+import { baseUrl, allPurchaseOrderUrl , inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl , allCorrigendumUrl, generateCorrigendumUrl } from './../../config/url';
 
 
 import Table from '@material-ui/core/Table';
@@ -100,7 +100,12 @@ class InspectorHome extends React.Component {
     offer_date : '',
     flag : 0,
     location : '',
-    role : "Inspector"
+    role : "Inspector",
+    corrigendum_number : '',
+    ic_id:            	 '',
+    ic_date :  			 '',
+    inspector_name :  	'',
+    inspector_mobile :	''
   }
     this._toggle = this._toggle.bind(this);
     this.updateState = this.updateState.bind(this);
@@ -147,7 +152,7 @@ class InspectorHome extends React.Component {
              <MenuItem primaryText="Intimate Vendor" leftIcon={<RemoveRedEye />} />
              <Divider />
              <MenuItem primaryText="Generate InspectionReport" leftIcon={<RemoveRedEye />} />
-             <MenuItem primaryText="Generate Corrigendum" leftIcon={<RemoveRedEye />} />
+             <MenuItem primaryText="Generate Corrigendum" leftIcon={<RemoveRedEye />} onClick={(event) => {this.setState( {flag : 9 , open : !this.state.open }) }}/>
              <Divider />
              <MenuItem primaryText="Upload Rejection Letter" leftIcon={<PersonAdd />} />
              <MenuItem primaryText="Upload I.C." leftIcon={<PersonAdd />} />
@@ -247,6 +252,69 @@ class InspectorHome extends React.Component {
          : null
        }
 
+       {
+         this.state.flag == 9 ?
+         <div>
+           <MuiThemeProvider>
+             <div>
+               <div style={styles.outerContainerStyle}>
+                 <div style={styles.innerContainerStyle}>
+                 <TextField
+                   hintText="Corrigendum_number"
+                   floatingLabelText="Corrigendum_number"
+                   onChange = {(event,newValue) => this.setState({corrigendum_number:newValue})}
+                 style={{ marginTop: 10 }}
+                 />
+                   <TextField
+                     hintText="Order_Number"
+                     floatingLabelText="Order_Number"
+                     onChange = {(event,newValue) => this.setState({order_number:newValue})}
+                     style={{ marginTop: 10 }}
+                   />
+                   <TextField
+                     hintText="Order_Date"
+                     floatingLabelText="Order_Date"
+                      onChange = {(event,newValue) => this.setState({order_date:newValue })}
+                     style={{ marginTop: 10 }}
+                   />
+                   <TextField
+                     hintText="I.C. id"
+                     floatingLabelText="I.C. id"
+                     onChange = {(event,newValue) => this.setState({ic_id:newValue})}
+                     style={{ marginTop: 10 }}
+                   />
+                   <TextField
+                     hintText="I.C. Date"
+                     floatingLabelText="I.C. Date"
+                     onChange = {(event,newValue) => this.setState({ic_date:newValue})}
+                     style={{ marginTop: 10 }}
+                   />
+                   <TextField
+                     hintText="Inspector Name"
+                     floatingLabelText="Inspector Name"
+                     onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
+                     style={{ marginTop: 10 }}
+                   />
+                   <TextField
+                     hintText="Inspector Mobile"
+                     floatingLabelText="Inspector Mobile"
+                     onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
+                     style={{ marginTop: 10 }}
+                   />
+
+                   <br/>
+                   <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.generateCorrigendum(event)}} />
+
+                 </div>
+               </div>
+             </div>
+           </MuiThemeProvider>
+         </div>
+       //  this.state.dycee = false
+
+                 : null
+       }
+
        { this.state.flag == 5 ?
 
         <div>
@@ -323,6 +391,32 @@ class InspectorHome extends React.Component {
       console.log(error.response);
       alert(error.response.data.message);
     });
+  }
+
+  generateCorrigendum(event){
+    var that=this;
+    var apiUrl=baseUrl + generateCorrigendumUrl;
+    axios.post(apiUrl,{
+        corrigendum_number : that.state.corrigendum_number,
+  	    order_number :   	 that.state.order_number,
+  	    order_date : 		 that.state.order_date,
+  	    ic_id:            	that.state.ic_id,
+  	    ic_date :  			 that.state.ic_date,
+  	    inspector_name :  	 that.state.inspector_name,
+  	    inspector_mobile :	 that.state.inspector_mobile
+    })
+   .then(response => {
+       if(response.status == 200){
+          alert("Corrigendum generated successfully!");
+         }
+         else if(response.status == 204) {
+           alert("Corrigendum is already present!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
+
   }
 
   getall(event,type){
