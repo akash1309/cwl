@@ -16,3 +16,5 @@ export const updateInfoUrl = '/updateinfo/';
 export const allPurchaseOrderUrl = '/purchaseorder/all/';
 export const addItemUrl = '/items/add/';
 export const allItemUrl = '/showItems/';
+export const allCorrigendumUrl ='/corrigendum/showCorrigendum/';
+export const generateCorrigendumUrl = '/corrigendum/generate/';
