@@ -20,15 +20,12 @@ class Login extends Component {
 
   constructor(props){
     super(props);
-    console.log("loginProps", props);
     this.state={
-      _id:'',
       mobile:'',
       password:'',
       confirmPassword:'',
       flag: -1,
-      role:'',
-      _id : ''
+      role:''
     }
   };
 
@@ -53,7 +50,7 @@ class Login extends Component {
 
                 {
                   this.state.flag == -1 ?
-                  <RaisedButton label="Next" primary={true} style={styles.buttonStyle} onClick={(event) => this.handleClick(event)}/>
+                  <RaisedButton label="Next" primary={true} style={styles.buttonStyle} onClick={(event) => this.isMobilePresent(event)}/>
                   : null
                 }
                 {
@@ -67,7 +64,7 @@ class Login extends Component {
                       style={{ marginTop: -10 }}
                     />
                     <br/>
-                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} onClick={(event) => {this.handleLogin(event)}} />
+                    <RaisedButton label="Login" primary={true} style={styles.buttonStyle} onClick={(event) => {this.checkLogin(event)}} />
                   </div>
                   : null
                 }
@@ -102,70 +99,69 @@ class Login extends Component {
     );
   }
 
-  handleClick(event){
+  isMobilePresent(event){
 
     var that = this;
     var apiUrl = baseUrl + validateUrl + this.state.mobile;
 
     axios.get(apiUrl)
     .then(function (response) {
-  //    console.log(response);
+      console.log(response);
       if(response.status == 200){
-        that.setState({ flag: response.data.flag , role: response.data.role, _id : response.data._id });
+        var userInfo = {
+          role: response.data.role,
+          userId: response.data._id
+        };
+        localStorage.setItem('userInfo', JSON.stringify(userInfo));
+        that.setState({ flag: response.data.flag , role: response.data.role });
       }
     })
     .catch(function (error) {
-    //  console.log(error.response);
       alert(error.response.data.message);
     });
 
   }
 
-  handleLogin(event){
+  checkLogin(event){
 
     var that = this;
     var apiUrl = baseUrl+loginUrl;
+
     axios.post(apiUrl,{
       "mobile" : this.state.mobile,
       "password" : this.state.password
     })
     .then(response => {
         if(response.status == 200) {
-          //console.log(response);
-          //console.log("ROle is"+this.state.role);
+
           if(this.state.role == "CEE")
           {
               this.props.history.push({
-                pathname : '/cee',
-                state : { _id : that.state._id }
+                pathname : '/cee'
               });
           }
           else if(this.state.role == "DyCEE")
           {
             this.props.history.push({
-              pathname : '/dycee',
-              state : {_id : that.state._id}
+              pathname : '/dycee'
             });
           }
           else if(this.state.role == "Inspector")
           {
             this.props.history.push({
-              pathname : '/inspector',
-              state : {_id : that.state._id}
+              pathname : '/inspector'
             });
           }
           else if(this.state.role == "Vendor")
           {
             this.props.history.push({
-              pathname : '/vendor',
-              state : {_id : that.state._id}
+              pathname : '/vendor'
             });
           }
           else if(this.state.role == "StoreOfficer")
           {
             this.props.history.push({
-              pathname : '/storeofficer',
-              state : {_id : that.state._id}
+              pathname : '/storeofficer'
             });
           }
 
@@ -206,36 +202,31 @@ class Login extends Component {
           if(this.state.role == "CEE")
           {
             this.props.history.push({
-              pathname : '/cee',
-              state : { _id : that.state._id }
+              pathname : '/cee'
             });
           }
           else if(this.state.role == "DyCEE")
           {
             this.props.history.push({
-              pathname : '/dycee',
-              state : {_id : that.state._id}
+              pathname : '/dycee'
             });
           }
           else if(this.state.role == "Inspector")
           {
             this.props.history.push({
-              pathname : '/inspector',
-              state : {_id : that.state._id}
+              pathname : '/inspector'
             });
           }
           else if(this.state.role == "Vendor")
           {
             this.props.history.push({
-              pathname : '/vendor',
-              state : {_id : that.state._id}
+              pathname : '/vendor'
             });
           }
           else if(this.state.role == "StoreOfficer")
           {
             this.props.history.push({
-              pathname : '/storeofficer',
-              state : {_id : that.state._id}
+              pathname : '/storeofficer'
             });
           }
 
