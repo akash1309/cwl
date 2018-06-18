@@ -7,6 +7,9 @@ module.exports = {
     mode: 'production',
     performance: { hints: false },
     entry: ['./app/index.js'],
+    resolve: {
+      extensions: ['*', '.js', '.jsx'],
+    },
     output: {
         path: path.join(__dirname, 'build'),
         filename: 'bundle.js'
