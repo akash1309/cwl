@@ -6,7 +6,7 @@ import MenuItem from 'material-ui/MenuItem';
 import Divider from 'material-ui/Divider';
 import {Glyphicon} from 'react-bootstrap';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl ,addItemUrl , allItemUrl , allInspectorUrl } from './../../config/url';
+import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl ,addItemUrl , allItemUrl , allInspectorUrl , icGenerateUrl , allIcUrl} from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -92,7 +92,15 @@ class DyCeeHome extends React.Component {
       role : "DyCEE",
       model_number : '',
       name  :       '',
-      quantity:      ''
+      quantity:      '',
+      quantity_offered:   '',
+  	  quantity_approved:  '',
+  	  location_of_seal :  '',
+  	  ic_id:              '',
+  	  inspection_date :   '',
+  	  ic_signed_on :	    '',
+  	  inspector_name :    '',
+  	  inspector_mobile:	  ''
 
     }
     this._toggle = this._toggle.bind(this);
@@ -122,14 +130,15 @@ class DyCeeHome extends React.Component {
         <MuiThemeProvider>
           <div>
             <AppBar title="DyCEE Home"/>
-             
+
               <DyCeePalette
                 onClickItems={(event) => this.getall(event,"AllItems")}
                 onClickVendors={(event) => this.getall(event,"Vendor")}
                 onClickInspectors={(event) => this.getall(event,"Inspector")}
+                onClickInspectors={(event) => this.getall(event,"IC")}
                 onClickAddInspector={(event) => this.setState({flag : 1})}
                 onClickPurchaseOrder={(event) => this.getall(event,"Purchase_Order")}
-                onClickIC={(event) => this.getall(event,"AllItems")}
+                onClickIC={(event) => this.setState({flag :4})}
                 onClickCorrigendum={(event) => this.getall(event,"AllItems")}
                 onClickApprovalLetter={(event) => this.getall(event,"AllItems")}
                 onClickProfile={(event) => this.getPreviousInfo(event)}
@@ -297,6 +306,107 @@ class DyCeeHome extends React.Component {
           </div>
           : null
         }
+        { this.state.flag == 10 ?
+
+         <div>
+         <Table style={style.tablediv}>
+           <TableHead>
+              <TableRow>
+                <CustomTableCell width="25%">Order_Number</CustomTableCell>
+                <CustomTableCell width="15%">Quantity_offered</CustomTableCell>
+                <CustomTableCell width="15%">Quantity_approved</CustomTableCell>
+                <CustomTableCell width="25%">Location_of_seal</CustomTableCell>
+                <CustomTableCell width="15%">IC_id</CustomTableCell>
+                <CustomTableCell width="15%">Inspection_date</CustomTableCell>
+                <CustomTableCell width="15%">IC_signed_on</CustomTableCell>
+                <CustomTableCell width="25%">Inspector_name</CustomTableCell>
+                <CustomTableCell width="15%">Inspector_mobile</CustomTableCell>
+
+              </TableRow>
+            </TableHead>
+
+            {this.rowsHandler("IC")}
+
+
+         </Table>
+         </div>
+        : null }
+        { this.state.flag == 4 ?
+        <div style={styless.outerContainerStyle}>
+          <div style={styless.innerContainerStyle}>
+
+          <div>
+          <TextField
+            hintText="Order_Number"
+            floatingLabelText="Order_Number"
+            onChange = {(event,newValue) => this.setState({order_number:newValue})}
+            style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          />
+          </div>
+          <div>
+          <TextField
+            hintText="Quantity_offered"
+            floatingLabelText="Quantity_offered"
+            onChange = {(event,newValue) => this.setState({quantity_offered:newValue})}
+            style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
+          /></div>
+          <div>
+          <TextField
+            hintText="Quantity_approved"
+            floatingLabelText="Quantity_approved"
+            onChange = {(event,newValue) => this.setState({quantity_approved:newValue})}
+            style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          /></div>
+          <div>
+          <TextField
+            hintText="Location_of_seal"
+            floatingLabelText="Location_of_seal"
+            onChange = {(event,newValue) => this.setState({location_of_seal:newValue})}
+            style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          /></div>
+          <div>
+          <TextField
+            hintText="IC id"
+            floatingLabelText="IC id"
+            onChange = {(event,newValue) => this.setState({ic_id:newValue})}
+            style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          />
+          </div>
+          <div>
+          <TextField
+            hintText="Inspection Date"
+            floatingLabelText="Inspection Date"
+            onChange = {(event,newValue) => this.setState({inspection_date:newValue})}
+            style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
+          /></div>
+          <div>
+          <TextField
+            hintText="IC Signed On"
+            floatingLabelText="IC Signed On"
+            onChange = {(event,newValue) => this.setState({ic_signed_on:newValue})}
+            style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          /></div>
+          <div>
+          <TextField
+            hintText="Inspector Name"
+            floatingLabelText="Inspector Name"
+            onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
+            style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          /></div>
+          <div>
+          <TextField
+            hintText="Inspector Mobile"
+            floatingLabelText="Inspector Mobile"
+            onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
+            style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+          /></div>
+          <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => this.createIC(event)}/>
+
+          </div>
+        </div>
+        : null
+      }
+
 
         { this.state.flag == 5 ?
 
@@ -377,6 +487,38 @@ getPreviousInfo(event){
   })
 }
 
+createIC(event){
+  var that = this;
+  var apiUrl = baseUrl + icGenerateUrl;
+
+  axios.post(apiUrl, {
+     "order_number" :      that.state.order_number,
+ 	  "quantity_offered":   that.state.quantity_offered,
+ 	  "quantity_approved":  that.state.quantity_approved,
+ 	  "location_of_seal" :  that.state.location_of_seal,
+ 	  "ic_id" :              that.state.ic_id,
+ 	  "inspection_date" :   that.state.inspection_date,
+ 	  "ic_signed_on" :	   that.state.ic_signed_on,
+ 	  "inspector_name" :    that.state.inspector_name,
+ 	  "inspector_mobile" :	  that.state.inspector_mobile
+
+  })
+  .then(function (response) {
+    console.log(response);
+    if(response.status == 200){
+      alert("IC generated successfully");
+    }
+    else if(response.status == 204) {
+      alert("IC already present!");
+    }
+  })
+  .catch(function (error) {
+    console.log(error.response);
+
+    alert(error.response.data.message);
+  });
+}
+
 updateInfo(event){
 
   var that = this;
@@ -427,6 +569,10 @@ else if(type == "Inspector")
 {
   apiUrl += allInspectorUrl;
 }
+else if(type == "IC")
+{
+  apiUrl += allIcUrl;
+}
 
 console.log(apiUrl);
 axios.get(apiUrl)
@@ -443,8 +589,11 @@ axios.get(apiUrl)
   }
   else if(response.status == 200 && type == "Inspector"){
     that.setState({ getall : response.data , length : response.data.length  , flag :8});
+  }
+  else if(response.status == 200 && type == "IC"){
+    that.setState({ getall : response.data , length : response.data.length  , flag :10});
+  }
 
-}
 })
 .catch(error => {
   console.log(error.response);
@@ -487,6 +636,19 @@ singlerowHandler(i,type) {
     cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
     cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
     cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+  }
+  else if(type == "IC")
+  {
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].order_number}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].quantity_offered}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].quantity_approved}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].location_of_seal}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].ic_id}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].inspection_date}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].ic_signed_on}</CustomTableCell>)
+    cells.push(<CustomTableCell width="25%">{this.state.getall[i].inspector_name}</CustomTableCell>)
+    cells.push(<CustomTableCell width="15%">{this.state.getall[i].inspector_mobile}</CustomTableCell>)
+
   }
 
   return <TableRow>{cells}</TableRow>
@@ -534,6 +696,42 @@ const styles = {
     margin: 50,
     padding: 30,
     height : '600px',
+    width : '500px'
+  },
+  buttonStyle: {
+    margin: 30
+  }
+};
+
+const styless = {
+  outerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  innerContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    margin: 50,
+    padding: 30,
+    height : '800px',
+    width : '500px'
+  },
+  innerContainerStyleUpdate: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    margin: 50,
+    padding: 30,
+    height : '900px',
     width : '500px'
   },
   buttonStyle: {
