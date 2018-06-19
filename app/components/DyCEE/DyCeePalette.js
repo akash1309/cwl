@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import * as MaterialIcon from 'react-icons/lib/md';
-import * as FaIcon from 'react-icons/lib/fa';
 
 
 export default class DyCeePalette extends React.Component {
@@ -11,7 +10,7 @@ export default class DyCeePalette extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px'}}>
+      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height: '100%'}}>
 
         <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
           <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
@@ -39,7 +38,7 @@ export default class DyCeePalette extends React.Component {
 
         <a onClick={this.props.onClickPurchaseOrder} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Purchase_Order</span>
+          <span style={styles.textStyle}>Purchase Orders</span>
         </a>
         <div style={styles.dividerStyle}/>
 
