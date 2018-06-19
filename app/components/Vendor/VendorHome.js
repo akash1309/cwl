@@ -12,7 +12,7 @@ import Download from 'material-ui/svg-icons/file/file-download';
 import Delete from 'material-ui/svg-icons/action/delete';
 import FontIcon from 'material-ui/FontIcon';
 import { withStyles } from '@material-ui/core/styles';
-import { baseUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl , addItemUrl , allItemUrl } from './../../config/url';
+import { baseUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl , addItemUrl , allItemUrl , allIcUrl } from './../../config/url';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -73,7 +73,6 @@ class VendorHome extends React.Component {
     this.state = {
       getall : [],
       length : 0,
-      _id : props.location.state._id,
       name : '',
       email : '',
       mobile : '',
@@ -103,7 +102,15 @@ class VendorHome extends React.Component {
       role : "Vendor",
       model_number : '',
       name  :       '',
-      quantity:      ''
+      quantity:      '',
+      quantity_offered:   '',
+  	  quantity_approved:  '',
+  	  location_of_seal :  '',
+  	  ic_id:              '',
+  	  inspection_date :   '',
+  	  ic_signed_on :	    '',
+  	  inspector_name :    '',
+  	  inspector_mobile:	  ''
     }
     this._toggle = this._toggle.bind(this);
   }
@@ -119,6 +126,12 @@ class VendorHome extends React.Component {
     this.setState({open : status});
     console.log(status);
    }
+
+   componentDidMount(){
+     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+     this.setState({_id: userInfo.userId});
+   }
+
 
   render() {
     return (
@@ -138,7 +151,7 @@ class VendorHome extends React.Component {
               <MenuItem primaryText="All Orders" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} } />
               <MenuItem primaryText="All Inspection_Calls" leftIcon={<RemoveRedEye />}  />
                <Divider />
-               <MenuItem primaryText="I.C." leftIcon={<RemoveRedEye />} />
+               <MenuItem primaryText="I.C." leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"IC")} } />
                <MenuItem primaryText="Request for Amendment" leftIcon={<RemoveRedEye />}  />
               <Divider />
               <MenuItem primaryText="Update My_Infomation" leftIcon={<ContentLink />} onClick={(event) => this.getPreviousInfo(event)}/>
@@ -211,6 +224,32 @@ class VendorHome extends React.Component {
       </div>
       : null
     }
+
+    { this.state.flag == 10 ?
+
+     <div>
+     <Table style={style.tablediv}>
+       <TableHead>
+          <TableRow>
+            <CustomTableCell width="25%">Order_Number</CustomTableCell>
+            <CustomTableCell width="15%">Quantity_offered</CustomTableCell>
+            <CustomTableCell width="15%">Quantity_approved</CustomTableCell>
+            <CustomTableCell width="25%">Location_of_seal</CustomTableCell>
+            <CustomTableCell width="15%">IC_id</CustomTableCell>
+            <CustomTableCell width="15%">Inspection_date</CustomTableCell>
+            <CustomTableCell width="15%">IC_signed_on</CustomTableCell>
+            <CustomTableCell width="25%">Inspector_name</CustomTableCell>
+            <CustomTableCell width="15%">Inspector_mobile</CustomTableCell>
+
+          </TableRow>
+        </TableHead>
+
+        {this.rowsHandler("IC")}
+
+
+     </Table>
+     </div>
+    : null }
 
     { this.state.flag == 6 ?
 
@@ -323,6 +362,10 @@ class VendorHome extends React.Component {
   {
     apiUrl += allItemUrl;
   }
+  else if(type == "IC")
+  {
+    apiUrl += allIcUrl;
+  }
 
   console.log(apiUrl);
   axios.get(apiUrl)
@@ -333,6 +376,9 @@ class VendorHome extends React.Component {
     }
     else if(response.status == 200 && type == "AllItems"){
       that.setState({ getall : response.data , length : response.data.length  , flag :6});
+    }
+    else if(response.status == 200 && type == "IC"){
+      that.setState({ getall : response.data , length : response.data.length  , flag :10});
     }
     //);
   })
@@ -361,6 +407,19 @@ class VendorHome extends React.Component {
       cells.push(<CustomTableCell width="25%">{this.state.getall[i].model_number}</CustomTableCell>)
       cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
       cells.push(<CustomTableCell width="25%">{this.state.getall[i].quantity}</CustomTableCell>)
+    }
+    else if(type == "IC")
+    {
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].order_number}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].quantity_offered}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].quantity_approved}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].location_of_seal}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].ic_id}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].inspection_date}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].ic_signed_on}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].inspector_name}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].inspector_mobile}</CustomTableCell>)
+
     }
 
     return <TableRow>{cells}</TableRow>

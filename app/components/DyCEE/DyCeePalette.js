@@ -15,19 +15,25 @@ export default class DyCeePalette extends React.Component {
 
         <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
           <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
+          <span style={styles.textStyle}>Show Items</span>
         </a>
         <div style={styles.dividerStyle}/>
 
         <a onClick={this.props.onClickVendors} style={styles.innerContainerStyle}>
           <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Vendors</span>
+          <span style={styles.textStyle}>Show Vendors</span>
         </a>
         <div style={styles.dividerStyle}/>
 
         <a onClick={this.props.onClickInspectors} style={styles.innerContainerStyle}>
           <MaterialIcon.MdPeople size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Inspectors</span>
+          <span style={styles.textStyle}>Show Inspectors</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
+        <a onClick={this.props.onClickInspectors} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdPeople size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Show ICs</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -45,7 +51,7 @@ export default class DyCeePalette extends React.Component {
 
         <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
           <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>I.C.</span>
+          <span style={styles.textStyle}>Create I.C.</span>
         </a>
         <div style={styles.dividerStyle}/>
 

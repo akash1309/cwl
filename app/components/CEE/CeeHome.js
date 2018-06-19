@@ -75,12 +75,9 @@ class CeeHome extends React.Component {
       email : '',
       mobile : '',
       location : '',
-      role : "DyCEE",
-      _id : this.props.location.state._id
+      role : "DyCEE"
     }
     this._toggle = this._toggle.bind(this);
-    //this.getall = this.getall.bind(this);
-  //  this.rowsHandler = this.rowsHandler.bind(this);
   };
 
 _toggle(e) {
@@ -94,6 +91,12 @@ _toggle(e) {
   this.setState({open : status});
   console.log(status);
  }
+
+ componentDidMount(){
+   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+   this.setState({_id: userInfo.userId});
+ }
+
 
   render() {
     return (

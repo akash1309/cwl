@@ -107,7 +107,6 @@ class InspectorHome extends React.Component {
     inspector_mobile :	''
   }
     this._toggle = this._toggle.bind(this);
-    this.updateState = this.updateState.bind(this);
   }
 
   _toggle(e) {
@@ -122,12 +121,6 @@ class InspectorHome extends React.Component {
     console.log(status);
    }
 
-     updateState(event) {
-
-       const {name, value} = event.target;
-       let items = {...this.state.itemdetails, [name]: value};
-       this.setState({items});
-     }
 
    componentDidMount(){
      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -151,6 +144,8 @@ class InspectorHome extends React.Component {
              <Menu ref="Menu" disableAutoFocus={true}>
              <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
              <MenuItem primaryText="All Purchase_Order" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} }/>
+             <MenuItem primaryText="All Corrigendum" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Corrigendum")} }/>
+
              <Divider />
              <MenuItem primaryText="Intimate Vendor" leftIcon={<RemoveRedEye />} />
              <Divider />
@@ -167,6 +162,29 @@ class InspectorHome extends React.Component {
          </Paper>
          : null
          }
+
+         { this.state.flag == 10 ?
+
+          <div>
+          <Table style={style.tablediv}>
+            <TableHead>
+               <TableRow>
+                 <CustomTableCell width="25%">Corrigendum_number</CustomTableCell>
+                 <CustomTableCell width="15%">Order_Number</CustomTableCell>
+                 <CustomTableCell width="15%">Order_Date</CustomTableCell>
+                 <CustomTableCell width="25%">IC id</CustomTableCell>
+                 <CustomTableCell width="25%">IC Date</CustomTableCell>
+                 <CustomTableCell width="25%">Inspector Name</CustomTableCell>
+                 <CustomTableCell width="15%">Inspector Mobile</CustomTableCell>
+               </TableRow>
+             </TableHead>
+
+             {this.rowsHandler("Corrigendum")}
+
+
+          </Table>
+          </div>
+         : null }
 
          { this.state.flag == 2 ?
 
@@ -341,6 +359,8 @@ class InspectorHome extends React.Component {
         </div>
        : null }
 
+
+
           </div>
         </MuiThemeProvider>
       </div>
@@ -431,9 +451,13 @@ class InspectorHome extends React.Component {
   {
     apiUrl += allVendorUrl;
   }
-  else if(type = "Purchase_Order")
+  else if(type == "Purchase_Order")
   {
     apiUrl += allPurchaseOrderUrl;
+  }
+  else if( type == "Corrigendum")
+  {
+    apiUrl += allCorrigendumUrl;
   }
 
   console.log(apiUrl);
@@ -445,6 +469,9 @@ class InspectorHome extends React.Component {
     }
     else if(response.status == 200 && type == "Purchase_Order"){
       that.setState({ getall : response.data , length : response.data.length  , flag :5});
+    }
+    else if(response.status == 200 && type == "Corrigendum"){
+      that.setState({ getall : response.data , length : response.data.length  , flag :10});
     }
     //);
   })
@@ -474,6 +501,17 @@ class InspectorHome extends React.Component {
       cells.push(<CustomTableCell width="25%">{"Code : "+this.state.getall[i].vendor_info["code"]} <br/> {"Email : "+this.state.getall[i].vendor_info["email"]} <br/> {"Address : "+this.state.getall[i].vendor_info["address"]}</CustomTableCell>)
       cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_no}</CustomTableCell>)
       cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_date}</CustomTableCell>)
+
+    }
+    else if(type == "Corrigendum")
+    {
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].corrigendum_number}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_number}</CustomTableCell>)
+      cells.push(<CustomTableCell width="25%">{this.state.getall[i].order_date}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].ic_id}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].ic_date}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].inspector_name}</CustomTableCell>)
+      cells.push(<CustomTableCell width="15%">{this.state.getall[i].inspector_mobile}</CustomTableCell>)
 
     }
 

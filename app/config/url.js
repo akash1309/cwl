@@ -18,3 +18,5 @@ export const addItemUrl = '/items/add/';
 export const allItemUrl = '/showItems/';
 export const allCorrigendumUrl ='/corrigendum/showCorrigendum/';
 export const generateCorrigendumUrl = '/corrigendum/generate/';
+export const icGenerateUrl = '/ic/generate/';
+export const allIcUrl = '/showIC/';
