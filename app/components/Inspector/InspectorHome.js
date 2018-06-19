@@ -73,7 +73,6 @@ class InspectorHome extends React.Component {
     this.state = {
     getall : [],
     length : 0,
-    _id : props.location.state._id,
     name : '',
     email : '',
     mobile : '',
@@ -130,6 +129,10 @@ class InspectorHome extends React.Component {
        this.setState({items});
      }
 
+   componentDidMount(){
+     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+     this.setState({_id: userInfo.userId});
+   }
 
   render() {
     return (
