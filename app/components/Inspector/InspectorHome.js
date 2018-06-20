@@ -104,59 +104,70 @@ export default class InspectorHome extends Component {
     return(
       <div style={styles.outerContainerStyle}>
         <div style={styles.innerContainerStyle}>
-          <div>
-            <MaterialIcon.MdPerson size={styles.iconSize} />
-            <TextField
-              hintText="Enter name"
-              floatingLabelText="Name"
-              value = {this.state.name}
-              onChange = {(event,newValue) => this.setState({name:newValue})}
-              style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-            />
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Enter name"
+                floatingLabelText="Name"
+                value = {this.state.name}
+                onChange = {(event,newValue) => this.setState({name:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLockOpen size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Enter password"
+                floatingLabelText="Password"
+                value = {this.state.password}
+                onChange = {(event,newValue) => this.setState({password:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Enter mobile number"
+                floatingLabelText="Mobile Number"
+                value = {this.state.mobile}
+                onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
           </div>
-          <div>
-            <MaterialIcon.MdLockOpen size={styles.iconSize} />
-            <TextField
-              hintText="Enter password"
-              floatingLabelText="Password"
-              value = {this.state.password}
-              onChange = {(event,newValue) => this.setState({password:newValue})}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdPhoneIphone size={styles.iconSize} />
-            <TextField
-              hintText="Enter mobile number"
-              floatingLabelText="Mobile Number"
-              value = {this.state.mobile}
-              onChange = {(event,newValue) => this.setState({mobile:newValue})}
-              style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdMail size={styles.iconSize} />
-            <TextField
-              hintText="Enter email"
-              floatingLabelText="Email"
-              value = {this.state.email}
-              onChange = {(event,newValue) => this.setState({email:newValue})}
-              style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdLocationOn size={styles.iconSize} />
-            <TextField
-              hintText="Enter location"
-              floatingLabelText="Location"
-              value = {this.state.location}
-              onChange = {(event,newValue) => this.setState({location:newValue})}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <RaisedButton label="UPDATE" primary={true} style={styles.buttonStyle} onClick={(event) => this.updateInfo(event)}/>
 
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Enter email"
+                floatingLabelText="Email"
+                value = {this.state.email}
+                onChange = {(event,newValue) => this.setState({email:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Enter location"
+                floatingLabelText="Location"
+                value = {this.state.location}
+                onChange = {(event,newValue) => this.setState({location:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+          </div>
         </div>
+
+        <RaisedButton
+          label="UPDATE"
+          primary={true}
+          style={styles.buttonStyle}
+          onClick={(event) => this.updateInfo(event)}
+        />
+
       </div>
     );
   }
@@ -166,76 +177,83 @@ export default class InspectorHome extends Component {
     return(
       <div style={styles.outerContainerStyle}>
         <div style={styles.innerContainerStyle}>
-          <div>
-            <MaterialIcon.MdDescription size={styles.iconSize} />
-            <TextField
-              hintText="Corrigendum Number"
-              floatingLabelText="Corrigendum Number"
-              onChange = {(event,newValue) => this.setState({corrigendum_number:newValue})}
-              style={styles.textFieldStyle}
-            />
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Corrigendum Number"
+                floatingLabelText="Corrigendum Number"
+                onChange = {(event,newValue) => this.setState({corrigendum_number:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Order Number"
+                floatingLabelText="Order Number"
+                onChange = {(event,newValue) => this.setState({order_number:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Order Date"
+                floatingLabelText="Order Date"
+                onChange = {(event,newValue) => this.setState({order_date:newValue })}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="I.C. id"
+                floatingLabelText="I.C. id"
+                onChange = {(event,newValue) => this.setState({ic_id:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
           </div>
-          <div>
-            <MaterialIcon.MdChromeReaderMode size={styles.iconSize} />
-            <TextField
-              hintText="Order Number"
-              floatingLabelText="Order Number"
-              onChange = {(event,newValue) => this.setState({order_number:newValue})}
-              style={styles.textFieldStyle}
-            />
+
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="I.C. Date"
+                floatingLabelText="I.C. Date"
+                onChange = {(event,newValue) => this.setState({ic_date:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Inspector Name"
+                floatingLabelText="Inspector Name"
+                onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Inspector Mobile"
+                floatingLabelText="Inspector Mobile"
+                onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
           </div>
-          <div>
-            <MaterialIcon.MdDateRange size={styles.iconSize} />
-            <TextField
-              hintText="Order Date"
-              floatingLabelText="Order Date"
-              onChange = {(event,newValue) => this.setState({order_date:newValue })}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdReceipt size={styles.iconSize} />
-            <TextField
-              hintText="I.C. id"
-              floatingLabelText="I.C. id"
-              onChange = {(event,newValue) => this.setState({ic_id:newValue})}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdDateRange size={styles.iconSize} />
-            <TextField
-              hintText="I.C. Date"
-              floatingLabelText="I.C. Date"
-              onChange = {(event,newValue) => this.setState({ic_date:newValue})}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdPerson size={styles.iconSize} />
-            <TextField
-              hintText="Inspector Name"
-              floatingLabelText="Inspector Name"
-              onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <div>
-            <MaterialIcon.MdPhoneIphone size={styles.iconSize} />
-            <TextField
-              hintText="Inspector Mobile"
-              floatingLabelText="Inspector Mobile"
-              onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
-              style={styles.textFieldStyle}
-            />
-          </div>
-          <RaisedButton
-            label="ADD"
-            primary={true} 
-            style={styles.buttonStyle}
-            onClick={(event) => {this.generateCorrigendum(event)}}
-          />
         </div>
+
+        <RaisedButton
+          label="ADD"
+          primary={true}
+          style={styles.buttonStyle}
+          onClick={(event) => {this.generateCorrigendum(event)}}
+        />
+
       </div>
     );
   }
@@ -421,17 +439,19 @@ const styles = {
   },
   innerContainerStyle: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    border: '2px solid #00BCD4',
-    borderRadius: 20,
     margin: 20,
-    padding: 20,
     width : '80%'
   },
+  childContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 20,
+    padding: 20
+  },
   buttonStyle: {
-    margin: 30
+    margin: 0
   },
   itemHeaderContainer: {
     display : 'flex',
@@ -492,6 +512,16 @@ const styles = {
   textFieldStyle: {
     marginLeft: 10,
     marginRight: 10,
-    marginTop: 2
+    marginTop: -10
+  },
+  textCellStyle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems : 'center',
+    justifyContent: 'center',
+    marginTop: 10
+  },
+  iconStyle: {
+    marginTop: 18
   }
 };
