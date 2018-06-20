@@ -16,7 +16,7 @@ export default class InspectorHome extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      getall : [],
+      responseDataArray : [],
       name : '',
       email : '',
       mobile : '',
@@ -25,7 +25,6 @@ export default class InspectorHome extends Component {
       flag : -1,
       order_number : '' ,
       order_date : '' ,
-      role : "Inspector",
       corrigendum_number : '',
       ic_id:            	 '',
       ic_date :  			 '',
@@ -35,9 +34,9 @@ export default class InspectorHome extends Component {
   }
 
   componentDidMount(){
-     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-     this.setState({_id: userInfo.userId});
-   }
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.setState({_id: userInfo.userId, role: userInfo.role});
+  }
 
   render() {
     return (
@@ -48,229 +47,25 @@ export default class InspectorHome extends Component {
 
           <div style={{ display: 'flex', flexDirection: 'row'}}>
 
-              <InspectorPalette
-                onClickVendors = {() => this.getall(this,"Vendor")}
-                onClickPurchaseOrders = {() => this.getall(this,"Purchase_Order")}
-                onClickIntimateVendor = {() => this.getall(this,"Vendor")}
-                onClickInspectionReport = {() => this.getall(this,"Vendor")}
-                onClickCorrigendum = {() => this.setState( {flag : 3}) }
-                onClickUploadIC = {() => this.getall(this,"Vendor")}
-                onClickUploadCorrigendum = {() => this.getall(this,"Vendor")}
-                onClickUploadRejectionLetter = {() => this.getall(this,"Vendor")}
-                onClickProfile = {() => this.getPreviousInfo(this)}
-              />
+            <InspectorPalette
+              onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
+              onClickIntimateVendor = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickInspectionReport = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickCorrigendum = {() => this.setState( {flag : 3}) }
+              onClickUploadIC = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickUploadCorrigendum = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickUploadRejectionLetter = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickProfile = {() => this.getProfileInfo(this)}
+            />
 
-              { this.state.flag == 1 ?
+            { this.showVendors() }
 
-                  <div style={{flex : 1}}>
-                    <div style={styles.itemHeaderContainer}>
-                      <span style={styles.textCellContainer}>Name</span>
-                      <span style={styles.textCellContainer}>Email</span>
-                      <span style={styles.textCellContainer}>Mobile</span>
-                      <span style={styles.textCellContainer}>Location</span>
-                    </div>
-                    {
-                      this.state.getall.map((member,key) => {
-                        return (
-                          <div style={styles.itemContainer}>
-                            <span style={styles.textCellContainer}>{member.name}</span>
-                            <span style={styles.textCellContainer}>{member.email}</span>
-                            <span style={styles.textCellContainer}>{member.mobile}</span>
-                            <span style={styles.textCellContainer}>{member.location}</span>
-                          </div>
-                        )
-                      })
-                    }
-                  </div>
-                : null
+            { this.showPurchaseOrders() }
 
-              }
+            { this.addCorrigendum() }
 
-              { this.state.flag == 2 ?
-
-                  <div style={styles.outerContainerStyle}>
-                    <div style={styles.innerContainerStyle}>
-                      <div>
-                        <MaterialIcon.MdPerson size={styles.iconSize} />
-                        <TextField
-                          hintText="Enter name"
-                          floatingLabelText="Name"
-                          value = {this.state.name}
-                          onChange = {(event,newValue) => this.setState({name:newValue})}
-                          style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdLockOpen size={styles.iconSize} />
-                        <TextField
-                          hintText="Enter password"
-                          floatingLabelText="Password"
-                          value = {this.state.password}
-                          onChange = {(event,newValue) => this.setState({password:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdPhoneIphone size={styles.iconSize} />
-                        <TextField
-                          hintText="Enter mobile number"
-                          floatingLabelText="Mobile Number"
-                          value = {this.state.mobile}
-                          onChange = {(event,newValue) => this.setState({mobile:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdMail size={styles.iconSize} />
-                        <TextField
-                          hintText="Enter email"
-                          floatingLabelText="Email"
-                          value = {this.state.email}
-                          onChange = {(event,newValue) => this.setState({email:newValue})}
-                          style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdLocationOn size={styles.iconSize} />
-                        <TextField
-                          hintText="Enter location"
-                          floatingLabelText="Location"
-                          value = {this.state.location}
-                          onChange = {(event,newValue) => this.setState({location:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <RaisedButton label="UPDATE" primary={true} style={styles.buttonStyle} onClick={(event) => this.updateInfo(event)}/>
-
-                    </div>
-                  </div>
-                : null
-              }
-
-              { this.state.flag == 3 ?
-
-                  <div style={styles.outerContainerStyle}>
-                    <div style={styles.innerContainerStyle}>
-                      <div>
-                        <MaterialIcon.MdDescription size={styles.iconSize} />
-                        <TextField
-                          hintText="Corrigendum Number"
-                          floatingLabelText="Corrigendum Number"
-                          onChange = {(event,newValue) => this.setState({corrigendum_number:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdChromeReaderMode size={styles.iconSize} />
-                        <TextField
-                          hintText="Order Number"
-                          floatingLabelText="Order Number"
-                          onChange = {(event,newValue) => this.setState({order_number:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdDateRange size={styles.iconSize} />
-                        <TextField
-                          hintText="Order Date"
-                          floatingLabelText="Order Date"
-                          onChange = {(event,newValue) => this.setState({order_date:newValue })}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdReceipt size={styles.iconSize} />
-                        <TextField
-                          hintText="I.C. id"
-                          floatingLabelText="I.C. id"
-                          onChange = {(event,newValue) => this.setState({ic_id:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdDateRange size={styles.iconSize} />
-                        <TextField
-                          hintText="I.C. Date"
-                          floatingLabelText="I.C. Date"
-                          onChange = {(event,newValue) => this.setState({ic_date:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdPerson size={styles.iconSize} />
-                        <TextField
-                          hintText="Inspector Name"
-                          floatingLabelText="Inspector Name"
-                          onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <div>
-                        <MaterialIcon.MdPhoneIphone size={styles.iconSize} />
-                        <TextField
-                          hintText="Inspector Mobile"
-                          floatingLabelText="Inspector Mobile"
-                          onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
-                          style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-                        />
-                      </div>
-                      <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.generateCorrigendum(event)}} />
-                    </div>
-                  </div>
-
-                : null
-              }
-
-              { this.state.flag == 5 ?
-
-                  <div style={{ flex:1 }}>
-                    {
-                      this.state.getall.map((member,key) => {
-                        return (
-                          <div style = {styles.purchaseOrderContainer}>
-
-                            <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
-                            <div style={styles.dividerStyle}/>
-
-                            <div style={{display:'flex', flexDirection:'row'}}>
-
-                              <div style={styles.boxStyle}>
-                                <span style={styles.textStyle}>Order Details</span>
-                                <span style={styles.purchaseCell}>Order Date: {member.order_date}</span>
-                                <span style={styles.purchaseCell}>Offer No: {member.offer_no}</span>
-                                <span style={styles.purchaseCell}>Offer Date: {member.offer_date}</span>
-                              </div>
-
-                              <div style={styles.boxStyle}>
-                                <span style={styles.textStyle}>Item Details</span>
-                                <span style={styles.purchaseCell}>Specification: {member.itemdetails.specification}</span>
-                                <span style={styles.purchaseCell}>Quantity Rate: {member.itemdetails.quantity_rate}</span>
-                                <span style={styles.purchaseCell}>Duties Charges: {member.itemdetails.duties_charges}</span>
-                                <span style={styles.purchaseCell}>Delivery Date: {member.itemdetails.delivery_date}</span>
-                              </div>
-
-                              <div style={styles.boxStyle}>
-                                <span style={styles.textStyle}>Vendor Details</span>
-                                <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
-                                <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
-                                <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
-                              </div>
-
-                              <div style={styles.boxStyle}>
-                                <span style={styles.textStyle}>Tender Details</span>
-                                <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
-                                <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
-                                <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
-                              </div>
-
-                            </div>
-                          </div>
-                        )
-                      })
-                    }
-                  </div>
-                : null
-              }
+            { this.showProfile() }
 
           </div>
         </MuiThemeProvider>
@@ -278,7 +73,226 @@ export default class InspectorHome extends Component {
     );
   }
 
-  getPreviousInfo(event){
+  showVendors = () => {
+    if(this.state.flag == 1)
+    return(
+      <div style={{flex : 1}}>
+        <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>Name</span>
+          <span style={styles.textCellContainer}>Email</span>
+          <span style={styles.textCellContainer}>Mobile</span>
+          <span style={styles.textCellContainer}>Location</span>
+        </div>
+        {
+          this.state.responseDataArray.map((member,key) => {
+            return (
+              <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{member.name}</span>
+                <span style={styles.textCellContainer}>{member.email}</span>
+                <span style={styles.textCellContainer}>{member.mobile}</span>
+                <span style={styles.textCellContainer}>{member.location}</span>
+              </div>
+            )
+          })
+        }
+      </div>
+    );
+  }
+
+  showProfile = () => {
+    if(this.state.flag == 2)
+    return(
+      <div style={styles.outerContainerStyle}>
+        <div style={styles.innerContainerStyle}>
+          <div>
+            <MaterialIcon.MdPerson size={styles.iconSize} />
+            <TextField
+              hintText="Enter name"
+              floatingLabelText="Name"
+              value = {this.state.name}
+              onChange = {(event,newValue) => this.setState({name:newValue})}
+              style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdLockOpen size={styles.iconSize} />
+            <TextField
+              hintText="Enter password"
+              floatingLabelText="Password"
+              value = {this.state.password}
+              onChange = {(event,newValue) => this.setState({password:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdPhoneIphone size={styles.iconSize} />
+            <TextField
+              hintText="Enter mobile number"
+              floatingLabelText="Mobile Number"
+              value = {this.state.mobile}
+              onChange = {(event,newValue) => this.setState({mobile:newValue})}
+              style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdMail size={styles.iconSize} />
+            <TextField
+              hintText="Enter email"
+              floatingLabelText="Email"
+              value = {this.state.email}
+              onChange = {(event,newValue) => this.setState({email:newValue})}
+              style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdLocationOn size={styles.iconSize} />
+            <TextField
+              hintText="Enter location"
+              floatingLabelText="Location"
+              value = {this.state.location}
+              onChange = {(event,newValue) => this.setState({location:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <RaisedButton label="UPDATE" primary={true} style={styles.buttonStyle} onClick={(event) => this.updateInfo(event)}/>
+
+        </div>
+      </div>
+    );
+  }
+
+  addCorrigendum = () => {
+    if(this.state.flag == 3)
+    return(
+      <div style={styles.outerContainerStyle}>
+        <div style={styles.innerContainerStyle}>
+          <div>
+            <MaterialIcon.MdDescription size={styles.iconSize} />
+            <TextField
+              hintText="Corrigendum Number"
+              floatingLabelText="Corrigendum Number"
+              onChange = {(event,newValue) => this.setState({corrigendum_number:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdChromeReaderMode size={styles.iconSize} />
+            <TextField
+              hintText="Order Number"
+              floatingLabelText="Order Number"
+              onChange = {(event,newValue) => this.setState({order_number:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdDateRange size={styles.iconSize} />
+            <TextField
+              hintText="Order Date"
+              floatingLabelText="Order Date"
+              onChange = {(event,newValue) => this.setState({order_date:newValue })}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdReceipt size={styles.iconSize} />
+            <TextField
+              hintText="I.C. id"
+              floatingLabelText="I.C. id"
+              onChange = {(event,newValue) => this.setState({ic_id:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdDateRange size={styles.iconSize} />
+            <TextField
+              hintText="I.C. Date"
+              floatingLabelText="I.C. Date"
+              onChange = {(event,newValue) => this.setState({ic_date:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdPerson size={styles.iconSize} />
+            <TextField
+              hintText="Inspector Name"
+              floatingLabelText="Inspector Name"
+              onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div>
+            <MaterialIcon.MdPhoneIphone size={styles.iconSize} />
+            <TextField
+              hintText="Inspector Mobile"
+              floatingLabelText="Inspector Mobile"
+              onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <RaisedButton
+            label="ADD"
+            primary={true} 
+            style={styles.buttonStyle}
+            onClick={(event) => {this.generateCorrigendum(event)}}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  showPurchaseOrders = () => {
+    if(this.state.flag == 5)
+    return(
+      <div style={{ flex:1 }}>
+        {
+          this.state.responseDataArray.map((member,key) => {
+            return (
+              <div style = {styles.purchaseOrderContainer}>
+
+                <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                <div style={styles.dividerStyle}/>
+
+                <div style={{display:'flex', flexDirection:'row'}}>
+
+                  <div style={styles.boxStyle}>
+                    <span style={styles.textStyle}>Order Details</span>
+                    <span style={styles.purchaseCell}>Order Date: {member.order_date}</span>
+                    <span style={styles.purchaseCell}>Offer No: {member.offer_no}</span>
+                    <span style={styles.purchaseCell}>Offer Date: {member.offer_date}</span>
+                  </div>
+
+                  <div style={styles.boxStyle}>
+                    <span style={styles.textStyle}>Item Details</span>
+                    <span style={styles.purchaseCell}>Specification: {member.itemdetails.specification}</span>
+                    <span style={styles.purchaseCell}>Quantity Rate: {member.itemdetails.quantity_rate}</span>
+                    <span style={styles.purchaseCell}>Duties Charges: {member.itemdetails.duties_charges}</span>
+                    <span style={styles.purchaseCell}>Delivery Date: {member.itemdetails.delivery_date}</span>
+                  </div>
+
+                  <div style={styles.boxStyle}>
+                    <span style={styles.textStyle}>Vendor Details</span>
+                    <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
+                    <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
+                    <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
+                  </div>
+
+                  <div style={styles.boxStyle}>
+                    <span style={styles.textStyle}>Tender Details</span>
+                    <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
+                    <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
+                    <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
+                  </div>
+
+                </div>
+              </div>
+            )
+          })
+        }
+      </div>
+    );
+  }
+
+  getProfileInfo(event){
 
     var that = this;
     var apiUrl = baseUrl + getInfoUrl + that.state._id;
@@ -287,15 +301,22 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, location : response.data.location, password : response.data.password, flag:2});
-          console.log(that.state.name);
+        that.setState({
+          name : response.data.name ,
+          email : response.data.email,
+          mobile : response.data.mobile,
+          location : response.data.location,
+          password : response.data.password,
+          flag:2
+        });
+        console.log(that.state.name);
       }
       else if(response.status == 404) {
         alert("No Inspector found with this id");
       }
     })
     .catch(function (error) {
-        alert(error.response.data.message);
+      alert(error.response.data.message);
     })
   }
 
@@ -303,8 +324,7 @@ export default class InspectorHome extends Component {
 
     var that = this;
     var apiUrl = baseUrl + updateInfoUrl;
-
-    axios.post(apiUrl,{
+    var body = {
       "_id" : that.state._id,
       "name" : that.state.name,
       "mobile" : that.state.mobile,
@@ -312,7 +332,9 @@ export default class InspectorHome extends Component {
       "password" : that.state.password,
       "role" : that.state.role,
       "location" : that.state.location
-    })
+    };
+
+    axios.post(apiUrl,body)
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -329,18 +351,21 @@ export default class InspectorHome extends Component {
   }
 
   generateCorrigendum(event){
-    var that=this;
-    var apiUrl=baseUrl + generateCorrigendumUrl;
-    axios.post(apiUrl,{
-        corrigendum_number : that.state.corrigendum_number,
-  	    order_number :   	 that.state.order_number,
-  	    order_date : 		 that.state.order_date,
-  	    ic_id:            	that.state.ic_id,
-  	    ic_date :  			 that.state.ic_date,
-  	    inspector_name :  	 that.state.inspector_name,
-  	    inspector_mobile :	 that.state.inspector_mobile
-    })
-   .then(response => {
+
+    var that = this;
+    var apiUrl = baseUrl + generateCorrigendumUrl;
+    var body = {
+      corrigendum_number : that.state.corrigendum_number,
+	    order_number :   	 that.state.order_number,
+	    order_date : 		 that.state.order_date,
+	    ic_id:            	that.state.ic_id,
+	    ic_date :  			 that.state.ic_date,
+	    inspector_name :  	 that.state.inspector_name,
+	    inspector_mobile :	 that.state.inspector_mobile
+    };
+
+    axios.post(apiUrl,body)
+    .then(response => {
        if(response.status == 200){
           alert("Corrigendum generated successfully!");
          }
@@ -354,34 +379,33 @@ export default class InspectorHome extends Component {
 
   }
 
-  getall(event,type){
+  fetchAllEntities(event,type){
 
-  var that = this;
-  let apiUrl = baseUrl;
-  if(type == "Vendor")
-  {
-    apiUrl += allVendorUrl;
-  }
-  else if(type = "Purchase_Order")
-  {
-    apiUrl += allPurchaseOrderUrl;
-  }
+    var that = this;
+    let apiUrl = baseUrl;
 
-  console.log(apiUrl);
-  axios.get(apiUrl)
-  .then( response => {
-    console.log(response);
-    if(response.status == 200 && type == "Vendor"){
-      that.setState({ getall : response.data , flag :1});
+    if(type == "Vendor"){
+      apiUrl += allVendorUrl;
     }
-    else if(response.status == 200 && type == "Purchase_Order"){
-      that.setState({ getall : response.data , flag :5});
+    else if(type = "Purchase_Order"){
+      apiUrl += allPurchaseOrderUrl;
     }
-  })
-  .catch(error => {
-    console.log(error.response);
-    alert(error.response.data.message);
-  });
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      if(response.status == 200 && type == "Vendor"){
+        that.setState({ responseDataArray : response.data , flag : 1});
+      }
+      else if(response.status == 200 && type == "Purchase_Order"){
+        that.setState({ responseDataArray : response.data , flag : 5});
+      }
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
 
   }
 
@@ -464,5 +488,10 @@ const styles = {
     backgroundColor: '#d1ccc0',
     margin: '4px'
   },
-  iconSize: 18
+  iconSize: 18,
+  textFieldStyle: {
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 2
+  }
 };
