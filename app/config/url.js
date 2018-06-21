@@ -20,3 +20,5 @@ export const allCorrigendumUrl ='/corrigendum/showCorrigendum/';
 export const generateCorrigendumUrl = '/corrigendum/generate/';
 export const icGenerateUrl = '/ic/generate/';
 export const allIcUrl = '/showIC/';
+export const allIrUrl = '/showIR/';
+export const addInspectionReportUrl = '/irStatus/set/';

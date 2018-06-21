@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import * as MaterialIcon from 'react-icons/lib/md';
 
-
-export default class InspectorPalette extends React.Component {
+export default class VendorPalette extends Component {
 
   constructor(props) {
     super(props);
@@ -12,9 +11,9 @@ export default class InspectorPalette extends React.Component {
     return (
       <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100%'}}>
 
-        <a onClick={this.props.onClickVendors} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Vendors</span>
+        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Items</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -24,21 +23,21 @@ export default class InspectorPalette extends React.Component {
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickIntimateVendor} style={styles.innerContainerStyle}>
+        <a onClick={this.props.onClickInspectionCalls} style={styles.innerContainerStyle}>
           <MaterialIcon.MdContactMail size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Intimate Vendor</span>
+          <span style={styles.textStyle}>Inspection Calls</span>
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickInspectionReport} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdFeaturedPlayList size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Genarate InspectionReport</span>
+        <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Inspection Certificate</span>
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickCorrigendum} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Genarate Corrigendum</span>
+        <a onClick={this.props.onClickAmendmentRequest} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdEdit size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Amendment Request</span>
         </a>
         <div style={styles.dividerStyle}/>
 

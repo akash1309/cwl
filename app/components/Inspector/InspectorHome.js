@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { baseUrl, allPurchaseOrderUrl , inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl , allCorrigendumUrl, generateCorrigendumUrl } from './../../config/url';
+import { baseUrl, allPurchaseOrderUrl , inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl , allCorrigendumUrl, generateCorrigendumUrl , addInspectionReportUrl } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
 import axios from 'axios';
@@ -51,11 +51,8 @@ export default class InspectorHome extends Component {
               onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
               onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
               onClickIntimateVendor = {() => this.fetchAllEntities(this,"Vendor")}
-              onClickInspectionReport = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickInspectionReport = {() => this.setState( {flag : 4}) }
               onClickCorrigendum = {() => this.setState( {flag : 3}) }
-              onClickUploadIC = {() => this.fetchAllEntities(this,"Vendor")}
-              onClickUploadCorrigendum = {() => this.fetchAllEntities(this,"Vendor")}
-              onClickUploadRejectionLetter = {() => this.fetchAllEntities(this,"Vendor")}
               onClickProfile = {() => this.getProfileInfo(this)}
             />
 
@@ -66,6 +63,8 @@ export default class InspectorHome extends Component {
             { this.addCorrigendum() }
 
             { this.showProfile() }
+
+            {this.addInspectionReport()}
 
           </div>
         </MuiThemeProvider>
@@ -258,6 +257,54 @@ export default class InspectorHome extends Component {
     );
   }
 
+  addInspectionReport = () => {
+    if(this.state.flag == 4)
+    return(
+      <div style={styles.outerContainerStyle}>
+        <div style={styles.innerContainerStyle}>
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Order Number"
+                floatingLabelText="Order Number"
+                onChange = {(event,newValue) => this.setState({order_number:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="I.C. ID"
+                floatingLabelText="I.C. ID"
+                onChange = {(event,newValue) => this.setState({ic_id:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Approved/Rejected"
+                floatingLabelText="Status"
+                onChange = {(event,newValue) => this.setState({status:newValue })}
+                style={styles.textFieldStyle}
+              />
+            </div>
+
+          </div>
+          </div>
+
+        <RaisedButton
+          label="Generate"
+          primary={true}
+          style={styles.buttonStyle}
+          onClick={(event) => {this.generateInspectioReport(event)}}
+        />
+
+      </div>
+    );
+  }
+
   showPurchaseOrders = () => {
     if(this.state.flag == 5)
     return(
@@ -348,7 +395,7 @@ export default class InspectorHome extends Component {
       "mobile" : that.state.mobile,
       "email" : that.state.email,
       "password" : that.state.password,
-      "role" : that.state.role,
+      "role" : "Inspector",
       "location" : that.state.location
     };
 
@@ -389,6 +436,31 @@ export default class InspectorHome extends Component {
          }
          else if(response.status == 204) {
            alert("Corrigendum is already present!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
+
+  }
+
+  generateInspectioReport(event){
+
+    var that = this;
+    var apiUrl = baseUrl + addInspectionReportUrl;
+    var body = {
+	    order_number : that.state.order_number,
+	    ic_id:         that.state.ic_id,
+	    status :  	   that.state.status
+    };
+
+    axios.post(apiUrl,body)
+    .then(response => {
+       if(response.status == 200){
+          alert("Inspection_Report generated successfully!");
+         }
+         else if(response.status == 204) {
+           alert("Inspection_Report is already present!");
          }
       })
    .catch(error => {
