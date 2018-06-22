@@ -13,7 +13,9 @@ import {
   getInfoUrl,
   updateInfoUrl ,
   addItemUrl ,
-  allItemUrl
+  allItemUrl,
+  deletePOUrl,
+  deleteItemUrl
 } from './../../config/url';
 
 
@@ -83,8 +85,8 @@ export default class StoreOfficerHome extends React.Component {
                 onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
                 onClickAddVendor = {() => this.setState({flag:6})}
                 onClickAddItem = {() => this.setState({flag:7})}
-                onClickDeleteItem = {() => this.fetchAllEntities(this,"IC")}
-                onClickCancelPurchaseOrder = {() => this.fetchAllEntities(this,"IC")}
+                onClickDeleteItem = {() => this.setState({flag:8})}
+                onClickCancelPurchaseOrder = {() => this.setState( {flag : 9} )}
                 onClickProfile = {() => this.getProfileInfo(this)}
               />
 
@@ -457,11 +459,55 @@ export default class StoreOfficerHome extends React.Component {
   }
 
   deleteItem = () => {
+    if(this.state.flag == 8)
+    return (
+      <div style={styles.outerContainerStyle}>
+        <div style={styles.innerContainerStyle}>
+        <span style={styles.headingStyle}>Item Deletion</span>
 
+        <div style={styles.textCellStyle}>
+          <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+            <TextField
+              hintText="model_number"
+              floatingLabelText="model_number"
+              onChange = {(event,newValue) => this.setState({model_number:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <br/>
+          <div style={styles.textCellStyle}>
+            <RaisedButton label="DELETE" primary={true} style={styles.buttonStyle} onClick={(event) => {this.deleteItemFunc(event)}} />
+          </div>
+        </div>
+      </div>
+
+    );
   }
 
   cancelPurchaseOrder = () => {
+     if(this.state.flag == 9)
+     return (
+       <div style={styles.outerContainerStyle}>
+	       <div style={styles.innerContainerStyle}>
+         <span style={styles.headingStyle}>PO Cancellation</span>
+         
+         <div style={styles.textCellStyle}>
+           <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+             <TextField
+               hintText="Order_number"
+               floatingLabelText="Order_number"
+               onChange = {(event,newValue) => this.setState({order_number:newValue})}
+               style={styles.textFieldStyle}
+             />
+           </div>
+           <br/>
+           <div style={styles.textCellStyle}>
+             <RaisedButton label="Cancel" primary={true} style={styles.buttonStyle} onClick={(event) => {this.cancelPOFunc(event)}} />
+           </div>
+         </div>
+       </div>
 
+     );
   }
 
   showProfile = () => {
@@ -564,6 +610,45 @@ export default class StoreOfficerHome extends React.Component {
    });
 
   }
+
+ cancelPOFunc(event){
+   var that=this;
+   var apiUrl=baseUrl + deletePOUrl;
+   axios.post(apiUrl,{
+      "order_number" : that.state.order_number
+    })
+    .then(response => {
+      if(response.status == 200){
+         alert("Purchase Order cancelled successfully!");
+        }
+        else if(response.status == 404) {
+          alert("Purchase Order is not present!");
+        }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    })
+ }
+
+ deleteItemFunc(event){
+   var that=this;
+   var apiUrl=baseUrl + deleteItemUrl;
+   axios.post(apiUrl,{
+      "model_number" : that.state.model_number
+    })
+    .then(response => {
+      if(response.status == 200){
+         alert("Item deleted successfully!");
+        }
+        else if(response.status == 404) {
+          alert("Item is not present!");
+        }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    })
+ }
+
 
   addItemFunc(event){
     var that=this;
@@ -812,5 +897,14 @@ const styles = {
   },
   iconStyle: {
     marginTop: 18
+  },
+  headingStyle: {
+    textAlign : 'center',
+    width : '100%',
+    fontFamily: 'Montserrat',
+    fontSize: '22px',
+    marginTop : 10,
+    fontWeight: 'Bold',
+    color: '#006266'
   }
 };

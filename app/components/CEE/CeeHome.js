@@ -70,6 +70,7 @@ export default class CeeHome extends Component {
                 onClickIR = {() => this.fetchAllEntities(this,"AllIR")}
                 onClickCorrigendums = {() => this.fetchAllEntities(this,"Corrigendums")}
                 onClickProfile = {() => this.getProfileInfo(this)}
+              
               />
 
               { this.addDyCEE() }
@@ -647,5 +648,14 @@ const styles = {
   },
   iconStyle: {
     marginTop: 18
+  },
+  headingStyle: {
+    textAlign : 'center',
+    width : '100%',
+    fontFamily: 'Montserrat',
+    fontSize: '22px',
+    marginTop : 10,
+    fontWeight: 'Bold',
+    color: '#006266'
   }
 };

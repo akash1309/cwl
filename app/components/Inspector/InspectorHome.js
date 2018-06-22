@@ -595,5 +595,14 @@ const styles = {
   },
   iconStyle: {
     marginTop: 18
+  },
+  headingStyle: {
+    textAlign : 'center',
+    width : '100%',
+    fontFamily: 'Montserrat',
+    fontSize: '22px',
+    marginTop : 10,
+    fontWeight: 'Bold',
+    color: '#006266'
   }
 };

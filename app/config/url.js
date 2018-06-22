@@ -22,6 +22,8 @@ export const someStoreOfficerUrl="/storeofficer/some/";
 export const addPurchaseOrderUrl ="/purchaseorder/add/";
 export const allPurchaseOrderUrl = '/purchaseorder/all/';
 export const onePurchaseOrderUrl="/order/get/";
+export const deletePOUrl = '/deletePO/';
+
 
 ////////////////////////// VENDOR //////////////////////
 export const addVendorUrl ="/vendor/add/";
@@ -48,6 +50,8 @@ export const oneInspectionReportUrl = "/irStatus/get/:order_number/:ic_id/";
 export const addItemUrl = '/items/add/';
 export const allItemUrl = '/showItems/all/';
 export const oneItemUrl = '/showItems/one/';
+export const deleteItemUrl = '/deleteItem/';
+
 
 //////////////////// OTHERS /////////////////////
 export const validateUrl = "/validate/";
@@ -55,3 +59,4 @@ export const signupUrl = "/signUp/";
 export const loginUrl= "/login/";
 export const getInfoUrl = "/user/";
 export const updateInfoUrl = '/updateinfo/';
+export const deleteInfoUrl = '/deleteInfo/';
