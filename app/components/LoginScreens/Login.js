@@ -25,7 +25,8 @@ class Login extends Component {
       password:'',
       confirmPassword:'',
       flag: -1,
-      role:''
+      role:'',
+      _id : ''
     }
   };
 

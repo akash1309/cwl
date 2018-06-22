@@ -1,129 +1,71 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Paper from 'material-ui/Paper';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
-import RemoveRedEye from 'material-ui/svg-icons/image/remove-red-eye';
-import PersonAdd from 'material-ui/svg-icons/social/person-add';
-import ContentLink from 'material-ui/svg-icons/content/link';
-import Divider from 'material-ui/Divider';
-import ContentCopy from 'material-ui/svg-icons/content/content-copy';
-import Download from 'material-ui/svg-icons/file/file-download';
-import Delete from 'material-ui/svg-icons/action/delete';
-import FontIcon from 'material-ui/FontIcon';
-import { withStyles } from '@material-ui/core/styles';
-import { baseUrl ,  allVendorUrl ,addPurchaseOrderUrl ,addVendorUrl, allPurchaseOrderUrl, getInfoUrl, updateInfoUrl ,addItemUrl , allItemUrl } from './../../config/url';
-
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-
 import axios from 'axios';
+import * as MaterialIcon from 'react-icons/lib/md';
+import StoreOfficerPalette from './StoreOfficerPalette';
+
+import {
+  baseUrl ,
+  allVendorUrl ,
+  addPurchaseOrderUrl ,
+  addVendorUrl,
+  allPurchaseOrderUrl,
+  getInfoUrl,
+  updateInfoUrl ,
+  addItemUrl ,
+  allItemUrl,
+  deletePOUrl,
+  deleteItemUrl
+} from './../../config/url';
+
+
 import {
   AppBar,
   RaisedButton,
-  TextField,IconButton, SvgIcon,
+  TextField,
 } from 'material-ui';
 
-const GitHubIcon = (props) => (
-    <SvgIcon {...props}>
-        {<path
-            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>}
-    </SvgIcon>
-);
-
-
-const style = {
-  paper: {
-    display: 'inline-block',
-    float: 'left',
-    margin: '0 32px 16px 0',
-    position : 'absolute',
-    zIndex: '1'
-  },
-  rightIcon: {
-    textAlign: 'center',
-    lineHeight: '24px',
-  },
-  tablediv : {
-    margin: '5px 5px 5px 5px',
-  },
-  rowC : {
-    display : 'flex',
-    'flex-direction' : 'row'
-  },
-  row : {
-    display : 'flex',
-    'flex-direction' : 'column'
-  }
-};
-
-const CustomTableCell = withStyles(theme => ({
-  head: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-    fontSize : 14
-  },
-  body: {
-    fontSize: 14,
-  },
-}))(TableCell);
-
-class StoreOfficerHome extends React.Component {
+export default class StoreOfficerHome extends React.Component {
 
   constructor(props) {
     super(props);
+
     this.state = {
-    getall : [],
-    length : 0,
-    _id : props.location.state._id,
+    responseDataArray : [],
     name : '',
     email : '',
     mobile : '',
     location : '',
     password : '',
     flag : -1,
-    open : false ,
     order_number : '' ,
     order_date : '' ,
-    itemdetails : {} ,
+    itemdetails : {},
     specification:  '',
     quantity_rate:  '',
     duties_charges: '',
     delivery_date:  '',
-    vendor_info : {} ,
+    vendor_info: {},
     code:     '',
     email :   '',
     address : '',
-    tender_info : {} ,
+    tender_info: {},
     tender_no:     '',
     tender_type:   '',
     opened_on :    '',
     offer_no : '' ,
     offer_date : '',
-    flag : 0,
-    location : '',
     role : "Vendor",
     model_number : '',
-    name  :       '',
     quantity:      ''
    }
-   this._toggle = this._toggle.bind(this);
 
  };
 
- _toggle(e) {
-   var status = this.state.open;
-   if(status == false) {
-     status = true
-   }
-   else {
-     status = false
-   }
-   this.setState({open : status});
-   console.log(status);
+
+  componentDidMount(){
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.setState({_id: userInfo.userId});
   }
 
 
@@ -132,401 +74,34 @@ class StoreOfficerHome extends React.Component {
       <div>
         <MuiThemeProvider>
           <div>
-          <AppBar title="StoreOfficer Home" iconElementLeft={
-            <IconButton
-              onClick={ this._toggle } >
-              <GitHubIcon />
-              </IconButton>
-          } />
+            <AppBar title="StoreOfficer Home" width="50%" />
+            <div style={{ display: 'flex', flexDirection: 'row'}}>
 
-          { this.state.open == true ?
-         <Paper style={style.paper}>
-             <Menu ref="Menu" disableAutoFocus={true}>
-             <MenuItem primaryText="Place Purchase_Order" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.setState( {flag : 1 , open : !this.state.open }) }} />
-             <MenuItem primaryText="Intimate_DyCee" leftIcon={<RemoveRedEye />} />
-             <Divider />
-             <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
-             <MenuItem primaryText="All Items" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"AllItems")} }/>
-             <MenuItem primaryText="All Purchase Orders" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Purchase_Order")} }  />
-             <Divider />
-             <MenuItem primaryText="Add Vendor" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 3, open : !this.state.open }) }}/>
-             <MenuItem primaryText="Add Items" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 7, open : !this.state.open }) }}/>
-             <Divider />
-             <MenuItem primaryText="Delete Items" leftIcon={<Delete />} />
-             <MenuItem primaryText="Cancel Purchase_Order" leftIcon={<RemoveRedEye />} />
-             <Divider />
-             <MenuItem primaryText="Update My_Infomation" leftIcon={<ContentLink />} onClick={(event) => this.getPreviousInfo(event)}/>
+              <StoreOfficerPalette
+                onClickPlacePurchaseOrder = {() => this.setState({flag:1})}
+                onClickIntimateDycee = {() => this.fetchAllEntities(this,"Purchase_Order")}
+                onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
+                onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
+                onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
+                onClickAddVendor = {() => this.setState({flag:6})}
+                onClickAddItem = {() => this.setState({flag:7})}
+                onClickDeleteItem = {() => this.setState({flag:8})}
+                onClickCancelPurchaseOrder = {() => this.setState( {flag : 9} )}
+                onClickProfile = {() => this.getProfileInfo(this)}
+              />
 
-           </Menu>
-         </Paper>
-         : null
-         }
+              { this.placePurchaseOrder() }
+              { this.intimateDycee() }
+              { this.showVendors() }
+              { this.showItems() }
+              { this.showPurchaseOrders() }
+              { this.addVendor() }
+              { this.addItem() }
+              { this.deleteItem() }
+              { this.cancelPurchaseOrder() }
+              { this.showProfile() }
 
-         { this.state.flag == 2 ?
-
-          <div>
-          <Table style={style.tablediv}>
-            <TableHead>
-               <TableRow>
-                 <CustomTableCell width="25%">Id</CustomTableCell>
-                 <CustomTableCell width="15%">Name</CustomTableCell>
-                 <CustomTableCell width="25%">Email</CustomTableCell>
-                 <CustomTableCell width="15%">Mobile</CustomTableCell>
-                 <CustomTableCell width="15%">Location</CustomTableCell>
-               </TableRow>
-             </TableHead>
-
-             {this.rowsHandler("Vendor")}
-
-
-          </Table>
-          </div>
-         : null }
-
-
-          {
-             this.state.flag == 1 ?
-              <div>
-               <MuiThemeProvider>
-                 <div>
-                   <div style={styles.outerContainerStyle}>
-                     <div style={styles.innerContainerStyle}>
-                     <TextField
-                       hintText="storeofficer_id"
-                       floatingLabelText="storeofficer_id"
-                       value = {this.state._id}
-                       style={{ marginTop: 10 }}
-                     />
-
-
-                       <div style={style.rowC}>
-                         <div style={style.row}>
-                           <TextField
-                             hintText="Order_Number"
-                             floatingLabelText="Order_Number"
-                             onChange = {(event,newValue) => this.setState({order_number:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                           <TextField
-                             hintText="Order_Date"
-                             floatingLabelText="Order_Date"
-                             onChange = {(event,newValue) => this.setState({order_date:newValue})}
-                             style={{ marginTop: 10 }}
-                           />
-                         </div>
-                         <div style = {{marginLeft : 30}} >
-                           <TextField
-                             hintText="Item Specification"
-                             floatingLabelText="Specification"
-                             name="specification"
-                             multiLine={true}
-                             rows={3}
-                             rowsMax={5}
-                             onChange = {(event,newValue) => this.setState({specification:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                           <TextField
-                             hintText="Quantity/Rate"
-                             floatingLabelText="Quantity/Rate"
-                             onChange = {(event,newValue) => this.setState({quantity_rate:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                           <TextField
-                             hintText="Duties/Charges"
-                             floatingLabelText="Duties/Charges"
-                             onChange = {(event,newValue) => this.setState({duties_charges:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                           <TextField
-                             hintText="Delivery Date"
-                             floatingLabelText="Delivery Date"
-                             onChange = {(event,newValue) => this.setState({delivery_date:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                         </div>
-                       </div>
-
-                       <div style={style.rowC}>
-                         <div>
-                           <TextField
-                             hintText="Vendor code"
-                             floatingLabelText="Code"
-                             onChange = {(event,newValue) => this.setState({code:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                           <TextField
-                             hintText="Email"
-                             floatingLabelText="Email"
-                             onChange = {(event,newValue) => this.setState({email:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                           <TextField
-                             hintText="Address"
-                             floatingLabelText="Address"
-                             multiLine={true}
-                             rows={3}
-                             rowsMax={5}
-                             onChange = {(event,newValue) => this.setState({address:newValue })}
-                             style={{ marginTop: 10, marginRight : 30 }}
-                           />
-                         </div>
-                         <div>
-                         <TextField
-                           hintText="Tender number"
-                           floatingLabelText="Tender number"
-                           onChange = {(event,newValue) => this.setState({tender_no:newValue })}
-                           style={{ marginTop: 10 }}
-                         />
-                         <TextField
-                           hintText="Tender type"
-                           floatingLabelText="Tender type"
-                           onChange = {(event,newValue) => this.setState({tender_type:newValue })}
-                           style={{ marginTop: 10 }}
-                         />
-                         <TextField
-                           hintText="Opened on"
-                           floatingLabelText="Opened on"
-                           onChange = {(event,newValue) => this.setState({opened_on:newValue })}
-                           style={{ marginTop: 10 }}
-                         />
-                         </div>
-                       </div>
-
-                       <div style={style.rowC}>
-
-                           <TextField
-                             hintText="Offer_No"
-                             floatingLabelText="Offer_No"
-                             onChange = {(event,newValue) => this.setState({offer_no:newValue })}
-                             style={{ marginTop: 10 , marginRight : 30}}
-                           />
-                           <TextField
-                             hintText="Offer_Date"
-                             floatingLabelText="Offer_Date"
-                             onChange = {(event,newValue) => this.setState({offer_date:newValue })}
-                             style={{ marginTop: 10 }}
-                           />
-                       </div>
-
-                       <br/>
-                       <RaisedButton label="Place Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.place_order(event)}} />
-
-
-                     </div>
-                   </div>
-                 </div>
-               </MuiThemeProvider>
-             </div>
-
-
-                     : null
-           }
-
-           {
-             this.state.flag == 3 ?
-             <div>
-               <MuiThemeProvider>
-                 <div>
-                   <div style={styles.outerContainerStyle}>
-                     <div style={styles.innerContainerStyle}>
-                     <TextField
-                       hintText="storeofficer_id"
-                       floatingLabelText="storeofficer_id"
-                       value = { this.state._id }
-                       style={{ marginTop: 10 }}
-                     />
-                       <TextField
-                         hintText="Name"
-                         floatingLabelText="Name"
-                         errorText="This field is required"
-                         onChange = {(event,newValue) => this.setState({name:newValue})}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Email"
-                         floatingLabelText="Email"
-                         errorText="This field is required"
-                         onChange = {(event,newValue) => this.setState({email:newValue })}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Mobile"
-                         floatingLabelText="Mobile"
-                         errorText="This field is required"
-                         onChange = {(event,newValue) => this.setState({mobile:newValue})}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         hintText="Location"
-                         floatingLabelText="Location"
-                         errorText="This field is required"
-                         onChange = {(event,newValue) => this.setState({location:newValue})}
-                         style={{ marginTop: 10 }}
-                       />
-                       <TextField
-                         defaultValue= {this.state.role}
-                         style={{ marginTop: 10 }}
-                       />
-                       <br/>
-                       <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addVendor(event)}} />
-
-                     </div>
-                   </div>
-                 </div>
-               </MuiThemeProvider>
-             </div>
-           //  this.state.dycee = false
-
-                     : null
-           }
-
-           { this.state.flag == 4 ?
-           <div style={styles.outerContainerStyle}>
-             <div style={styles.innerContainerStyleUpdate}>
-             <div>
-             <span className="glyphicon glyphicon-check" aria-hidden="true" />
-             <TextField
-               hintText="Enter Dycee id"
-               floatingLabelText="Id"
-               value = {this.state._id}
-               style={{ marginLeft: 10 ,marginRight : 10, marginTop : 5}}
-             />
-             </div>
-             <div>
-             <span className="glyphicon glyphicon-user" aria-hidden="true" />
-             <TextField
-               hintText="Enter name"
-               floatingLabelText="Name"
-               value = {this.state.name}
-               onChange = {(event,newValue) => this.setState({name:newValue})}
-               style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-             />
-             </div>
-             <div>
-             <span className="glyphicon glyphicon-lock" aria-hidden="true" />
-             <TextField
-               hintText="Enter password"
-               floatingLabelText="Password"
-               value = {this.state.password}
-               onChange = {(event,newValue) => this.setState({password:newValue})}
-               style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-             /></div>
-             <div>
-             <span className="glyphicon glyphicon-phone" aria-hidden="true" />
-             <TextField
-               hintText="Enter mobile number"
-               floatingLabelText="Mobile Number"
-               value = {this.state.mobile}
-               onChange = {(event,newValue) => this.setState({mobile:newValue})}
-               style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
-             /></div>
-             <div>
-             <span className="glyphicon glyphicon-envelope" aria-hidden="true" />
-             <TextField
-               hintText="Enter email"
-               floatingLabelText="Email"
-               value = {this.state.email}
-               onChange = {(event,newValue) => this.setState({email:newValue})}
-               style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-             /></div>
-             <div>
-             <span className="glyphicon glyphicon-globe" aria-hidden="true" />
-             <TextField
-               hintText="Enter location"
-               floatingLabelText="Location"
-               value = {this.state.location}
-               onChange = {(event,newValue) => this.setState({location:newValue})}
-               style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-             /></div>
-             <RaisedButton label="UPDATE" primary={true} style={styles.buttonStyle} onClick={(event) => this.updateInfo(event)}/>
-
-             </div>
-           </div>
-           : null
-         }
-
-
-         { this.state.flag == 6 ?
-
-          <div>
-          <Table style={style.tablediv}>
-            <TableHead>
-               <TableRow>
-                 <CustomTableCell width="25%">Model_number</CustomTableCell>
-                 <CustomTableCell width="15%">Item Name</CustomTableCell>
-                 <CustomTableCell width="25%">Quantity</CustomTableCell>
-                 </TableRow>
-             </TableHead>
-
-             {this.rowsHandler("AllItems")}
-
-
-          </Table>
-          </div>
-         : null }
-
-
-         { this.state.flag == 5 ?
-
-          <div>
-          <Table style={style.tablediv}>
-            <TableHead>
-               <TableRow>
-                 <CustomTableCell width="15%">Order_Number</CustomTableCell>
-                 <CustomTableCell width="15%">Order_Date</CustomTableCell>
-                 <CustomTableCell width="25%">Item_Details</CustomTableCell>
-                 <CustomTableCell width="25%">Tender_Info</CustomTableCell>
-                 <CustomTableCell width="25%">Vendor_Info</CustomTableCell>
-                 <CustomTableCell width="15%">Offer_No</CustomTableCell>
-                 <CustomTableCell width="15%">Offer_Date</CustomTableCell>
-               </TableRow>
-             </TableHead>
-
-             {this.rowsHandler("Purchase_Order")}
-
-
-          </Table>
-          </div>
-         : null }
-
-         {
-           this.state.flag == 7 ?
-           <div>
-             <MuiThemeProvider>
-               <div>
-                 <div style={styles.outerContainerStyle}>
-                   <div style={styles.innerContainerStyle}>
-                     <TextField
-                       hintText="Model_number"
-                       floatingLabelText="Model_number"
-                       onChange = {(event,newValue) => this.setState({model_number:newValue})}
-                       style={{ marginTop: 10 }}
-                     />
-                     <TextField
-                       hintText="Name"
-                       floatingLabelText="Name"
-                       onChange = {(event,newValue) => this.setState({name:newValue })}
-                       style={{ marginTop: 10 }}
-                     />
-                     <TextField
-                       hintText="Quantity"
-                       floatingLabelText="Quantity"
-                       onChange = {(event,newValue) => this.setState({quantity:newValue})}
-                       style={{ marginTop: 10 }}
-                     />
-                     <br/>
-                     <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addItems(event)}} />
-
-                   </div>
-                 </div>
-               </div>
-             </MuiThemeProvider>
-           </div>
-         //  this.state.dycee = false
-
-                   : null
-         }
-
+            </div>
           </div>
         </MuiThemeProvider>
       </div>
@@ -534,7 +109,496 @@ class StoreOfficerHome extends React.Component {
     );
   }
 
-  addVendor(event){
+  placePurchaseOrder = () => {
+
+    if(this.state.flag == 1)
+      return (
+
+        <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Place Purchase Order</span>
+          <div style={styles.innerContainerStyle}>
+            <span style={styles.textLabel}>Order Details:</span>
+            <div style={{display : 'flex' , flexDirection:'row'}}>
+              <div style={styles.boxStyle}>
+                <TextField
+                  hintText="Order_Number"
+                  floatingLabelText="Order_Number"
+                  onChange = {(event,newValue) => this.setState({order_number:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.boxStyle}>
+                <TextField
+                  hintText="Order_Date"
+                  floatingLabelText="Order_Date"
+                  onChange = {(event,newValue) => this.setState({order_date:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+            </div>
+            <br/>
+            <div style={styles.dividerStyle}/>
+            <br/>
+            <span style={styles.textLabel}>Item Details:</span>
+            <div style={{display : 'flex' , flexDirection:'row'}}>
+              <div style={styles.boxStyle}>
+                <TextField
+                  hintText="Item Specification"
+                  floatingLabelText="Specification"
+                  name="specification"
+                  multiLine={true}
+                  rows={6}
+                  rowsMax={6}
+                  onChange = {(event,newValue) => this.setState({specification:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.boxStyle}>
+                <TextField
+                  hintText="Quantity/Rate"
+                  floatingLabelText="Quantity/Rate"
+                  onChange = {(event,newValue) => this.setState({quantity_rate:newValue })}
+                  style={styles.textFieldStyle}
+                />
+                <TextField
+                  hintText="Duties/Charges"
+                  floatingLabelText="Duties/Charges"
+                  onChange = {(event,newValue) => this.setState({duties_charges:newValue })}
+                  style={styles.textFieldStyle}
+                />
+                <TextField
+                  hintText="Delivery Date"
+                  floatingLabelText="Delivery Date"
+                  onChange = {(event,newValue) => this.setState({delivery_date:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+            </div>
+            <br/>
+            <div style={styles.dividerStyle}/>
+            <br/>
+            <div style={{display : 'flex' , flexDirection:'row'}}>
+              <div style={styles.boxStyle}>
+                  <span style={styles.textLabel}>Vendor Details:</span>
+                  <TextField
+                    hintText="Vendor code"
+                    floatingLabelText="Code"
+                    onChange = {(event,newValue) => this.setState({code:newValue })}
+                    style={styles.textFieldStyle}
+                  />
+                  <TextField
+                    hintText="Email"
+                    floatingLabelText="Email"
+                    onChange = {(event,newValue) => this.setState({email:newValue })}
+                    style={styles.textFieldStyle}
+                  />
+                  <TextField
+                    hintText="Address"
+                    floatingLabelText="Address"
+                    multiLine={true}
+                    rows={3}
+                    rowsMax={5}
+                    onChange = {(event,newValue) => this.setState({address:newValue })}
+                    style={styles.textFieldStyle}
+                  />
+              </div>
+              <div style={styles.boxStyle}>
+                  <span style={styles.textLabel}>Tender Details:</span>
+                  <TextField
+                    hintText="Tender number"
+                    floatingLabelText="Tender number"
+                    onChange = {(event,newValue) => this.setState({tender_no:newValue })}
+                    style={styles.textFieldStyle}
+                  />
+                  <TextField
+                    hintText="Tender type"
+                    floatingLabelText="Tender type"
+                    onChange = {(event,newValue) => this.setState({tender_type:newValue })}
+                    style={styles.textFieldStyle}
+                  />
+                  <TextField
+                    hintText="Opened on"
+                    floatingLabelText="Opened on"
+                    onChange = {(event,newValue) => this.setState({opened_on:newValue })}
+                    style={styles.textFieldStyle}
+                  />
+              </div>
+            </div>
+            <br/>
+            <div style={styles.dividerStyle}/>
+            <br/>
+
+            <span style={styles.textLabel}>Offer Details:</span>
+            <div style={{display : 'flex' , flexDirection:'row'}}>
+              <div style={styles.boxStyle}>
+                <TextField
+                  hintText="Offer_No"
+                  floatingLabelText="Offer_No"
+                  onChange = {(event,newValue) => this.setState({offer_no:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.boxStyle}>
+                <TextField
+                  hintText="Offer_Date"
+                  floatingLabelText="Offer_Date"
+                  onChange = {(event,newValue) => this.setState({offer_date:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+            </div>
+            <div style={styles.textCellStyle}>
+            <RaisedButton label="Place Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.place_order(event)}} />
+            </div>
+          </div>
+        </div>
+
+      );
+  }
+
+  intimateDycee = () => {
+
+  }
+
+  showVendors = () => {
+
+    if(this.state.flag == 3)
+    return(
+      <div style={{flex : 1}}>
+        <div style = {styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>List of Vendors</span>
+        </div>
+        <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>Name</span>
+          <span style={styles.textCellContainer}>Email</span>
+          <span style={styles.textCellContainer}>Mobile</span>
+          <span style={styles.textCellContainer}>Location</span>
+        </div>
+        {
+          this.state.responseDataArray.map((member,key) => {
+            return (
+              <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{member.name}</span>
+                <span style={styles.textCellContainer}>{member.email}</span>
+                <span style={styles.textCellContainer}>{member.mobile}</span>
+                <span style={styles.textCellContainer}>{member.location}</span>
+              </div>
+            )
+          })
+        }
+      </div>
+    );
+
+  }
+
+  showItems = () => {
+
+    if(this.state.flag == 4)
+      return (
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Items</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Model_number</span>
+            <span style={styles.textCellContainer}>Item_Name</span>
+            <span style={styles.textCellContainer}>Quantity</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.model_number}</span>
+                  <span style={styles.textCellContainer}>{member.name}</span>
+                  <span style={styles.textCellContainer}>{member.quantity}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showPurchaseOrders = () => {
+
+    if(this.state.flag == 5)
+      return(
+        <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Purchase Orders</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style = {styles.purchaseOrderContainer}>
+
+                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <div style={styles.dividerStyle}/>
+
+                  <div style={{display:'flex', flexDirection:'row'}}>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Order Details</span>
+                      <span style={styles.purchaseCell}>Order Date: {member.order_date}</span>
+                      <span style={styles.purchaseCell}>Offer No: {member.offer_no}</span>
+                      <span style={styles.purchaseCell}>Offer Date: {member.offer_date}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Item Details</span>
+                      <span style={styles.purchaseCell}>Specification: {member.itemdetails.specification}</span>
+                      <span style={styles.purchaseCell}>Quantity Rate: {member.itemdetails.quantity_rate}</span>
+                      <span style={styles.purchaseCell}>Duties Charges: {member.itemdetails.duties_charges}</span>
+                      <span style={styles.purchaseCell}>Delivery Date: {member.itemdetails.delivery_date}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Vendor Details</span>
+                      <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
+                      <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
+                      <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Tender Details</span>
+                      <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
+                      <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
+                      <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
+                    </div>
+
+                  </div>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  addVendor = () => {
+    if(this.state.flag == 6)
+      return (
+        <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Vendor Panel</span>
+          <div style={styles.innerContainerStyle}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Name"
+                floatingLabelText="Name"
+                onChange = {(event,newValue) => this.setState({name:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Email"
+                floatingLabelText="Email"
+                onChange = {(event,newValue) => this.setState({email:newValue })}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Mobile"
+                floatingLabelText="Mobile"
+                onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Location"
+                floatingLabelText="Location"
+                onChange = {(event,newValue) => this.setState({location:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <br/>
+            <div style={styles.textCellStyle}>
+              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addVendorFunc(event)}} />
+            </div>
+          </div>
+        </div>
+      );
+  }
+
+  addItem = () => {
+
+    if(this.state.flag == 7)
+      return (
+        <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Item Addition</span>
+          <div style={styles.innerContainerStyle}>
+          <div style={styles.textCellStyle}>
+            <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Model_number"
+                floatingLabelText="Model_number"
+                onChange = {(event,newValue) => this.setState({model_number:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Name"
+                floatingLabelText="Name"
+                onChange = {(event,newValue) => this.setState({name:newValue })}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity"
+                floatingLabelText="Quantity"
+                onChange = {(event,newValue) => this.setState({quantity:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <br/>
+            <div style={styles.textCellStyle}>
+              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addItemFunc(event)}} />
+            </div>
+          </div>
+        </div>
+      );
+  }
+
+  deleteItem = () => {
+    if(this.state.flag == 8)
+    return (
+      <div style={styles.outerContainerStyle}>
+        <div style={styles.innerContainerStyle}>
+        <span style={styles.headingStyle}>Item Deletion</span>
+
+        <div style={styles.textCellStyle}>
+          <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+            <TextField
+              hintText="model_number"
+              floatingLabelText="model_number"
+              onChange = {(event,newValue) => this.setState({model_number:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <br/>
+          <div style={styles.textCellStyle}>
+            <RaisedButton label="DELETE" primary={true} style={styles.buttonStyle} onClick={(event) => {this.deleteItemFunc(event)}} />
+          </div>
+        </div>
+      </div>
+
+    );
+  }
+
+  cancelPurchaseOrder = () => {
+     if(this.state.flag == 9)
+     return (
+       <div style={styles.outerContainerStyle}>
+	       <div style={styles.innerContainerStyle}>
+         <span style={styles.headingStyle}>PO Cancellation</span>
+         
+         <div style={styles.textCellStyle}>
+           <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+             <TextField
+               hintText="Order_number"
+               floatingLabelText="Order_number"
+               onChange = {(event,newValue) => this.setState({order_number:newValue})}
+               style={styles.textFieldStyle}
+             />
+           </div>
+           <br/>
+           <div style={styles.textCellStyle}>
+             <RaisedButton label="Cancel" primary={true} style={styles.buttonStyle} onClick={(event) => {this.cancelPOFunc(event)}} />
+           </div>
+         </div>
+       </div>
+
+     );
+  }
+
+  showProfile = () => {
+
+    if(this.state.flag == 10 )
+    return (
+
+      <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>My Profile</span>
+        <div style={styles.innerContainerStyleUpdate}>
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+              <TextField
+                hintText="Enter name"
+                floatingLabelText="Name"
+                value = {this.state.name}
+                onChange = {(event,newValue) => this.setState({name:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLockOpen size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Enter password"
+                floatingLabelText="Password"
+                value = {this.state.password}
+                onChange = {(event,newValue) => this.setState({password:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Enter mobile number"
+                floatingLabelText="Mobile Number"
+                value = {this.state.mobile}
+                onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+          </div>
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Enter email"
+                floatingLabelText="Email"
+                value = {this.state.email}
+                onChange = {(event,newValue) => this.setState({email:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Enter location"
+                floatingLabelText="Location"
+                value = {this.state.location}
+                onChange = {(event,newValue) => this.setState({location:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+          </div>
+        </div>
+
+        <RaisedButton
+          label="UPDATE"
+          primary={true}
+          style={styles.buttonStyle}
+          onClick={(event) => this.updateInfo(event)}
+        />
+
+      </div>
+    );
+
+  }
+
+
+  addVendorFunc(event){
     var that=this;
     var apiUrl=baseUrl + addVendorUrl;
     axios.post(apiUrl,{
@@ -559,7 +623,46 @@ class StoreOfficerHome extends React.Component {
 
   }
 
-  addItems(event){
+ cancelPOFunc(event){
+   var that=this;
+   var apiUrl=baseUrl + deletePOUrl;
+   axios.post(apiUrl,{
+      "order_number" : that.state.order_number
+    })
+    .then(response => {
+      if(response.status == 200){
+         alert("Purchase Order cancelled successfully!");
+        }
+        else if(response.status == 404) {
+          alert("Purchase Order is not present!");
+        }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    })
+ }
+
+ deleteItemFunc(event){
+   var that=this;
+   var apiUrl=baseUrl + deleteItemUrl;
+   axios.post(apiUrl,{
+      "model_number" : that.state.model_number
+    })
+    .then(response => {
+      if(response.status == 200){
+         alert("Item deleted successfully!");
+        }
+        else if(response.status == 404) {
+          alert("Item is not present!");
+        }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    })
+ }
+
+
+  addItemFunc(event){
     var that=this;
     var apiUrl=baseUrl + addItemUrl;
     axios.post(apiUrl,{
@@ -615,7 +718,7 @@ class StoreOfficerHome extends React.Component {
 
   }
 
-  getPreviousInfo(event){
+  getProfileInfo(event){
 
     var that = this;
     var apiUrl = baseUrl + getInfoUrl + that.state._id;
@@ -624,7 +727,7 @@ class StoreOfficerHome extends React.Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, location : response.data.location, password : response.data.password, flag:4});
+          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, location : response.data.location, password : response.data.password, flag:10});
 
       }
       else if(response.status == 404) {
@@ -665,90 +768,43 @@ class StoreOfficerHome extends React.Component {
     });
   }
 
+  fetchAllEntities(event,type){
 
-  getall(event,type){
-
-  var that = this;
-  that.setState({ open : !that.state.open });
-  let apiUrl = baseUrl;
-  if(type == "Vendor")
-  {
-    apiUrl += allVendorUrl;
-  }
-  else if(type == "Purchase_Order")
-  {
-    apiUrl += allPurchaseOrderUrl;
-  }
-  else if(type == "AllItems")
-  {
-    apiUrl += allItemUrl;
-  }
-
-  console.log(apiUrl);
-  axios.get(apiUrl)
-  .then( response => {
-    console.log(response);
-    if(response.status == 200 && type == "Vendor"){
-      that.setState({ getall : response.data , length : response.data.length  , flag :2});
-    }
-    else if(response.status == 200 && type == "Purchase_Order"){
-      that.setState({ getall : response.data , length : response.data.length  , flag :5});
-    }
-    else if(response.status == 200 && type == "AllItems"){
-      that.setState({ getall : response.data , length : response.data.length  , flag :6});
-    //);
-  }
-})
-  .catch(error => {
-    console.log(error.response);
-    alert(error.response.data.message);
-  });
-
-  }
-
-  singlerowHandler(i,type) {
-    var cells = [];
+    var that = this;
+    let apiUrl = baseUrl;
     if(type == "Vendor")
     {
-      cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
-      cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+      apiUrl += allVendorUrl;
     }
     else if(type == "Purchase_Order")
     {
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_number}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].order_date}</CustomTableCell>)
-      cells.push(<CustomTableCell width="25%">{"Specification : "+this.state.getall[i].itemdetails["specification"]} <br/> {"Quantity_rate : "+this.state.getall[i].itemdetails["quantity_rate"]} <br/> {"Duties_charges : "+this.state.getall[i].itemdetails["duties_charges"]} <br/> {"Delivery_date : "+this.state.getall[i].itemdetails["delivery_date"]}</CustomTableCell>)
-      cells.push(<CustomTableCell width="25%">{"Tender_number : "+this.state.getall[i].tender_info["tender_no"]} <br/> {"Tender_type : "+ this.state.getall[i].tender_info["tender_type"]} <br/> {"Opened_on : "+this.state.getall[i].tender_info["opened_on"]}</CustomTableCell>)
-      cells.push(<CustomTableCell width="25%">{"Code : "+this.state.getall[i].vendor_info["code"]} <br/> {"Email : "+this.state.getall[i].vendor_info["email"]} <br/> {"Address : "+this.state.getall[i].vendor_info["address"]}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_no}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].offer_date}</CustomTableCell>)
-
+      apiUrl += allPurchaseOrderUrl;
     }
     else if(type == "AllItems")
     {
-      cells.push(<CustomTableCell width="25%">{this.state.getall[i].model_number}</CustomTableCell>)
-      cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
-      cells.push(<CustomTableCell width="25%">{this.state.getall[i].quantity}</CustomTableCell>)
+      apiUrl += allItemUrl;
     }
 
-    return <TableRow>{cells}</TableRow>
-  }
-  rowsHandler(type)
-  {
-    var cells = [];
-    var i;
-    for(i=0; i<this.state.getall.length ;i++)
-    {
-      cells.push(this.singlerowHandler(i,type))
-    }
-    return <TableBody>{cells}</TableBody>;
-  }
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      if(response.status == 200 && type == "Vendor"){
+        that.setState({ responseDataArray : response.data , flag :3});
+      }
+      else if(response.status == 200 && type == "AllItems"){
+        that.setState({ responseDataArray : response.data , flag :4});
+      }
+      else if(response.status == 200 && type == "Purchase_Order"){
+        that.setState({ responseDataArray : response.data , flag :5});
+      }
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
 
+  }
 }
-
 
 const styles = {
   outerContainerStyle: {
@@ -756,24 +812,110 @@ const styles = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    width : '1000px',
-    height :'1000px'
+    flex : 1
   },
   innerContainerStyle: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
-    border: '2px solid #00BCD4',
-    borderRadius: 25,
-    margin: 70,
-    padding: 30,
-    width : '900px',
-    height :'950px'
+    margin: 20,
+    width : '80%'
+  },
+  innerContainerStyleUpdate: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 20,
+    width : '80%',
+  },
+  childContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 20,
+    padding: 20
   },
   buttonStyle: {
-    margin: 15
+    margin: 0,
+  },
+  itemHeaderContainer: {
+    display : 'flex',
+    flexDirection : 'row',
+    alignItems : 'center',
+    justifyContent: 'space-around',
+    backgroundColor: '#f5cd79',
+    borderRadius: 2,
+    margin: 5,
+    padding: 5
+  },
+  itemContainer: {
+    display : 'flex',
+    flexDirection : 'row',
+    alignItems : 'center',
+    justifyContent: 'space-around',
+    borderBottom: '1px solid #aaa69d',
+    margin: 5,
+    padding: 5
+  },
+  textCellContainer: {
+    flex : 1,
+    textAlign : 'center'
+  },
+  purchaseCell:{
+
+  },
+  textLabel:{
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#006266',
+    textAlign : 'center'
+  },
+  textStyle:{
+    fontFamily: 'Montserrat',
+    fontSize: '14px',
+    color: '#009432',
+    margin: '2px'
+  },
+  boxStyle: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+  },
+  purchaseOrderContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    border: '1px solid #aaa69d',
+    borderRadius: 4,
+    margin: 8,
+    padding: 8
+  },
+  dividerStyle: {
+    height: '1px',
+    backgroundColor: '#d1ccc0',
+    margin: '4px'
+  },
+  iconSize: 18,
+  textFieldStyle: {
+    marginLeft: 15,
+    marginRight: 15,
+    marginTop: -10
+  },
+  textCellStyle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems : 'center',
+    justifyContent: 'center',
+    marginTop: 10
+  },
+  iconStyle: {
+    marginTop: 18
+  },
+  headingStyle: {
+    textAlign : 'center',
+    width : '100%',
+    fontFamily: 'Montserrat',
+    fontSize: '22px',
+    marginTop : 10,
+    fontWeight: 'Bold',
+    color: '#006266'
   }
 };
-
-export default StoreOfficerHome ;

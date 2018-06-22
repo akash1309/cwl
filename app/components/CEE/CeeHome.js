@@ -1,99 +1,54 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import Paper from 'material-ui/Paper';
-import Menu from 'material-ui/Menu';
-import MenuItem from 'material-ui/MenuItem';
-import RemoveRedEye from 'material-ui/svg-icons/image/remove-red-eye';
-import PersonAdd from 'material-ui/svg-icons/social/person-add';
-import ContentLink from 'material-ui/svg-icons/content/link';
-import Divider from 'material-ui/Divider';
-import ContentCopy from 'material-ui/svg-icons/content/content-copy';
-import Download from 'material-ui/svg-icons/file/file-download';
-import Delete from 'material-ui/svg-icons/action/delete';
-import FontIcon from 'material-ui/FontIcon';
-import { baseUrl, signupUrl, validateUrl, loginUrl, allDyCeeUrl, allInspectorUrl , allStoreOfficerUrl, allVendorUrl, addDyCEEUrl, getInfoUrl, updateInfoUrl } from './../../config/url';
+import * as MaterialIcon from 'react-icons/lib/md';
+import CeePalette from './CeePalette';
 
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import { withStyles } from '@material-ui/core/styles';
+import {
+  baseUrl,
+  allDyCeeUrl,
+  allInspectorUrl ,
+  allStoreOfficerUrl,
+  allVendorUrl,
+  addDyCEEUrl,
+  getInfoUrl,
+  updateInfoUrl,
+  allPurchaseOrderUrl,
+  allItemUrl,
+  allIcUrl,
+  allIrUrl,
+  allCorrigendumUrl
+
+} from './../../config/url';
 
 import axios from 'axios';
 import {
   AppBar,
   RaisedButton,
-  TextField, IconButton, SvgIcon,
+  TextField,
 } from 'material-ui';
 
-const GitHubIcon = (props) => (
-    <SvgIcon {...props}>
-        {<path
-            d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>}
-    </SvgIcon>
-);
 
-const style = {
-  paper: {
-    display: 'inline-block',
-    float: 'left',
-    margin: '0 32px 16px 0',
-    position : 'absolute',
-    zIndex: '1'
-  },
-  rightIcon: {
-    textAlign: 'center',
-    lineHeight: '24px',
-  },
-  tablediv : {
-    margin: '5px 5px 5px 5px',
-  },
-};
-
-const CustomTableCell = withStyles(theme => ({
-  head: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-    fontSize : 14
-  },
-  body: {
-    fontSize: 14,
-  },
-}))(TableCell);
-
-class CeeHome extends React.Component {
+export default class CeeHome extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      getall : [],
-      length : 0,
-      flag : 0,
-      open : false,
+      responseDataArray : [],
+      flag : -1,
       name :'',
       email : '',
       mobile : '',
       location : '',
       role : "DyCEE",
-      _id : this.props.location.state._id
+      type : ''
     }
-    this._toggle = this._toggle.bind(this);
-    //this.getall = this.getall.bind(this);
-  //  this.rowsHandler = this.rowsHandler.bind(this);
   };
 
-_toggle(e) {
-  var status = this.state.open;
-  if(status == false) {
-    status = true
-  }
-  else {
-    status = false
-  }
-  this.setState({open : status});
-  console.log(status);
+ componentDidMount(){
+   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+   this.setState({_id: userInfo.userId});
  }
+
 
   render() {
     return (
@@ -101,174 +56,373 @@ _toggle(e) {
       <div>
         <MuiThemeProvider>
           <div>
-            <AppBar title="CEE Home" iconElementLeft={
-              <IconButton
-                onClick={ this._toggle } >
-                <GitHubIcon />
-                </IconButton>
-            } />
+            <AppBar title="CEE Home" width="50%" />
+            <div style={{ display: 'flex', flexDirection: 'row'}}>
 
-            { this.state.open == true ?
-              <Paper style={style.paper}>
-                <Menu ref="Menu" disableAutoFocus={true}>
-                  <MenuItem primaryText="All DyCEE" leftIcon={<RemoveRedEye />}  onClick={(event) => {this.getall(event,"DyCEE") }}/>
-                  <MenuItem primaryText="All Store Officers" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"StoreOfficer")} } />
-                  <MenuItem primaryText="All Inspectors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Inspector")} } />
-                  <MenuItem primaryText="All Vendors" leftIcon={<RemoveRedEye />} onClick={(event) => {this.getall(event,"Vendor")} } />
-                  <Divider />
-                  <MenuItem primaryText="Add DyCEE" leftIcon={<PersonAdd />} onClick={(event) => {this.setState({flag : 2, open : !this.state.open }) }} />
-                  <MenuItem primaryText="Update My_Infomation" leftIcon={<PersonAdd />} onClick={(event) => this.getPreviousInfo(event)} />
-                  <Divider />
-                  <MenuItem primaryText="Get links" leftIcon={<ContentLink />} />
-
-                </Menu>
-            </Paper>
-            : null
-            }
-            { this.state.flag == 1 ?
-
-             <div>
-             <Table style={style.tablediv}>
-               <TableHead>
-                  <TableRow>
-                    <CustomTableCell width="25%">Id</CustomTableCell>
-                    <CustomTableCell width="15%">Name</CustomTableCell>
-                    <CustomTableCell width="25%">Email</CustomTableCell>
-                    <CustomTableCell width="15%">Mobile</CustomTableCell>
-                    <CustomTableCell width="15%">Location</CustomTableCell>
-                  </TableRow>
-                </TableHead>
-
-                {this.rowsHandler()}
-
-
-             </Table>
-             </div>
-            : null }
-
-            {
-              this.state.flag == 2 ?
-              <div>
-                <MuiThemeProvider>
-                  <div>
-                    <div style={styles.outerContainerStyle}>
-                      <div style={styles.innerContainerStyle}>
-                      <TextField
-                        hintText="Cee_id"
-                        floatingLabelText="Cee_id"
-                        value = { this.state._id }
-                        style={{ marginTop: 10 }}
-                      />
-                        <TextField
-                          hintText="Name"
-                          floatingLabelText="Name"
-                          errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({name:newValue})}
-                          style={{ marginTop: 10 }}
-                        />
-                        <TextField
-                          hintText="Email"
-                          floatingLabelText="Email"
-                          errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({email:newValue})}
-                          style={{ marginTop: 10 }}
-                        />
-                        <TextField
-                          hintText="Mobile"
-                          floatingLabelText="Mobile"
-                          errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({mobile:newValue})}
-                          style={{ marginTop: 10 }}
-                        />
-                        <TextField
-                          hintText="Location"
-                          floatingLabelText="Location"
-                          errorText="This field is required"
-                          onChange = {(event,newValue) => this.setState({location:newValue})}
-                          style={{ marginTop: 10 }}
-                        />
-                        <TextField
-                          defaultValue= {this.state.role}
-                          style={{ marginTop: 10 }}
-                        />
-                        <br/>
-                        <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addDyCEE(event)}} />
-
-                      </div>
-                    </div>
-                  </div>
-                </MuiThemeProvider>
-              </div>
-            //  this.state.dycee = false
-
-                      : null
-            }
-
-            { this.state.flag == 3 ?
-            <div style={styles.outerContainerStyle}>
-              <div style={styles.innerContainerStyleUpdate}>
-              <div>
-              <span className="glyphicon glyphicon-check" aria-hidden="true" />
-              <TextField
-                hintText="Enter id"
-                floatingLabelText="Id"
-                value = {this.state._id}
-                style={{ marginLeft: 10 ,marginRight : 10, marginTop : 5}}
+              <CeePalette
+                onClickAddDycee = {() => this.setState({flag : 1 }) }
+                onClickDycee = {() => this.fetchAllEntities(this,"DyCEE")}
+                onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
+                onClickInspectors = {() => this.fetchAllEntities(this,"Inspector")}
+                onClickStoreOfficers = {() => this.fetchAllEntities(this,"StoreOfficer")}
+                onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
+                onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
+                onClickIC = {() => this.fetchAllEntities(this,"AllIC")}
+                onClickIR = {() => this.fetchAllEntities(this,"AllIR")}
+                onClickCorrigendums = {() => this.fetchAllEntities(this,"Corrigendums")}
+                onClickProfile = {() => this.getProfileInfo(this)}
+              
               />
-              </div>
-              <div>
-              <span className="glyphicon glyphicon-user" aria-hidden="true" />
-              <TextField
-                hintText="Enter name"
-                floatingLabelText="Name"
-                value = {this.state.name}
-                onChange = {(event,newValue) => this.setState({name:newValue})}
-                style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-              />
-              </div>
-              <div>
-              <span className="glyphicon glyphicon-lock" aria-hidden="true" />
-              <TextField
-                hintText="Enter password"
-                floatingLabelText="Password"
-                value = {this.state.password}
-                onChange = {(event,newValue) => this.setState({password:newValue})}
-                style={{marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-              /></div>
-              <div>
-              <span className="glyphicon glyphicon-phone" aria-hidden="true" />
-              <TextField
-                hintText="Enter mobile number"
-                floatingLabelText="Mobile Number"
-                value = {this.state.mobile}
-                onChange = {(event,newValue) => this.setState({mobile:newValue})}
-                style={{marginLeft: 10 ,marginRight : 10, marginTop : 2 }}
-              /></div>
-              <div>
-              <span className="glyphicon glyphicon-envelope" aria-hidden="true" />
-              <TextField
-                hintText="Enter email"
-                floatingLabelText="Email"
-                value = {this.state.email}
-                onChange = {(event,newValue) => this.setState({email:newValue})}
-                style={{ marginLeft: 10 ,marginRight : 10, marginTop : 2}}
-              /></div>
 
-              <RaisedButton label="UPDATE" primary={true} style={styles.buttonStyle} onClick={(event) => this.updateInfo(event)}/>
+              { this.addDyCEE() }
+              { this.showPeople() }
+              { this.showPurchaseOrders() }
+              { this.showItems() }
+              { this.showIC() }
+              { this.showIR() }
+              { this.showCorrigendums() }
+              { this.showProfile() }
 
-              </div>
             </div>
-            : null
-          }
-
-
           </div>
+
         </MuiThemeProvider>
       </div>
     );
   }
 
-  addDyCEE(event){
+  addDyCEE = () => {
+    if(this.state.flag == 1)
+      return (
+
+        <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>DyCEE Panel</span>
+          <div style={styles.innerContainerStyle}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Name"
+                floatingLabelText="Name"
+                onChange = {(event,newValue) => this.setState({name:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Email"
+                floatingLabelText="Email"
+                onChange = {(event,newValue) => this.setState({email:newValue })}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Mobile"
+                floatingLabelText="Mobile"
+                onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Location"
+                floatingLabelText="Location"
+                onChange = {(event,newValue) => this.setState({location:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <br/>
+            <div style={styles.textCellStyle}>
+              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addDyCEEFunc(event)}} />
+            </div>
+          </div>
+        </div>
+      );
+  }
+
+  showPeople = () => {
+
+    if(this.state.flag == 2)
+    return(
+      <div style={{flex : 1}}>
+        <div style = {styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+        </div>
+        <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>Name</span>
+          <span style={styles.textCellContainer}>Email</span>
+          <span style={styles.textCellContainer}>Mobile</span>
+          <span style={styles.textCellContainer}>Location</span>
+        </div>
+        {
+          this.state.responseDataArray.map((member,key) => {
+            return (
+              <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{member.name}</span>
+                <span style={styles.textCellContainer}>{member.email}</span>
+                <span style={styles.textCellContainer}>{member.mobile}</span>
+                <span style={styles.textCellContainer}>{member.location}</span>
+              </div>
+            )
+          })
+        }
+      </div>
+    );
+  }
+
+  showPurchaseOrders = () => {
+    if(this.state.flag == 3)
+      return(
+        <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Purchase Orders</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style = {styles.purchaseOrderContainer}>
+
+                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <div style={styles.dividerStyle}/>
+
+                  <div style={{display:'flex', flexDirection:'row'}}>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Order Details</span>
+                      <span style={styles.purchaseCell}>Order Date: {member.order_date}</span>
+                      <span style={styles.purchaseCell}>Offer No: {member.offer_no}</span>
+                      <span style={styles.purchaseCell}>Offer Date: {member.offer_date}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Item Details</span>
+                      <span style={styles.purchaseCell}>Specification: {member.itemdetails.specification}</span>
+                      <span style={styles.purchaseCell}>Quantity Rate: {member.itemdetails.quantity_rate}</span>
+                      <span style={styles.purchaseCell}>Duties Charges: {member.itemdetails.duties_charges}</span>
+                      <span style={styles.purchaseCell}>Delivery Date: {member.itemdetails.delivery_date}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Vendor Details</span>
+                      <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
+                      <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
+                      <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Tender Details</span>
+                      <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
+                      <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
+                      <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
+                    </div>
+
+                  </div>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showItems = () => {
+
+    if(this.state.flag == 4)
+      return (
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Items</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Model_number</span>
+            <span style={styles.textCellContainer}>Item_Name</span>
+            <span style={styles.textCellContainer}>Quantity</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.model_number}</span>
+                  <span style={styles.textCellContainer}>{member.name}</span>
+                  <span style={styles.textCellContainer}>{member.quantity}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showIC = () => {
+
+    if(this.state.flag == 5)
+      return (
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Inspection Certificates</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Order No.</span>
+            <span style={styles.textCellContainer}>Quantity Offered</span>
+            <span style={styles.textCellContainer}>Quantity Approved</span>
+            <span style={styles.textCellContainer}>Location of Seal</span>
+            <span style={styles.textCellContainer}>IC id</span>
+            <span style={styles.textCellContainer}>Inspection Date</span>
+            <span style={styles.textCellContainer}>IC Signed On</span>
+            <span style={styles.textCellContainer}>Inspector Name</span>
+            <span style={styles.textCellContainer}>Inspector Mobile</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.order_number}</span>
+                  <span style={styles.textCellContainer}>{member.quantity_offered}</span>
+                  <span style={styles.textCellContainer}>{member.quantity_approved}</span>
+                  <span style={styles.textCellContainer}>{member.location_of_seal}</span>
+                  <span style={styles.textCellContainer}>{member.ic_id}</span>
+                  <span style={styles.textCellContainer}>{member.inspection_date}</span>
+                  <span style={styles.textCellContainer}>{member.ic_signed_on}</span>
+                  <span style={styles.textCellContainer}>{member.inspector_name}</span>
+                  <span style={styles.textCellContainer}>{member.inspector_mobile}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showIR = () => {
+
+    if(this.state.flag == 6)
+      return (
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Inspection Reports</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Order No.</span>
+            <span style={styles.textCellContainer}>IC id</span>
+            <span style={styles.textCellContainer}>Status</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.order_number}</span>
+                  <span style={styles.textCellContainer}>{member.ic_id}</span>
+                  <span style={styles.textCellContainer}>{member.status}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showCorrigendums = () => {
+
+    if(this.state.flag == 7)
+      return (
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Corrigendums</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Corrigendum No.</span>
+            <span style={styles.textCellContainer}>Order No.</span>
+            <span style={styles.textCellContainer}>Order Date</span>
+            <span style={styles.textCellContainer}>IC Id</span>
+            <span style={styles.textCellContainer}>IC Date</span>
+            <span style={styles.textCellContainer}>Inspector Name</span>
+            <span style={styles.textCellContainer}>Inspector Mobile</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.corrigendum_number}</span>
+                  <span style={styles.textCellContainer}>{member.order_number}</span>
+                  <span style={styles.textCellContainer}>{member.order_date}</span>
+                  <span style={styles.textCellContainer}>{member.ic_id}</span>
+                  <span style={styles.textCellContainer}>{member.ic_date}</span>
+                  <span style={styles.textCellContainer}>{member.inspector_name}</span>
+                  <span style={styles.textCellContainer}>{member.inspector_mobile}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showProfile = () => {
+    if(this.state.flag == 8 )
+    return (
+
+      <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>My Profile</span>
+
+        <div style={styles.innerContainerStyle}>
+          <div style={styles.textCellStyle}>
+            <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+            <TextField
+              hintText="Enter name"
+              floatingLabelText="Name"
+              value = {this.state.name}
+              onChange = {(event,newValue) => this.setState({name:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div style={styles.textCellStyle}>
+            <MaterialIcon.MdLockOpen size={styles.iconSize} style={styles.iconStyle}/>
+            <TextField
+              hintText="Enter password"
+              floatingLabelText="Password"
+              value = {this.state.password}
+              onChange = {(event,newValue) => this.setState({password:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div style={styles.textCellStyle}>
+            <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+            <TextField
+              hintText="Enter mobile number"
+              floatingLabelText="Mobile Number"
+              value = {this.state.mobile}
+              onChange = {(event,newValue) => this.setState({mobile:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+          <div style={styles.textCellStyle}>
+            <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
+            <TextField
+              hintText="Enter email"
+              floatingLabelText="Email"
+              value = {this.state.email}
+              onChange = {(event,newValue) => this.setState({email:newValue})}
+              style={styles.textFieldStyle}
+            />
+          </div>
+        </div>
+
+        <RaisedButton
+          label="UPDATE"
+          primary={true}
+          style={styles.buttonStyle}
+          onClick={(event) => this.updateInfo(event)}
+        />
+
+      </div>
+    );
+  }
+
+
+  addDyCEEFunc(event){
     var that=this;
     var apiUrl=baseUrl + addDyCEEUrl;
     axios.post(apiUrl,{
@@ -293,7 +447,7 @@ _toggle(e) {
 
   }
 
-  getPreviousInfo(event){
+  getProfileInfo(event){
 
     var that = this;
     var apiUrl = baseUrl + getInfoUrl + that.state._id;
@@ -302,7 +456,12 @@ _toggle(e) {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-          that.setState({name : response.data.name , email : response.data.email, mobile : response.data.mobile, password : response.data.password, flag:3, open : !that.state.open});
+          that.setState({
+            name : response.data.name ,
+            email : response.data.email,
+            mobile : response.data.mobile,
+            password : response.data.password,
+            flag : 8});
       }
       else if(response.status == 404) {
         alert("No CEE found with this id");
@@ -343,87 +502,186 @@ _toggle(e) {
     });
   }
 
-getall(event,role){
+  fetchAllEntities(event,type){
 
-console.log(role);
-  var that = this;
- that.setState({ open : !that.state.open });
- var apiUrl;
-  if(role=="DyCEE")
-   {apiUrl=baseUrl + allDyCeeUrl;}
-  else if(role=="Inspector")
-  {
-    apiUrl=baseUrl + allInspectorUrl;
-  }
-  else if(role=="StoreOfficer")
-  {
-    apiUrl=baseUrl + allStoreOfficerUrl;
-  }
-  else if(role=="Vendor")
-  {
-    apiUrl=baseUrl + allVendorUrl;
-  }
-  console.log(apiUrl);
-  axios.get(apiUrl)
-  .then( response => {
-    console.log(response);
-    if(response.status == 200){
-      that.setState({ getall : response.data , length : response.data.length , flag : 1 });
+    var that = this;
+    var apiUrl = baseUrl;
+
+    if(type =="DyCEE")
+    {
+      apiUrl += allDyCeeUrl;
+      that.setState({type : type});
     }
-    //);
-  })
-  .catch(error => {
-    console.log(error.response);
-    alert(error.response.data.message);
-  });
+    else if(type =="Inspector")
+    {
+      apiUrl += allInspectorUrl;
+      that.setState({type : type});
+    }
+    else if(type =="StoreOfficer")
+    {
+      apiUrl += allStoreOfficerUrl;
+      that.setState({type : type});
+    }
+    else if(type =="Vendor")
+    {
+      apiUrl += allVendorUrl;
+      that.setState({type : type});
+    }
+    else if( type == "Purchase_Order")
+    {
+      apiUrl += allPurchaseOrderUrl;
+    }
+    else if(type == "AllItems")
+    {
+      apiUrl += allItemUrl;
+    }
+    else if(type == "AllIC")
+    {
+      apiUrl += allIcUrl;
+    }
+    else if (type == "AllIR")
+    {
+      apiUrl += allIrUrl;
+    }
+    else if (type == "Corrigendums")
+    {
+      apiUrl += allCorrigendumUrl;
+    }
 
-}
+    axios.get(apiUrl)
+    .then( response => {
 
-singlerowHandler(i) {
-  var cells = [];
-  cells.push(<CustomTableCell width="25%">{this.state.getall[i]._id}</CustomTableCell>)
-  cells.push(<CustomTableCell width="15%">{this.state.getall[i].name}</CustomTableCell>)
-  cells.push(<CustomTableCell width="25%">{this.state.getall[i].email}</CustomTableCell>)
-  cells.push(<CustomTableCell width="15%">{this.state.getall[i].mobile}</CustomTableCell>)
-  cells.push(<CustomTableCell width="15%">{this.state.getall[i].location}</CustomTableCell>)
+      console.log(response);
+      if(response.status == 200 && type == "Purchase_Order"){
+        that.setState({ responseDataArray : response.data , flag :3});
+      }
+      else if(response.status == 200 && type == "AllItems"){
+        that.setState({ responseDataArray : response.data , flag :4});
+      }
+      else if(response.status == 200 && type == "AllIC"){
+        that.setState({ responseDataArray : response.data , flag :5});
+      }
+      else if(response.status == 200 && type == "AllIR"){
+        that.setState({ responseDataArray : response.data , flag :6});
+      }
+      else if(response.status == 200 && type == "Corrigendums"){
+        that.setState({ responseDataArray : response.data , flag :7});
+      }
+      else if(response.status == 200){
+        that.setState({ responseDataArray : response.data , flag : 2 });
+      }
 
-  return <TableRow>{cells}</TableRow>
-}
-rowsHandler()
-{
-  var cells = [];
-  var i;
-  for(i=0; i<this.state.getall.length ;i++)
-  {
-    cells.push(this.singlerowHandler(i))
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
   }
-  return <TableBody>{cells}</TableBody>;
-}
-
 
 }
+
 const styles = {
   outerContainerStyle: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    flex : 1
   },
   innerContainerStyle: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItems: 'center',
-    border: '2px solid #00BCD4',
-    borderRadius: 25,
-    margin: 70,
-    padding: 30
+    margin: 20,
+    width : '80%'
+  },
+  childContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 20,
+    padding: 20
   },
   buttonStyle: {
-    margin: 15
+    margin: 0
+  },
+  itemHeaderContainer: {
+    display : 'flex',
+    flexDirection : 'row',
+    alignItems : 'center',
+    justifyContent: 'space-around',
+    backgroundColor: '#f5cd79',
+    borderRadius: 2,
+    margin: 5,
+    padding: 5
+  },
+  itemContainer: {
+    display : 'flex',
+    flexDirection : 'row',
+    alignItems : 'center',
+    justifyContent: 'space-around',
+    borderBottom: '1px solid #aaa69d',
+    margin: 5,
+    padding: 5
+  },
+  textCellContainer: {
+    flex : 1,
+    textAlign : 'center'
+  },
+  purchaseCell:{
+
+  },
+  textLabel:{
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#006266'
+  },
+  textStyle:{
+    fontFamily: 'Montserrat',
+    fontSize: '14px',
+    color: '#009432',
+    margin: '2px'
+  },
+  boxStyle: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+  },
+  purchaseOrderContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    border: '1px solid #aaa69d',
+    borderRadius: 4,
+    margin: 8,
+    padding: 8
+  },
+  dividerStyle: {
+    height: '1px',
+    backgroundColor: '#d1ccc0',
+    margin: '4px'
+  },
+  iconSize: 18,
+  textFieldStyle: {
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: -10
+  },
+  textCellStyle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems : 'center',
+    justifyContent: 'center',
+    marginTop: 10
+  },
+  iconStyle: {
+    marginTop: 18
+  },
+  headingStyle: {
+    textAlign : 'center',
+    width : '100%',
+    fontFamily: 'Montserrat',
+    fontSize: '22px',
+    marginTop : 10,
+    fontWeight: 'Bold',
+    color: '#006266'
   }
 };
-
-
-
-export default CeeHome ;

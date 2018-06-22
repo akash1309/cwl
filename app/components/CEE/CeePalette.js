@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as MaterialIcon from 'react-icons/lib/md';
 
 
-export default class DyCeePalette extends React.Component {
+export default class CeePalette extends Component {
 
   constructor(props) {
     super(props);
@@ -10,11 +10,17 @@ export default class DyCeePalette extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height: '100%'}}>
+      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100%'}}>
 
-        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
+        <a onClick={this.props.onClickAddDycee} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdPersonAdd size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Add DyCEE</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
+        <a onClick={this.props.onClickDycee} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>DyCEE</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -25,56 +31,45 @@ export default class DyCeePalette extends React.Component {
         <div style={styles.dividerStyle}/>
 
         <a onClick={this.props.onClickInspectors} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdPeople size={styles.iconSize} style={styles.iconStyle}/>
+          <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Inspectors</span>
         </a>
         <div style={styles.dividerStyle}/>
 
         <a onClick={this.props.onClickStoreOfficers} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdPeople size={styles.iconSize} style={styles.iconStyle}/>
+          <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>StoreOfficers</span>
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickAddInspector} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdPersonAdd size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Add Inspector</span>
-        </a>
-        <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickAddStoreOfficer} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdPersonAdd size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Add StoreOfficer</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickPurchaseOrder} style={styles.innerContainerStyle}>
+        <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickCreateIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Create I.C.</span>
+        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdShoppingBasket size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Items</span>
         </a>
         <div style={styles.dividerStyle}/>
 
         <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
           <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>I.C.</span>
+          <span style={styles.textStyle}>Inspection Certificates</span>
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickCorrigendumApproval} style={styles.innerContainerStyle}>
+        <a onClick={this.props.onClickIR} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdFeaturedPlayList size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Inspection Reports</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
+        <a onClick={this.props.onClickCorrigendums} style={styles.innerContainerStyle}>
           <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Corrigendum Approval</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickApprovalLetter} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdAssignment size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Approval Letter</span>
+          <span style={styles.textStyle}>Corrigendums</span>
         </a>
         <div style={styles.dividerStyle}/>
 
