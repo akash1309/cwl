@@ -73,6 +73,7 @@ export default class VendorHome extends Component {
     return (
 
       <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>My Profile</span>
         <div style={styles.innerContainerStyle}>
           <div style={styles.childContainer}>
             <div style={styles.textCellStyle}>
@@ -145,6 +146,9 @@ export default class VendorHome extends Component {
     if(this.state.flag == 2)
       return (
         <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Inspection Certificate</span>
+          </div>
           {
             this.state.responseDataArray.map((member,key) => {
               return (
@@ -189,6 +193,9 @@ export default class VendorHome extends Component {
     if(this.state.flag == 3)
       return (
         <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Items</span>
+          </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>Model_number</span>
             <span style={styles.textCellContainer}>Item_Name</span>
@@ -215,6 +222,9 @@ export default class VendorHome extends Component {
     if(this.state.flag == 4)
       return(
         <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Purchase Orders</span>
+          </div>
           {
             this.state.responseDataArray.map((member,key) => {
               return (
@@ -462,7 +472,7 @@ const styles = {
     width : '100%',
     fontFamily: 'Montserrat',
     fontSize: '22px',
-    marginTop : 10,
+    marginTop : 20,
     fontWeight: 'Bold',
     color: '#006266'
   }

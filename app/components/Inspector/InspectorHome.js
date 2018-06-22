@@ -76,6 +76,9 @@ export default class InspectorHome extends Component {
     if(this.state.flag == 1)
     return(
       <div style={{flex : 1}}>
+        <div style = {styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>List of Vendors</span>
+        </div>
         <div style={styles.itemHeaderContainer}>
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
@@ -102,6 +105,7 @@ export default class InspectorHome extends Component {
     if(this.state.flag == 2)
     return(
       <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>My Profile</span>
         <div style={styles.innerContainerStyle}>
           <div style={styles.childContainer}>
             <div style={styles.textCellStyle}>
@@ -175,6 +179,7 @@ export default class InspectorHome extends Component {
     if(this.state.flag == 3)
     return(
       <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>Corrigendum Generation</span>
         <div style={styles.innerContainerStyle}>
           <div style={styles.childContainer}>
             <div style={styles.textCellStyle}>
@@ -261,6 +266,7 @@ export default class InspectorHome extends Component {
     if(this.state.flag == 4)
     return(
       <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>Inspection Report Generation</span>
         <div style={styles.innerContainerStyle}>
           <div style={styles.childContainer}>
             <div style={styles.textCellStyle}>
@@ -309,6 +315,9 @@ export default class InspectorHome extends Component {
     if(this.state.flag == 5)
     return(
       <div style={{ flex:1 }}>
+        <div style = {styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>List of Purchase Orders</span>
+        </div>
         {
           this.state.responseDataArray.map((member,key) => {
             return (
@@ -601,7 +610,7 @@ const styles = {
     width : '100%',
     fontFamily: 'Montserrat',
     fontSize: '22px',
-    marginTop : 10,
+    marginTop : 20,
     fontWeight: 'Bold',
     color: '#006266'
   }

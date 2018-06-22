@@ -115,6 +115,7 @@ export default class StoreOfficerHome extends React.Component {
       return (
 
         <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Place Purchase Order</span>
           <div style={styles.innerContainerStyle}>
             <span style={styles.textLabel}>Order Details:</span>
             <div style={{display : 'flex' , flexDirection:'row'}}>
@@ -264,6 +265,9 @@ export default class StoreOfficerHome extends React.Component {
     if(this.state.flag == 3)
     return(
       <div style={{flex : 1}}>
+        <div style = {styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>List of Vendors</span>
+        </div>
         <div style={styles.itemHeaderContainer}>
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
@@ -292,6 +296,9 @@ export default class StoreOfficerHome extends React.Component {
     if(this.state.flag == 4)
       return (
         <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Items</span>
+          </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>Model_number</span>
             <span style={styles.textCellContainer}>Item_Name</span>
@@ -317,8 +324,10 @@ export default class StoreOfficerHome extends React.Component {
     if(this.state.flag == 5)
       return(
         <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Purchase Orders</span>
+          </div>
           {
-
             this.state.responseDataArray.map((member,key) => {
               return (
                 <div style = {styles.purchaseOrderContainer}>
@@ -370,6 +379,7 @@ export default class StoreOfficerHome extends React.Component {
     if(this.state.flag == 6)
       return (
         <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Vendor Panel</span>
           <div style={styles.innerContainerStyle}>
             <div style={styles.textCellStyle}>
               <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
@@ -421,6 +431,7 @@ export default class StoreOfficerHome extends React.Component {
     if(this.state.flag == 7)
       return (
         <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Item Addition</span>
           <div style={styles.innerContainerStyle}>
           <div style={styles.textCellStyle}>
             <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
@@ -516,6 +527,7 @@ export default class StoreOfficerHome extends React.Component {
     return (
 
       <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>My Profile</span>
         <div style={styles.innerContainerStyleUpdate}>
           <div style={styles.childContainer}>
             <div style={styles.textCellStyle}>
@@ -806,7 +818,6 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
-    flex : 1,
     margin: 20,
     width : '80%'
   },

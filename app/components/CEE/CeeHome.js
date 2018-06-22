@@ -39,7 +39,8 @@ export default class CeeHome extends Component {
       email : '',
       mobile : '',
       location : '',
-      role : "DyCEE"
+      role : "DyCEE",
+      type : ''
     }
   };
 
@@ -93,7 +94,9 @@ export default class CeeHome extends Component {
   addDyCEE = () => {
     if(this.state.flag == 1)
       return (
+
         <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>DyCEE Panel</span>
           <div style={styles.innerContainerStyle}>
             <div style={styles.textCellStyle}>
               <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
@@ -145,6 +148,9 @@ export default class CeeHome extends Component {
     if(this.state.flag == 2)
     return(
       <div style={{flex : 1}}>
+        <div style = {styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+        </div>
         <div style={styles.itemHeaderContainer}>
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
@@ -171,8 +177,10 @@ export default class CeeHome extends Component {
     if(this.state.flag == 3)
       return(
         <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Purchase Orders</span>
+          </div>
           {
-
             this.state.responseDataArray.map((member,key) => {
               return (
                 <div style = {styles.purchaseOrderContainer}>
@@ -225,6 +233,9 @@ export default class CeeHome extends Component {
     if(this.state.flag == 4)
       return (
         <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Items</span>
+          </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>Model_number</span>
             <span style={styles.textCellContainer}>Item_Name</span>
@@ -250,6 +261,9 @@ export default class CeeHome extends Component {
     if(this.state.flag == 5)
       return (
         <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Inspection Certificates</span>
+          </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>Order No.</span>
             <span style={styles.textCellContainer}>Quantity Offered</span>
@@ -287,6 +301,9 @@ export default class CeeHome extends Component {
     if(this.state.flag == 6)
       return (
         <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Inspection Reports</span>
+          </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>Order No.</span>
             <span style={styles.textCellContainer}>IC id</span>
@@ -312,6 +329,9 @@ export default class CeeHome extends Component {
     if(this.state.flag == 7)
       return (
         <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Corrigendums</span>
+          </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>Corrigendum No.</span>
             <span style={styles.textCellContainer}>Order No.</span>
@@ -345,6 +365,8 @@ export default class CeeHome extends Component {
     return (
 
       <div style={styles.outerContainerStyle}>
+        <span style={styles.headingStyle}>My Profile</span>
+
         <div style={styles.innerContainerStyle}>
           <div style={styles.textCellStyle}>
             <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
@@ -488,18 +510,22 @@ export default class CeeHome extends Component {
     if(type =="DyCEE")
     {
       apiUrl += allDyCeeUrl;
+      that.setState({type : type});
     }
     else if(type =="Inspector")
     {
       apiUrl += allInspectorUrl;
+      that.setState({type : type});
     }
     else if(type =="StoreOfficer")
     {
       apiUrl += allStoreOfficerUrl;
+      that.setState({type : type});
     }
     else if(type =="Vendor")
     {
       apiUrl += allVendorUrl;
+      that.setState({type : type});
     }
     else if( type == "Purchase_Order")
     {

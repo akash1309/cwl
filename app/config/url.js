@@ -14,7 +14,7 @@ export const someInspectorUrl="/inspector/some/";
 
 ///////////////////////////// STORE OFFICER ///////////////////
 export const allStoreOfficerUrl="/storeofficer/all/";
-export const storeofficerUrl="/storeofficer/add/";
+export const addStoreOfficerUrl="/storeofficer/add/";
 export const oneStoreOfficerUrl="/storeofficer/one/";
 export const someStoreOfficerUrl="/storeofficer/some/";
 
