@@ -40,16 +40,13 @@ export default class StoreOfficerHome extends React.Component {
     flag : -1,
     order_number : '' ,
     order_date : '' ,
-    itemdetails : {},
     specification:  '',
     quantity_rate:  '',
     duties_charges: '',
     delivery_date:  '',
-    vendor_info: {},
     code:     '',
     email :   '',
     address : '',
-    tender_info: {},
     tender_no:     '',
     tender_type:   '',
     opened_on :    '',
@@ -118,7 +115,7 @@ export default class StoreOfficerHome extends React.Component {
           <span style={styles.headingStyle}>Place Purchase Order</span>
           <div style={styles.innerContainerStyle}>
             <span style={styles.textLabel}>Order Details:</span>
-            <div style={{display : 'flex' , flexDirection:'row'}}>
+            <div style={{display : 'flex', flexDirection:'row'}}>
               <div style={styles.boxStyle}>
                 <TextField
                   hintText="Order_Number"
@@ -501,7 +498,7 @@ export default class StoreOfficerHome extends React.Component {
        <div style={styles.outerContainerStyle}>
 	       <div style={styles.innerContainerStyle}>
          <span style={styles.headingStyle}>PO Cancellation</span>
-         
+
          <div style={styles.textCellStyle}>
            <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
              <TextField
@@ -688,21 +685,34 @@ export default class StoreOfficerHome extends React.Component {
   place_order(event){
     var that=this;
     var apiUrl=baseUrl + addPurchaseOrderUrl;
+    var itemdetails = {
+      specification: that.state.specification,
+      quantity_rate: that.state.quantity_rate,
+      duties_charges: that.state.duties_charges,
+      delivery_date: that.state.delivery_date
+    };
 
-    var _itemdetails = '{ "specification" : "'+that.state.specification+'" , "quantity_rate" : "'+that.state.quantity_rate+'" , "duties_charges" : "'+that.state.duties_charges+'" , "delivery_date" : "'+that.state.delivery_date+'" }';
-    var _vendor_info = '{ "code" : "'+that.state.code+'" , "email" : "'+that.state.email+'" , "address" : "'+that.state.address+'" }';
-    var _tender_info = '{ "tender_no" : "'+that.state.tender_no+'" , "tender_type" : "'+that.state.tender_type+'" , "opened_on" : "'+that.state.opened_on+'" }';
+    var vendor_info = {
+      code: that.state.code,
+      email: that.state.email,
+      address: that.state.address
+    };
 
-    that.setState({itemdetails : JSON.parse(_itemdetails) , vendor_info : JSON.parse(_vendor_info) , tender_info : JSON.parse(_tender_info)});
+    var tender_info = {
+      tender_no: that.state.tender_no,
+      tender_type: that.state.tender_type,
+      opened_on: that.state.opened_on
+    };
+
     axios.post(apiUrl,{
-        "order_number" : that.state.order_number ,
-        "order_date" :  that.state.order_date,
-        "itemdetails" : that.state.itemdetails,
-        "vendor_info" : that.state.vendor_info,
-        "tender_info" : that.state.tender_info,
-        "offer_no" :    that.state.offer_no,
-        "offer_date" : that.state.offer_date,
-        "storeofficer_id" : that.state._id
+      "order_number" : that.state.order_number ,
+      "order_date" :  that.state.order_date,
+      "itemdetails" : itemdetails,
+      "vendor_info" : vendor_info,
+      "tender_info" : tender_info,
+      "offer_no" :    that.state.offer_no,
+      "offer_date" : that.state.offer_date,
+      "storeofficer_id" : that.state._id
     })
    .then(response => {
        if(response.status == 200){
@@ -879,6 +889,7 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
+    flexWrap: 'wrap'
   },
   purchaseOrderContainer: {
     display: 'flex',
