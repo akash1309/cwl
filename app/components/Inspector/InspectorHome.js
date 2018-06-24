@@ -526,6 +526,21 @@ export default class InspectorHome extends Component {
 
   }
 
+  getStatusStyle(status){
+    if(status == 'InProgress'){
+      return styles.inProgressStyle;
+    }
+    if(status == 'Initiated'){
+      return styles.initiatedStyle;
+    }
+    if(status == 'Processed'){
+      return styles.processedStyle;
+    }
+    if(status == 'Forwarded'){
+      return styles.forwardedStyle;
+    }
+  }
+
 }
 
 const styles = {
