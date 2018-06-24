@@ -1,6 +1,17 @@
 import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { baseUrl, allPurchaseOrderUrl , inspectorUrl, getInfoUrl, updateInfoUrl ,allVendorUrl , allCorrigendumUrl, generateCorrigendumUrl , addInspectionReportUrl } from './../../config/url';
+import {
+   baseUrl,
+   allPurchaseOrderUrl ,
+   inspectorUrl,
+   getInfoUrl,
+   updateInfoUrl ,
+   allVendorUrl ,
+   allCorrigendumUrl,
+   generateCorrigendumUrl ,
+   addInspectionReportUrl,
+   inspectorPOUrl
+   } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
 import axios from 'axios';
@@ -312,58 +323,64 @@ export default class InspectorHome extends Component {
   }
 
   showPurchaseOrders = () => {
+
     if(this.state.flag == 5)
-    return(
-      <div style={{ flex:1 }}>
-        <div style = {styles.outerContainerStyle}>
-          <span style={styles.headingStyle}>List of Purchase Orders</span>
-        </div>
-        {
-          this.state.responseDataArray.map((member,key) => {
-            return (
-              <div style = {styles.purchaseOrderContainer}>
+      return(
+        <div style={{ flex:1 }}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of Purchase Orders</span>
+          </div>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style = {styles.purchaseOrderContainer}>
 
-                <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
-                <div style={styles.dividerStyle}/>
-
-                <div style={{display:'flex', flexDirection:'row'}}>
-
-                  <div style={styles.boxStyle}>
-                    <span style={styles.textStyle}>Order Details</span>
-                    <span style={styles.purchaseCell}>Order Date: {member.order_date}</span>
-                    <span style={styles.purchaseCell}>Offer No: {member.offer_no}</span>
-                    <span style={styles.purchaseCell}>Offer Date: {member.offer_date}</span>
+                  <div style={{display:'flex', flexDirection:'row' , justifyContent:'space-between'}}>
+                  <span><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <span><span style={styles.textLabel}>Status:</span> <span style={this.getStatusStyle(member.status)}>{member.status}</span></span>
                   </div>
+                  <div style={styles.dividerStyle}/>
 
-                  <div style={styles.boxStyle}>
-                    <span style={styles.textStyle}>Item Details</span>
-                    <span style={styles.purchaseCell}>Specification: {member.itemdetails.specification}</span>
-                    <span style={styles.purchaseCell}>Quantity Rate: {member.itemdetails.quantity_rate}</span>
-                    <span style={styles.purchaseCell}>Duties Charges: {member.itemdetails.duties_charges}</span>
-                    <span style={styles.purchaseCell}>Delivery Date: {member.itemdetails.delivery_date}</span>
+                  <div style={{display:'flex', flexDirection:'row'}}>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Order Details</span>
+                      <span style={styles.purchaseCell}>Order Date: {member.order_date}</span>
+                      <span style={styles.purchaseCell}>Offer No: {member.offer_no}</span>
+                      <span style={styles.purchaseCell}>Offer Date: {member.offer_date}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Item Details</span>
+                      <span style={styles.purchaseCell}>Specification: {member.itemdetails.specification}</span>
+                      <span style={styles.purchaseCell}>Quantity Rate: {member.itemdetails.quantity_rate}</span>
+                      <span style={styles.purchaseCell}>Duties Charges: {member.itemdetails.duties_charges}</span>
+                      <span style={styles.purchaseCell}>Delivery Date: {member.itemdetails.delivery_date}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Vendor Details</span>
+                      <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
+                      <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
+                      <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
+                    </div>
+
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Tender Details</span>
+                      <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
+                      <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
+                      <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
+                    </div>
                   </div>
-
-                  <div style={styles.boxStyle}>
-                    <span style={styles.textStyle}>Vendor Details</span>
-                    <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
-                    <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
-                    <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
-                  </div>
-
-                  <div style={styles.boxStyle}>
-                    <span style={styles.textStyle}>Tender Details</span>
-                    <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
-                    <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
-                    <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
-                  </div>
-
+                  <div style={styles.buttonContainerStyle}>
+                    <RaisedButton label="Visit" primary={true} style={styles.buttonStyle} />
+                    </div>
                 </div>
-              </div>
-            )
-          })
-        }
-      </div>
-    );
+              )
+            })
+          }
+        </div>
+      );
   }
 
   getProfileInfo(event){
@@ -486,8 +503,8 @@ export default class InspectorHome extends Component {
     if(type == "Vendor"){
       apiUrl += allVendorUrl;
     }
-    else if(type = "Purchase_Order"){
-      apiUrl += allPurchaseOrderUrl;
+    else if(type == "Purchase_Order"){
+      apiUrl = apiUrl + inspectorPOUrl + that.state._id;
     }
 
     console.log(apiUrl);
@@ -500,6 +517,7 @@ export default class InspectorHome extends Component {
       else if(response.status == 200 && type == "Purchase_Order"){
         that.setState({ responseDataArray : response.data , flag : 5});
       }
+
     })
     .catch(error => {
       console.log(error.response);

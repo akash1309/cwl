@@ -26,6 +26,7 @@ export const POUrlByStoreOfficer = "/purchaseorder/storeofficer/";
 export const deletePOUrl = '/deletePO/';
 export const updatePOInfoUrl= '/updatePurchaseOrder/';
 export const vendorPOUrl = '/purchaseorder/vendor/';
+export const inspectorPOUrl = '/purchaseorder/inspector/';
 
 
 ////////////////////////// VENDOR //////////////////////
