@@ -100,10 +100,10 @@ export default class StoreOfficerHome extends React.Component {
 
               <StoreOfficerPalette
                 onClickPlacePurchaseOrder = {() => this.vendorByStoreOfficer(this)}
-                onClickIntimateDycee = {() => this.fetchAllEntities("Purchase_Order")}
+                onClickIntimateDycee = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
                 onClickVendors = {() => this.fetchAllEntities("Vendor")}
                 onClickItems = {() => this.fetchAllEntities("AllItems")}
-                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order")}
+                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
                 onClickAddVendor = {() => this.setState({flag:6})}
                 onClickAddItem = {() => this.setState({flag:7})}
                 onClickDeleteItem = {() => this.setState({flag:8})}
@@ -396,9 +396,9 @@ export default class StoreOfficerHome extends React.Component {
               return (
                 <div style = {styles.purchaseOrderContainer}>
 
-                  <div style={{display:'flex', flexDirection:'row'}}>
-                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
-                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Status</span> <span style={styles.statusStyle}>{member.status}</span></span>
+                  <div style={{display:'flex', flexDirection:'row' , justifyContent:'space-between'}}>
+                  <span><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <span><span style={styles.textLabel}>Status:</span> <span style={styles.statusStyle}>{member.status}</span></span>
                   </div>
                   <div style={styles.dividerStyle}/>
 
@@ -1122,9 +1122,12 @@ const styles = {
     color: '#006266'
   },
   statusStyle: {
-    border: '2px solid #00BCD4',
-    borderRadius: 25,
-    padding : 5,
-    margin: 10,
+
+    backgroundColor : 'rgb(255,153,0)',
+    borderRadius: 2,
+    padding : 4,
+    fontWeight : 'bold',
+    color : 'white'
+
   }
 };
