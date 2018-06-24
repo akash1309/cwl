@@ -111,7 +111,8 @@ class Login extends Component {
       if(response.status == 200){
         var userInfo = {
           role: response.data.role,
-          userId: response.data._id
+          userId: response.data._id,
+          code: response.data.code
         };
         localStorage.setItem('userInfo', JSON.stringify(userInfo));
         that.setState({ flag: response.data.flag , role: response.data.role });

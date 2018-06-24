@@ -32,38 +32,41 @@ export default class VendorHome extends Component {
       mobile : '',
       location : '',
       password : '',
-      flag : -1,
-      vendor_code : '',
+      flag : 4,
+      code : '',
     }
   }
 
   componentDidMount(){
-     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-     this.setState({_id: userInfo.userId , vendor_code : userInfo.vendor_code});
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    this.setState({_id: userInfo.userId , code : userInfo.code});
+    this.fetchAllEntities("Purchase_Order", userInfo.code);
   }
 
   render() {
     return (
       <div>
         <MuiThemeProvider>
-          <AppBar title="Vendor Home" width="50%" />
+          <div>
+            <AppBar title="Vendor Home" width="50%" />
 
-          <div style={{ display: 'flex', flexDirection: 'row'}}>
+            <div style={{ display: 'flex', flexDirection: 'row', height: '100vh'}}>
 
-            <VendorPalette
-              onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
-              onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
-              onClickInspectionCalls = {() => this.fetchAllEntities(this,"Purchase_Order")}
-              onClickIC = {() => this.fetchAllEntities(this,"IC")}
-              onClickAmendmentRequest = {() => this.fetchAllEntities(this,"Purchase_Order")}
-              onClickProfile = {() => this.getProfileInfo(this)}
-            />
+              <VendorPalette
+                onClickItems = {() => this.fetchAllEntities("AllItems")}
+                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order", this.state.code)}
+                onClickInspectionCalls = {() => this.fetchAllEntities("Purchase_Order")}
+                onClickIC = {() => this.fetchAllEntities("IC")}
+                onClickAmendmentRequest = {() => this.fetchAllEntities("Purchase_Order")}
+                onClickProfile = {() => this.getProfileInfo()}
+              />
 
-            { this.showProfile() }
-            { this.showIC() }
-            { this.showItems() }
-            { this.showPurchaseOrders() }
+              { this.showProfile() }
+              { this.showIC() }
+              { this.showItems() }
+              { this.showPurchaseOrders() }
 
+            </div>
           </div>
         </MuiThemeProvider>
       </div>
@@ -233,7 +236,14 @@ export default class VendorHome extends Component {
               return (
                 <div style = {styles.purchaseOrderContainer}>
 
-                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <div style={{display:'flex', flexDirection:'row' , justifyContent:'space-between'}}>
+                    <span><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                    <span>
+                      <span style={styles.textLabel}>Status:</span>
+                      <span style={this.getStatusStyle(member.status)}>{member.status}</span>
+                    </span>
+                  </div>
+
                   <div style={styles.dividerStyle}/>
 
                   <div style={{display:'flex', flexDirection:'row'}}>
@@ -266,31 +276,31 @@ export default class VendorHome extends Component {
                       <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
                     </div>
-                    <div style={styles.boxStyle}>
-                      <span style={styles.textStyle}>Status</span>
-                      <span style={styles.purchaseCell}>{member.status}</span>
-                    </div>
                   </div>
-                  {
-                    member.status == "Initiated" ?
-                      <RaisedButton
-                        label="Start"
-                        primary={true}
-                        style={styles.buttonStyle}
-                        onClick={(event) => this.updatePoStatus("In Progress")}
-                      />
-                    : null
-                  }
-                  {
-                    member.status == "In progress" ?
-                      <RaisedButton
-                        label="Processed"
-                        primary={true}
-                        style={styles.buttonStyle}
-                        onClick={(event) => this.updatePoStatus(event,"Processed")}
-                      />
-                    : null
-                  }
+
+                  <div style={styles.buttonContainerStyle}>
+
+                    {
+                      member.status == "Initiated" ?
+                        <RaisedButton
+                          label="Start"
+                          primary={true}
+                          style={styles.buttonStyle}
+                          onClick={() => this.updatePoStatus("InProgress",member.order_number)}
+                        />
+                      : null
+                    }
+                    {
+                      member.status == "InProgress" ?
+                        <RaisedButton
+                          label="Process"
+                          primary={true}
+                          style={styles.buttonStyle}
+                          onClick={() => this.updatePoStatus("Processed",member.order_number)}
+                        />
+                      : null
+                    }
+                  </div>
                 </div>
               )
             })
@@ -299,32 +309,44 @@ export default class VendorHome extends Component {
       );
   }
 
-    getProfileInfo(event){
-
-      var that = this;
-      var apiUrl = baseUrl + getInfoUrl + that.state._id;
-
-      axios.get(apiUrl)
-      .then(function (response) {
-        console.log(response);
-        if(response.status == 200){
-            that.setState({
-              name : response.data.name ,
-              email : response.data.email,
-              mobile : response.data.mobile,
-              location : response.data.location,
-              password : response.data.password,
-              flag: 1
-            });
-        }
-        else if(response.status == 404) {
-          alert("No Vendor found with this id");
-        }
-      })
-      .catch(function (error) {
-          alert(error.response.data.message);
-      })
+  getStatusStyle(status){
+    if(status == 'InProgress'){
+      return styles.inProgressStyle;
     }
+    if(status == 'Initiated'){
+      return styles.initiatedStyle;
+    }
+    if(status == 'Processed'){
+      return styles.processedStyle;
+    }
+  }
+
+  getProfileInfo(event){
+
+    var that = this;
+    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+
+    axios.get(apiUrl)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          that.setState({
+            name : response.data.name ,
+            email : response.data.email,
+            mobile : response.data.mobile,
+            location : response.data.location,
+            password : response.data.password,
+            flag: 1
+          });
+      }
+      else if(response.status == 404) {
+        alert("No Vendor found with this id");
+      }
+    })
+    .catch(function (error) {
+        alert(error.response.data.message);
+    })
+  }
 
   updateInfo(event){
 
@@ -356,45 +378,67 @@ export default class VendorHome extends Component {
   }
 
 
-fetchAllEntities(event,type){
+  fetchAllEntities(type, vendorCode){
 
-  var that = this;
-  let apiUrl = baseUrl;
+    var that = this;
+    let apiUrl = baseUrl;
 
-  if(type == "Purchase_Order")
-  {
-    apiUrl =apiUrl+vendorPOUrl+that.state.vendor_code;
-  }
-  else if(type == "AllItems")
-  {
-    apiUrl += allItemUrl;
-  }
-  else if(type == "IC")
-  {
-    apiUrl += allIcUrl;
-  }
-
-  console.log(apiUrl);
-  axios.get(apiUrl)
-  .then( response => {
-    console.log(response);
-
-    if(response.status == 200 && type == "IC"){
-      that.setState({ responseDataArray : response.data , flag :2});
+    if(type == "Purchase_Order"){
+      apiUrl =apiUrl+vendorPOUrl+vendorCode;
     }
-    else if(response.status == 200 && type == "AllItems"){
-      that.setState({ responseDataArray : response.data , flag :3});
+    else if(type == "AllItems"){
+      apiUrl += allItemUrl;
     }
-    else if(response.status == 200 && type == "Purchase_Order"){
-      that.setState({ responseDataArray : response.data , flag :4});
+    else if(type == "IC"){
+      apiUrl += allIcUrl;
     }
 
-  })
-  .catch(error => {
-    console.log(error.response);
-    alert(error.response.data.message);
-  });
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
 
+      if(response.status == 200 && type == "IC"){
+        that.setState({ responseDataArray : response.data , flag :2});
+      }
+      else if(response.status == 200 && type == "AllItems"){
+        that.setState({ responseDataArray : response.data , flag :3});
+      }
+      else if(response.status == 200 && type == "Purchase_Order"){
+        that.setState({ responseDataArray : response.data , flag :4});
+      }
+
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
+
+
+  updatePoStatus(status,orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "status" : status
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities("Purchase_Order", that.state.code);
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
   }
 
 }
@@ -476,7 +520,8 @@ const styles = {
   dividerStyle: {
     height: '1px',
     backgroundColor: '#d1ccc0',
-    margin: '4px'
+    margin: '4px',
+    marginTop: 10
   },
   iconSize: 18,
   textFieldStyle: {
@@ -502,5 +547,41 @@ const styles = {
     marginTop : 20,
     fontWeight: 'Bold',
     color: '#006266'
+  },
+  initiatedStyle: {
+    backgroundColor : 'rgb(255,153,0)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  inProgressStyle: {
+    backgroundColor : 'rgb(50,70,195)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  processedStyle: {
+    backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  buttonContainerStyle: {
+    display: 'flex',
+    flexDirection:'row',
+    justifyContent:'flex-end',
+    margin: 12
   }
 };

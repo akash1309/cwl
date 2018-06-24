@@ -103,7 +103,7 @@ export default class StoreOfficerHome extends React.Component {
           <div>
             <AppBar title="StoreOfficer Home" width="50%" />
 
-            <div style={{ display: 'flex', flexDirection: 'row'}}>
+            <div style={{ display: 'flex', flexDirection: 'row', height: '100vh'}}>
 
               <StoreOfficerPalette
                 onClickPlacePurchaseOrder = {() => this.setState({flag:1, update: 1})}
@@ -407,7 +407,7 @@ export default class StoreOfficerHome extends React.Component {
 
                   <div style={{display:'flex', flexDirection:'row' , justifyContent:'space-between'}}>
                   <span><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
-                  <span><span style={styles.textLabel}>Status:</span> <span style={styles.statusStyle}>{member.status}</span></span>
+                  <span><span style={styles.textLabel}>Status:</span> <span style={this.getStatusStyle(member.status)}>{member.status}</span></span>
                   </div>
                   <div style={styles.dividerStyle}/>
 
@@ -443,10 +443,12 @@ export default class StoreOfficerHome extends React.Component {
                     </div>
                   </div>
 
-                  <div style={styles.buttonContainerStyle}>
-                    <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number)}}/>
-                    <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
-                  </div>
+                  { member.status == 'Initiated' ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number)}}/>
+                      <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
+                    </div>
+                  : null }
 
                 </div>
               )
@@ -1002,6 +1004,19 @@ vendorByStoreOfficer(userId) {
     });
 
   }
+
+  getStatusStyle(status){
+    if(status == 'InProgress'){
+      return styles.inProgressStyle;
+    }
+    if(status == 'Initiated'){
+      return styles.initiatedStyle;
+    }
+    if(status == 'Processed'){
+      return styles.processedStyle;
+    }
+  }
+
 }
 
 const styles = {
@@ -1087,13 +1102,14 @@ const styles = {
     flexDirection: 'column',
     border: '1px solid #aaa69d',
     borderRadius: 4,
-    margin: 8,
+    margin: 12,
     padding: 8
   },
   dividerStyle: {
     height: '1px',
     backgroundColor: '#d1ccc0',
-    margin: '4px'
+    margin: '4px',
+    marginTop: 10
   },
   iconSize: 18,
   textFieldStyle: {
@@ -1120,10 +1136,33 @@ const styles = {
     fontWeight: 'Bold',
     color: '#006266'
   },
-  statusStyle: {
+  initiatedStyle: {
     backgroundColor : 'rgb(255,153,0)',
     borderRadius: 2,
-    padding : 4,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  inProgressStyle: {
+    backgroundColor : 'rgb(50,70,195)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  processedStyle: {
+    backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
     fontWeight : 'bold',
     color : 'white'
   },
@@ -1132,7 +1171,6 @@ const styles = {
     flexDirection: 'row',
     alignItems : 'center',
     justifyContent: 'space-around',
-    marginTop: 30
-
+    marginTop: 25
   }
 };

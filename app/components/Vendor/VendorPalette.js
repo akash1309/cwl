@@ -9,17 +9,17 @@ export default class VendorPalette extends Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100%'}}>
-
-        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
-        </a>
-        <div style={styles.dividerStyle}/>
+      <div style={styles.outerContainerStyle}>
 
         <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
+        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Items</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -53,6 +53,13 @@ export default class VendorPalette extends Component {
 }
 
 const styles = {
+  outerContainerStyle: {
+    width: '280px',
+    backgroundColor: '#f7f1e3',
+    padding: '20px',
+    paddingBottom: '0px',
+    marginRight: '10px'
+  },
   innerContainerStyle: {
     display: 'flex',
     flexDirection: 'row',
