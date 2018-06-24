@@ -33,12 +33,13 @@ export default class VendorHome extends Component {
       location : '',
       password : '',
       flag : -1,
+      vendor_code : '',
     }
   }
 
   componentDidMount(){
      const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-     this.setState({_id: userInfo.userId});
+     this.setState({_id: userInfo.userId , vendor_code : userInfo.vendor_code});
   }
 
   render() {
@@ -362,7 +363,7 @@ fetchAllEntities(event,type){
 
   if(type == "Purchase_Order")
   {
-    apiUrl =apiUrl+vendorPOUrl+that.state._id;
+    apiUrl =apiUrl+vendorPOUrl+that.state.vendor_code;
   }
   else if(type == "AllItems")
   {

@@ -21,11 +21,11 @@ export const someStoreOfficerUrl="/storeofficer/some/";
 //////////////////////// PURCHASE ORDER //////////////////////
 export const addPurchaseOrderUrl ="/purchaseorder/add/";
 export const allPurchaseOrderUrl = '/purchaseorder/all/';
-export const onePurchaseOrderUrl="/order/get/";
-export const POUrlByStoreOfficer = "/purchaseorder/";
+export const onePurchaseOrderUrl="/purchaseorder/";
+export const POUrlByStoreOfficer = "/purchaseorder/storeofficer/";
 export const deletePOUrl = '/deletePO/';
 export const updatePOInfoUrl= '/updatePurchaseOrder/';
-export const vendorPOUrl = '/order/get/:code/';
+export const vendorPOUrl = '/purchaseorder/vendor/';
 
 
 ////////////////////////// VENDOR //////////////////////

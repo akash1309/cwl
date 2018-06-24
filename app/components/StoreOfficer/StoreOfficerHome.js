@@ -93,6 +93,7 @@ export default class StoreOfficerHome extends React.Component {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     this.setState({_id: userInfo.userId});
     this.fetchAllEntities("Purchase_Order",userInfo.userId);
+    this.vendorByStoreOfficer(userInfo.userId);
   }
 
 
@@ -106,7 +107,7 @@ export default class StoreOfficerHome extends React.Component {
             <div style={{ display: 'flex', flexDirection: 'row'}}>
 
               <StoreOfficerPalette
-                onClickPlacePurchaseOrder = {() => this.vendorByStoreOfficer(this)}
+                onClickPlacePurchaseOrder = {() => this.setState({flag:1, update: 1})}
                 onClickIntimateDycee = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
                 onClickVendors = {() => this.fetchAllEntities("Vendor")}
                 onClickItems = {() => this.fetchAllEntities("AllItems")}
@@ -309,7 +310,7 @@ export default class StoreOfficerHome extends React.Component {
                 />
               </div>
             </div>
-            <div style={styles.textCellStyle}>
+            <div style={{display: 'flex', flexDirection:'row', justifyContent:'center', marginTop:30}}>
             { this.state.update == 1 ?
             <RaisedButton label="Place Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.place_order(event)}} />
             : null
@@ -340,19 +341,23 @@ export default class StoreOfficerHome extends React.Component {
           <span style={styles.headingStyle}>List of Vendors</span>
         </div>
         <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>Code</span>
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
           <span style={styles.textCellContainer}>Mobile</span>
+          <span style={styles.textCellContainer}>Address</span>
           <span style={styles.textCellContainer}>Location</span>
         </div>
         {
           this.state.responseDataArray.map((member,key) => {
             return (
               <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{member.vendor_code}</span>
                 <span style={styles.textCellContainer}>{member.name}</span>
                 <span style={styles.textCellContainer}>{member.email}</span>
                 <span style={styles.textCellContainer}>{member.mobile}</span>
                 <span style={styles.textCellContainer}>{member.location}</span>
+                <span style={styles.textCellContainer}>{member.address}</span>
               </div>
             )
           })
@@ -441,7 +446,7 @@ export default class StoreOfficerHome extends React.Component {
                     </div>
                   </div>
 
-                  <div style={{display:'flex', flexDirection:'row'}}>
+                  <div style={styles.buttonContainerStyle}>
                     <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number)}}/>
                     <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
                   </div>
@@ -669,9 +674,9 @@ export default class StoreOfficerHome extends React.Component {
 
   }
 
-vendorByStoreOfficer(event) {
+vendorByStoreOfficer(userId) {
   var that = this;
-  var apiUrl = baseUrl + VendorByStoreOfficerUrl + that.state._id;
+  var apiUrl = baseUrl + VendorByStoreOfficerUrl + userId;
 
   axios.get(apiUrl)
   .then(function (response) {
@@ -686,24 +691,28 @@ vendorByStoreOfficer(event) {
   .catch(function (error) {
       alert(error.response.data.message);
   })
-  that.setState({flag:1, update: 1});
+
 }
   addVendorFunc(event){
     var that=this;
     var apiUrl=baseUrl + addVendorUrl;
-    axios.post(apiUrl,{
-        "vendor_code" : that.state.vendor_code,
-        "name" : that.state.name ,
-        "mobile" : that.state.mobile,
-        "email" : that.state.email,
-        "role" : that.state.role,
-        "_id" : that.state._id,
-        "location" : that.state.location,
-        "address" : that.state.address
-    })
+    var body = {
+      "vendor_code" : that.state.vendor_code,
+      "name" : that.state.name ,
+      "mobile" : that.state.mobile,
+      "email" : that.state.email,
+      "role" : that.state.role,
+      "_id" : that.state._id,
+      "location" : that.state.location,
+      "address" : that.state.address
+    };
+    axios.post(apiUrl, body)
    .then(response => {
        if(response.status == 200){
-          alert("Vendor added successfully!");
+          that.vendorByStoreOfficer(that.state._id);
+          setTimeout(function () {
+            that.setState({flag:3});
+          }, 200);
          }
          else if(response.status == 204) {
            alert("Vendor is already present!");
@@ -845,15 +854,13 @@ vendorByStoreOfficer(event) {
             quantity_rate:  response.data.itemdetails.quantity_rate,
             duties_charges: response.data.itemdetails.duties_charges,
             delivery_date:  response.data.itemdetails.delivery_date,
-            code:           response.data.vendor_info.code,
-            email:          response.data.vendor_info.email,
-            address:        response.data.vendor_info.address,
             tender_no:      response.data.tender_info.tender_no,
             tender_type:    response.data.tender_info.tender_type,
             opened_on:      response.data.tender_info.opened_on,
             offer_no:       response.data.offer_no,
             offer_date:     response.data.offer_date,
             storeofficer_id:response.data.storeofficer_id,
+            selectedVendorPos : that.state.vendors_info.findIndex(x => x.vendor_code == response.data.vendor_info.code),
             flag:1,
             update :2
           });
@@ -881,9 +888,9 @@ vendorByStoreOfficer(event) {
     };
 
     var vendor_info = {
-      code: that.state.code,
-      email: that.state.email,
-      address: that.state.address
+      code : that.state.vendors_info[that.state.selectedVendorPos].vendor_code,
+      email : that.state.vendors_info[that.state.selectedVendorPos].email,
+      address: that.state.vendors_info[that.state.selectedVendorPos].address
     };
 
     var tender_info = {
@@ -974,17 +981,13 @@ vendorByStoreOfficer(event) {
 
     var that = this;
     let apiUrl = baseUrl;
-    if(type == "Vendor")
-    {
+    if(type == "Vendor"){
       apiUrl += allVendorUrl;
     }
-    else if(type == "Purchase_Order")
-    {
+    else if(type == "Purchase_Order"){
       apiUrl += POUrlByStoreOfficer + userId;
-
     }
-    else if(type == "AllItems")
-    {
+    else if(type == "AllItems"){
       apiUrl += allItemUrl;
     }
 
@@ -1046,8 +1049,9 @@ const styles = {
     padding: 20
   },
   buttonStyle: {
-    margin: 0,
-    width : '20%'
+    width : '18%',
+    borderRadius : 5,
+    textAlign : 'center'
   },
   itemHeaderContainer: {
     display : 'flex',
@@ -1133,12 +1137,18 @@ const styles = {
     color: '#006266'
   },
   statusStyle: {
-
     backgroundColor : 'rgb(255,153,0)',
     borderRadius: 2,
     padding : 4,
     fontWeight : 'bold',
     color : 'white'
+  },
+  buttonContainerStyle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems : 'center',
+    justifyContent: 'space-around',
+    marginTop: 30
 
   }
 };
