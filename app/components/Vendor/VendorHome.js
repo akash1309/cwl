@@ -3,6 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import * as MaterialIcon from 'react-icons/lib/md';
 import VendorPalette from './VendorPalette';
 import axios from 'axios';
+
 import {
   baseUrl,
   allPurchaseOrderUrl,
@@ -12,7 +13,8 @@ import {
   allItemUrl ,
   allIcUrl,
   vendorPOUrl,
-  updatePOInfoUrl
+  updatePOInfoUrl,
+  getVisitUrl
 } from './../../config/url';
 
 import {
@@ -54,6 +56,7 @@ export default class VendorHome extends Component {
 
               <VendorPalette
                 onClickItems = {() => this.fetchAllEntities("AllItems")}
+                onClickVisits = {() => this.getVisits()}
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order", this.state.code)}
                 onClickInspectionCalls = {() => this.fetchAllEntities("Purchase_Order")}
                 onClickIC = {() => this.fetchAllEntities("IC")}
@@ -65,6 +68,7 @@ export default class VendorHome extends Component {
               { this.showIC() }
               { this.showItems() }
               { this.showPurchaseOrders() }
+              { this.showVisits() }
 
             </div>
           </div>
@@ -309,6 +313,46 @@ export default class VendorHome extends Component {
       );
   }
 
+  showVisits = () => {
+    if(this.state.flag == 5)
+        return (
+              this.state.responseDataArray.map((member,key) => {
+                return (
+                <div style = {styles.visitContainer}>
+                  <div style = {styles.visitLeftBoxStyle}>
+                  </div>
+                  <div style = {styles.visitRightBoxStyle}>
+                    <span style = {styles.visitHeadingStyle}>
+                      {member.name}
+                    </span>
+                    <span style = {styles.visitLowerHeadingStyle}>
+                      {member.location}
+                    </span>
+                    <div style={styles.visitdividerStyle}/>
+                    <div style = {{display:'flex',flexDirection:'row'}}>
+                      <span style={styles.visitTextStyle}>{member.date}</span>
+                      <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+                    </div>
+                    <div style = {{display:'flex',flexDirection:'row'}}>
+                      <span style={styles.visitTextStyle}>{member.time}</span>
+                      <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+                    </div>
+                    <div style = {{display:'flex',flexDirection:'row'}}>
+                      <span style={styles.visitTextStyle}>{member.email}</span>
+                      <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle} />
+                    </div>
+                    <div style = {{display:'flex',flexDirection:'row'}}>
+                      <span style={styles.visitTextStyle}>{member.mobile}</span>
+                      <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle} />
+                    </div>
+                  </div>
+                </div>
+              );
+              })
+            );
+    
+  }
+
   getStatusStyle(status){
     if(status == 'InProgress'){
       return styles.inProgressStyle;
@@ -419,6 +463,23 @@ export default class VendorHome extends Component {
 
   }
 
+  getVisits(){
+    var that = this;
+    let apiUrl = baseUrl + getVisitUrl + that.state.code;
+
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+
+      if(response.status == 200){
+        that.setState({ responseDataArray : response.data , flag :5});
+      }
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
 
   updatePoStatus(status,orderNumber){
 
@@ -595,5 +656,49 @@ const styles = {
     flexDirection:'row',
     justifyContent:'flex-end',
     margin: 12
-  }
+  },
+  visitContainer: {
+    display : 'flex',
+    flexDirection : 'row',
+    width : '60%',
+    height : '40%',
+  },
+  visitLeftBoxStyle: {
+    flex : 1,
+    backgroundColor : 'black',
+  },
+  visitRightBoxStyle: {
+    flex: 1,
+    display : 'flex',
+    flexDirection : 'column',
+    backgroundColor : 'rgb(248,248,248)'
+  },
+  visitHeadingStyle: {
+    textAlign : 'right',
+    fontFamily: 'Montserrat',
+    fontSize: '18px',
+    margin : 10,
+    fontWeight: 'Bold',
+    color: '#006266',
+
+  },
+  visitLowerHeadingStyle: {
+    textAlign : 'right',
+    fontFamily: 'Montserrat',
+    fontSize: '12px',
+    marginRight : 10,
+    fontWeight: 'Bold',
+    color: 'black'
+  },
+  visitdividerStyle: {
+    height: '1px',
+    backgroundColor: 'black',
+    margin: '4px',
+    marginTop: 10
+  },
+  visitTextStyle: {
+    textAlign : 'right',
+    fontFamily: 'Montserrat',
+    marginRight : 10,
+  },
 };

@@ -17,6 +17,12 @@ export default class VendorPalette extends Component {
         </a>
         <div style={styles.dividerStyle}/>
 
+        <a onClick={this.props.onClickVisits} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Visits</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
         <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
           <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Items</span>

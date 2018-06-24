@@ -66,3 +66,6 @@ export const loginUrl= "/login/";
 export const getInfoUrl = "/user/";
 export const updateInfoUrl = '/updateinfo/';
 export const deleteInfoUrl = '/deleteInfo/';
+
+//////////////////////VISIT ////////////////////
+export const getVisitUrl = "/visit/get/";
