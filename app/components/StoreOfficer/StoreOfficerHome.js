@@ -981,7 +981,11 @@ vendorByStoreOfficer(event) {
       apiUrl += allItemUrl;
     }
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: userId
+    };
+
+    axios.get(apiUrl, { headers })
     .then( response => {
       console.log(response);
       if(response.status == 200 && type == "Vendor"){
