@@ -103,7 +103,7 @@ export default class StoreOfficerHome extends React.Component {
           <div>
             <AppBar title="StoreOfficer Home" width="50%" />
 
-            <div style={{ display: 'flex', flexDirection: 'row', height: '100vh'}}>
+            <div style={{ display: 'flex', flexDirection: 'row'}}>
 
               <StoreOfficerPalette
                 onClickPlacePurchaseOrder = {() => this.setState({flag:1, update: 1})}
