@@ -70,8 +70,15 @@ export default class StoreOfficerHome extends React.Component {
 
  };
 
-  handleOpen = () => {
-    this.setState({open: true});
+  handleOpen(orderNumber){
+    this.setState({
+      open: true,
+      order_number: orderNumber
+    });
+  };
+
+  deletePurchaseOrder = () => {
+    this.cancelPOFunc();
   };
 
   handleClose = () => {
@@ -133,7 +140,7 @@ export default class StoreOfficerHome extends React.Component {
 
     const actions = [
       <FlatButton
-        label="Cancel"
+        label="Back"
         primary={true}
         onClick={this.handleClose}
       />,
@@ -141,7 +148,7 @@ export default class StoreOfficerHome extends React.Component {
         label="Delete"
         primary={true}
         keyboardFocused={true}
-        onClick={this.handleClose}
+        onClick={this.deletePurchaseOrder}
       />,
     ];
 
@@ -435,8 +442,8 @@ export default class StoreOfficerHome extends React.Component {
                   </div>
 
                   <div style={{display:'flex', flexDirection:'row'}}>
-                  <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={this.handleOpen}/>
-                  <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
+                    <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number)}}/>
+                    <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
                   </div>
 
                 </div>
@@ -708,15 +715,15 @@ vendorByStoreOfficer(event) {
 
   }
 
- cancelPOFunc(event,order_number){
+ cancelPOFunc(event){
    var that=this;
    var apiUrl=baseUrl + deletePOUrl;
    axios.post(apiUrl,{
-      "order_number" : order_number
+      "order_number" : that.state.order_number
     })
     .then(response => {
       if(response.status == 200){
-         that.fetchAllEntities(this,"Purchase_Order");
+         that.fetchAllEntities("Purchase_Order", that.state._id);
         }
         else if(response.status == 404) {
           alert("Purchase Order is not present!");
@@ -810,7 +817,7 @@ vendorByStoreOfficer(event) {
    .then(response => {
        if(response.status == 200){
           //alert("Order placed successfully!");
-          that.fetchAllEntities(this,"Purchase_Order");
+          that.fetchAllEntities("Purchase_Order", that.state._id);
          }
          else if(response.status == 204) {
            alert("Order is already present!");
@@ -898,7 +905,7 @@ vendorByStoreOfficer(event) {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.fetchAllEntities(this,"Purchase_Order");
+        that.fetchAllEntities("Purchase_Order", that.state._id);
       //  alert("Information is updated successfully!");
       }
       else if(response.status == 204) {
@@ -995,7 +1002,11 @@ vendorByStoreOfficer(event) {
         that.setState({ responseDataArray : response.data , flag :4});
       }
       else if(response.status == 200 && type == "Purchase_Order"){
-        that.setState({ responseDataArray : response.data , flag :5});
+        that.setState({
+          responseDataArray : response.data,
+          flag:5,
+          open: false
+        });
       }
     })
     .catch(error => {

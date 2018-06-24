@@ -11,6 +11,12 @@ export default class StoreOfficerPalette extends Component {
     return (
       <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100%'}}>
 
+        <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Purchase Orders</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
         <a onClick={this.props.onClickPlacePurchaseOrder} style={styles.innerContainerStyle}>
           <MaterialIcon.MdAddShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Place Purchase Order</span>
@@ -32,12 +38,6 @@ export default class StoreOfficerPalette extends Component {
         <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
           <MaterialIcon.MdShoppingBasket size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Items</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Purchase Orders</span>
         </a>
         <div style={styles.dividerStyle}/>
 
