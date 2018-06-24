@@ -85,6 +85,7 @@ export default class StoreOfficerHome extends React.Component {
   componentDidMount(){
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     this.setState({_id: userInfo.userId});
+    this.fetchAllEntities("Purchase_Order",userInfo.userId);
   }
 
 
@@ -99,10 +100,10 @@ export default class StoreOfficerHome extends React.Component {
 
               <StoreOfficerPalette
                 onClickPlacePurchaseOrder = {() => this.vendorByStoreOfficer(this)}
-                onClickIntimateDycee = {() => this.fetchAllEntities(this,"Purchase_Order")}
-                onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
-                onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
-                onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
+                onClickIntimateDycee = {() => this.fetchAllEntities("Purchase_Order")}
+                onClickVendors = {() => this.fetchAllEntities("Vendor")}
+                onClickItems = {() => this.fetchAllEntities("AllItems")}
+                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order")}
                 onClickAddVendor = {() => this.setState({flag:6})}
                 onClickAddItem = {() => this.setState({flag:7})}
                 onClickDeleteItem = {() => this.setState({flag:8})}
@@ -395,7 +396,10 @@ export default class StoreOfficerHome extends React.Component {
               return (
                 <div style = {styles.purchaseOrderContainer}>
 
+                  <div style={{display:'flex', flexDirection:'row'}}>
                   <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Status</span> <span style={styles.statusStyle}>{member.status}</span></span>
+                  </div>
                   <div style={styles.dividerStyle}/>
 
                   <div style={{display:'flex', flexDirection:'row'}}>
@@ -427,10 +431,6 @@ export default class StoreOfficerHome extends React.Component {
                       <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
                       <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
-                    </div>
-                    <div style={styles.boxStyle}>
-                      <span style={styles.textStyle}>Status</span>
-                      <span style={styles.purchaseCell}>{member.status}</span>
                     </div>
                   </div>
 
@@ -963,7 +963,7 @@ vendorByStoreOfficer(event) {
 
 
 
-  fetchAllEntities(event,type){
+  fetchAllEntities(type,userId){
 
     var that = this;
     let apiUrl = baseUrl;
@@ -973,7 +973,7 @@ vendorByStoreOfficer(event) {
     }
     else if(type == "Purchase_Order")
     {
-      apiUrl += POUrlByStoreOfficer + that.state._id;
+      apiUrl += POUrlByStoreOfficer + userId;
 
     }
     else if(type == "AllItems")
@@ -1116,5 +1116,11 @@ const styles = {
     marginTop : 10,
     fontWeight: 'Bold',
     color: '#006266'
+  },
+  statusStyle: {
+    border: '2px solid #00BCD4',
+    borderRadius: 25,
+    padding : 5,
+    margin: 10,
   }
 };
