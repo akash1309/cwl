@@ -23,6 +23,8 @@ export const addPurchaseOrderUrl ="/purchaseorder/add/";
 export const allPurchaseOrderUrl = '/purchaseorder/all/';
 export const onePurchaseOrderUrl="/order/get/";
 export const deletePOUrl = '/deletePO/';
+export const updatePOInfoUrl= '/updatePurchaseOrder/';
+export const vendorPOUrl = '/order/get/:code/';
 
 
 ////////////////////////// VENDOR //////////////////////

@@ -11,6 +11,7 @@ import CeeHome from './CEE/CeeHome';
 import DyceeHome from './DyCEE/DyceeHome';
 import VendorHome from './Vendor/VendorHome';
 import StoreOfficerHome from './StoreOfficer/StoreOfficerHome';
+import Test from './Test/Test';
 
 export default function App(props) {
   return (
@@ -22,6 +23,7 @@ export default function App(props) {
         <Route path="/dycee" exact component={DyceeHome} />
         <Route path="/vendor" exact component={VendorHome} />
         <Route path="/storeofficer" exact component={StoreOfficerHome} />
+        <Route path="/test" exact component={Test} />
 
       </Switch>
     </div>

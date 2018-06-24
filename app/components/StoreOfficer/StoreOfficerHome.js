@@ -3,7 +3,13 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import axios from 'axios';
 import * as MaterialIcon from 'react-icons/lib/md';
 import StoreOfficerPalette from './StoreOfficerPalette';
-
+import {
+  AppBar,
+  RaisedButton,
+  TextField,
+  Dialog,
+  FlatButton
+} from 'material-ui';
 import {
   baseUrl ,
   allVendorUrl ,
@@ -15,15 +21,10 @@ import {
   addItemUrl ,
   allItemUrl,
   deletePOUrl,
-  deleteItemUrl
+  deleteItemUrl,
+  updatePOInfoUrl,
+  onePurchaseOrderUrl
 } from './../../config/url';
-
-
-import {
-  AppBar,
-  RaisedButton,
-  TextField,
-} from 'material-ui';
 
 export default class StoreOfficerHome extends React.Component {
 
@@ -54,11 +55,20 @@ export default class StoreOfficerHome extends React.Component {
     offer_date : '',
     role : "Vendor",
     model_number : '',
-    quantity:      ''
+    quantity:      '',
+    update : -1,
+    open: false
    }
 
  };
 
+  handleOpen = () => {
+    this.setState({open: true});
+  };
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
 
   componentDidMount(){
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -72,10 +82,11 @@ export default class StoreOfficerHome extends React.Component {
         <MuiThemeProvider>
           <div>
             <AppBar title="StoreOfficer Home" width="50%" />
+
             <div style={{ display: 'flex', flexDirection: 'row'}}>
 
               <StoreOfficerPalette
-                onClickPlacePurchaseOrder = {() => this.setState({flag:1})}
+                onClickPlacePurchaseOrder = {() => this.setState({flag:1 , update: 1})}
                 onClickIntimateDycee = {() => this.fetchAllEntities(this,"Purchase_Order")}
                 onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
                 onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
@@ -83,7 +94,6 @@ export default class StoreOfficerHome extends React.Component {
                 onClickAddVendor = {() => this.setState({flag:6})}
                 onClickAddItem = {() => this.setState({flag:7})}
                 onClickDeleteItem = {() => this.setState({flag:8})}
-                onClickCancelPurchaseOrder = {() => this.setState( {flag : 9} )}
                 onClickProfile = {() => this.getProfileInfo(this)}
               />
 
@@ -95,8 +105,8 @@ export default class StoreOfficerHome extends React.Component {
               { this.addVendor() }
               { this.addItem() }
               { this.deleteItem() }
-              { this.cancelPurchaseOrder() }
               { this.showProfile() }
+              { this.cancelPOconfirmation() }
 
             </div>
           </div>
@@ -105,6 +115,39 @@ export default class StoreOfficerHome extends React.Component {
 
     );
   }
+
+  cancelPOconfirmation = () => {
+
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onClick={this.handleClose}
+      />,
+      <FlatButton
+        label="Delete"
+        primary={true}
+        keyboardFocused={true}
+        onClick={this.handleClose}
+      />,
+    ];
+
+    return(
+      <div>
+        <Dialog
+          title="Delete Purchase Order"
+          actions={actions}
+          modal={false}
+          open={this.state.open}
+          onRequestClose={this.handleClose}
+        >
+          Are you sure you want to delete the purchase order ?
+        </Dialog>
+      </div>
+    );
+  }
+
+
 
   placePurchaseOrder = () => {
 
@@ -120,6 +163,7 @@ export default class StoreOfficerHome extends React.Component {
                 <TextField
                   hintText="Order_Number"
                   floatingLabelText="Order_Number"
+                  value = {this.state.order_number}
                   onChange = {(event,newValue) => this.setState({order_number:newValue })}
                   style={styles.textFieldStyle}
                 />
@@ -128,6 +172,7 @@ export default class StoreOfficerHome extends React.Component {
                 <TextField
                   hintText="Order_Date"
                   floatingLabelText="Order_Date"
+                  value= {this.state.order_date}
                   onChange = {(event,newValue) => this.setState({order_date:newValue})}
                   style={styles.textFieldStyle}
                 />
@@ -146,6 +191,7 @@ export default class StoreOfficerHome extends React.Component {
                   multiLine={true}
                   rows={6}
                   rowsMax={6}
+                  value= {this.state.specification}
                   onChange = {(event,newValue) => this.setState({specification:newValue })}
                   style={styles.textFieldStyle}
                 />
@@ -154,18 +200,21 @@ export default class StoreOfficerHome extends React.Component {
                 <TextField
                   hintText="Quantity/Rate"
                   floatingLabelText="Quantity/Rate"
+                  value= {this.state.quantity_rate}
                   onChange = {(event,newValue) => this.setState({quantity_rate:newValue })}
                   style={styles.textFieldStyle}
                 />
                 <TextField
                   hintText="Duties/Charges"
                   floatingLabelText="Duties/Charges"
+                  value= {this.state.duties_charges}
                   onChange = {(event,newValue) => this.setState({duties_charges:newValue })}
                   style={styles.textFieldStyle}
                 />
                 <TextField
                   hintText="Delivery Date"
                   floatingLabelText="Delivery Date"
+                  value= {this.state.delivery_date}
                   onChange = {(event,newValue) => this.setState({delivery_date:newValue })}
                   style={styles.textFieldStyle}
                 />
@@ -180,12 +229,14 @@ export default class StoreOfficerHome extends React.Component {
                   <TextField
                     hintText="Vendor code"
                     floatingLabelText="Code"
+                    value= {this.state.code}
                     onChange = {(event,newValue) => this.setState({code:newValue })}
                     style={styles.textFieldStyle}
                   />
                   <TextField
                     hintText="Email"
                     floatingLabelText="Email"
+                    value= {this.state.email}
                     onChange = {(event,newValue) => this.setState({email:newValue })}
                     style={styles.textFieldStyle}
                   />
@@ -195,6 +246,7 @@ export default class StoreOfficerHome extends React.Component {
                     multiLine={true}
                     rows={3}
                     rowsMax={5}
+                    value= {this.state.address}
                     onChange = {(event,newValue) => this.setState({address:newValue })}
                     style={styles.textFieldStyle}
                   />
@@ -204,18 +256,21 @@ export default class StoreOfficerHome extends React.Component {
                   <TextField
                     hintText="Tender number"
                     floatingLabelText="Tender number"
+                    value= {this.state.tender_no}
                     onChange = {(event,newValue) => this.setState({tender_no:newValue })}
                     style={styles.textFieldStyle}
                   />
                   <TextField
                     hintText="Tender type"
                     floatingLabelText="Tender type"
+                    value= {this.state.tender_type}
                     onChange = {(event,newValue) => this.setState({tender_type:newValue })}
                     style={styles.textFieldStyle}
                   />
                   <TextField
                     hintText="Opened on"
                     floatingLabelText="Opened on"
+                    value= {this.state.opened_on}
                     onChange = {(event,newValue) => this.setState({opened_on:newValue })}
                     style={styles.textFieldStyle}
                   />
@@ -231,6 +286,7 @@ export default class StoreOfficerHome extends React.Component {
                 <TextField
                   hintText="Offer_No"
                   floatingLabelText="Offer_No"
+                  value= {this.state.offer_no}
                   onChange = {(event,newValue) => this.setState({offer_no:newValue })}
                   style={styles.textFieldStyle}
                 />
@@ -239,13 +295,22 @@ export default class StoreOfficerHome extends React.Component {
                 <TextField
                   hintText="Offer_Date"
                   floatingLabelText="Offer_Date"
+                  value= {this.state.offer_date}
                   onChange = {(event,newValue) => this.setState({offer_date:newValue })}
                   style={styles.textFieldStyle}
                 />
               </div>
             </div>
             <div style={styles.textCellStyle}>
+            { this.state.update == 1 ?
             <RaisedButton label="Place Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.place_order(event)}} />
+            : null
+            }
+            { this.state.update == 2 ?
+            <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.updatePO(event)}} />
+            : null
+            }
+
             </div>
           </div>
         </div>
@@ -363,6 +428,13 @@ export default class StoreOfficerHome extends React.Component {
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
                     </div>
 
+
+
+                  </div>
+
+                  <div style={{display:'flex', flexDirection:'row'}}>
+                  <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={this.handleOpen}/>
+                  <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
                   </div>
                 </div>
               )
@@ -371,6 +443,7 @@ export default class StoreOfficerHome extends React.Component {
         </div>
       );
   }
+
 
   addVendor = () => {
     if(this.state.flag == 6)
@@ -492,32 +565,6 @@ export default class StoreOfficerHome extends React.Component {
     );
   }
 
-  cancelPurchaseOrder = () => {
-     if(this.state.flag == 9)
-     return (
-       <div style={styles.outerContainerStyle}>
-	       <div style={styles.innerContainerStyle}>
-         <span style={styles.headingStyle}>PO Cancellation</span>
-
-         <div style={styles.textCellStyle}>
-           <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
-             <TextField
-               hintText="Order_number"
-               floatingLabelText="Order_number"
-               onChange = {(event,newValue) => this.setState({order_number:newValue})}
-               style={styles.textFieldStyle}
-             />
-           </div>
-           <br/>
-           <div style={styles.textCellStyle}>
-             <RaisedButton label="Cancel" primary={true} style={styles.buttonStyle} onClick={(event) => {this.cancelPOFunc(event)}} />
-           </div>
-         </div>
-       </div>
-
-     );
-  }
-
   showProfile = () => {
 
     if(this.state.flag == 10 )
@@ -620,15 +667,15 @@ export default class StoreOfficerHome extends React.Component {
 
   }
 
- cancelPOFunc(event){
+ cancelPOFunc(event,order_number){
    var that=this;
    var apiUrl=baseUrl + deletePOUrl;
    axios.post(apiUrl,{
-      "order_number" : that.state.order_number
+      "order_number" : order_number
     })
     .then(response => {
       if(response.status == 200){
-         alert("Purchase Order cancelled successfully!");
+         that.fetchAllEntities(this,"Purchase_Order");
         }
         else if(response.status == 404) {
           alert("Purchase Order is not present!");
@@ -716,7 +763,8 @@ export default class StoreOfficerHome extends React.Component {
     })
    .then(response => {
        if(response.status == 200){
-          alert("Order placed successfully!");
+          //alert("Order placed successfully!");
+          that.fetchAllEntities(this,"Purchase_Order");
          }
          else if(response.status == 204) {
            alert("Order is already present!");
@@ -726,6 +774,95 @@ export default class StoreOfficerHome extends React.Component {
      alert(error.response.data.message);
    });
 
+  }
+
+  getOrderInfo(event,order_number){
+
+    var that = this;
+    var apiUrl = baseUrl + onePurchaseOrderUrl + order_number;
+
+    axios.get(apiUrl)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          that.setState({
+            order_number :  response.data.order_number ,
+            order_date :    response.data.order_date,
+            specification : response.data.itemdetails.specification,
+            quantity_rate:  response.data.itemdetails.quantity_rate,
+            duties_charges: response.data.itemdetails.duties_charges,
+            delivery_date:  response.data.itemdetails.delivery_date,
+            code:           response.data.vendor_info.code,
+            email:          response.data.vendor_info.email,
+            address:        response.data.vendor_info.address,
+            tender_no:      response.data.tender_info.tender_no,
+            tender_type:    response.data.tender_info.tender_type,
+            opened_on:      response.data.tender_info.opened_on,
+            offer_no:       response.data.offer_no,
+            offer_date:     response.data.offer_date,
+            storeofficer_id:response.data.storeofficer_id,
+            flag:1,
+            update :2
+          });
+
+      }
+      else if(response.status == 404) {
+        alert("No Purchase Order found with this order number");
+      }
+    })
+    .catch(function (error) {
+        alert(error.response.data.message);
+    })
+  }
+
+  updatePO(event){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    var itemdetails = {
+      specification: that.state.specification,
+      quantity_rate: that.state.quantity_rate,
+      duties_charges: that.state.duties_charges,
+      delivery_date: that.state.delivery_date
+    };
+
+    var vendor_info = {
+      code: that.state.code,
+      email: that.state.email,
+      address: that.state.address
+    };
+
+    var tender_info = {
+      tender_no: that.state.tender_no,
+      tender_type: that.state.tender_type,
+      opened_on: that.state.opened_on
+    };
+
+    axios.post(apiUrl,{
+      "order_number" : that.state.order_number ,
+      "order_date" :  that.state.order_date,
+      "itemdetails" : itemdetails,
+      "vendor_info" : vendor_info,
+      "tender_info" : tender_info,
+      "offer_no" :    that.state.offer_no,
+      "offer_date" : that.state.offer_date,
+      "storeofficer_id" : that.state.storeofficer_id
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities(this,"Purchase_Order");
+      //  alert("Information is updated successfully!");
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
   }
 
   getProfileInfo(event){
@@ -777,6 +914,8 @@ export default class StoreOfficerHome extends React.Component {
       alert(error.response.data.message);
     });
   }
+
+
 
   fetchAllEntities(event,type){
 
@@ -846,6 +985,7 @@ const styles = {
   },
   buttonStyle: {
     margin: 0,
+    width : '20%'
   },
   itemHeaderContainer: {
     display : 'flex',

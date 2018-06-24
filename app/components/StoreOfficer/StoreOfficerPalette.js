@@ -59,12 +59,6 @@ export default class StoreOfficerPalette extends Component {
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickCancelPurchaseOrder} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdDeleteSweep size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Cancel Purchase Order</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
         <a onClick={this.props.onClickProfile} style={styles.innerContainerStyle}>
           <MaterialIcon.MdFace size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>My Profile</span>

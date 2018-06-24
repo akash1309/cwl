@@ -10,7 +10,9 @@ import {
   updateInfoUrl ,
   addItemUrl ,
   allItemUrl ,
-  allIcUrl
+  allIcUrl,
+  vendorPOUrl,
+  updatePOInfoUrl
 } from './../../config/url';
 
 import {
@@ -329,14 +331,15 @@ export default class VendorHome extends Component {
     });
   }
 
-  fetchAllEntities(event,type){
+
+fetchAllEntities(event,type){
 
   var that = this;
   let apiUrl = baseUrl;
 
   if(type == "Purchase_Order")
   {
-    apiUrl += allPurchaseOrderUrl;
+    apiUrl =apiUrl+vendorPOUrl+that.state._id;
   }
   else if(type == "AllItems")
   {
