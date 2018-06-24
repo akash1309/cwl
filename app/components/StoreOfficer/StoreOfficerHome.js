@@ -58,7 +58,6 @@ export default class StoreOfficerHome extends React.Component {
     opened_on :    '',
     offer_no : '' ,
     offer_date : '',
-    role : "Vendor",
     model_number : '',
     quantity:      '',
     selectedVendorPos: 0,
@@ -109,7 +108,7 @@ export default class StoreOfficerHome extends React.Component {
               <StoreOfficerPalette
                 onClickPlacePurchaseOrder = {() => this.setState({flag:1, update: 1})}
                 onClickIntimateDycee = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
-                onClickVendors = {() => this.fetchAllEntities("Vendor")}
+                onClickVendors = {() => this.fetchAllEntities("Vendor",this.state._id)}
                 onClickItems = {() => this.fetchAllEntities("AllItems")}
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
                 onClickAddVendor = {() => this.setState({flag:6})}
@@ -346,7 +345,6 @@ export default class StoreOfficerHome extends React.Component {
           <span style={styles.textCellContainer}>Email</span>
           <span style={styles.textCellContainer}>Mobile</span>
           <span style={styles.textCellContainer}>Address</span>
-          <span style={styles.textCellContainer}>Location</span>
         </div>
         {
           this.state.responseDataArray.map((member,key) => {
@@ -356,7 +354,6 @@ export default class StoreOfficerHome extends React.Component {
                 <span style={styles.textCellContainer}>{member.name}</span>
                 <span style={styles.textCellContainer}>{member.email}</span>
                 <span style={styles.textCellContainer}>{member.mobile}</span>
-                <span style={styles.textCellContainer}>{member.location}</span>
                 <span style={styles.textCellContainer}>{member.address}</span>
               </div>
             )
@@ -508,15 +505,6 @@ export default class StoreOfficerHome extends React.Component {
                 hintText="Address"
                 floatingLabelText="Address"
                 onChange = {(event,newValue) => this.setState({address:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Location"
-                floatingLabelText="Location"
-                onChange = {(event,newValue) => this.setState({location:newValue})}
                 style={styles.textFieldStyle}
               />
             </div>
@@ -701,18 +689,14 @@ vendorByStoreOfficer(userId) {
       "name" : that.state.name ,
       "mobile" : that.state.mobile,
       "email" : that.state.email,
-      "role" : that.state.role,
-      "_id" : that.state._id,
-      "location" : that.state.location,
+      "role" : "Vendor",
+      "storeofficer_id" : that.state._id,
       "address" : that.state.address
     };
     axios.post(apiUrl, body)
    .then(response => {
        if(response.status == 200){
-          that.vendorByStoreOfficer(that.state._id);
-          setTimeout(function () {
-            that.setState({flag:3});
-          }, 200);
+          that.fetchAllEntities("Vendor",that.state._id);
          }
          else if(response.status == 204) {
            alert("Vendor is already present!");
@@ -982,7 +966,7 @@ vendorByStoreOfficer(userId) {
     var that = this;
     let apiUrl = baseUrl;
     if(type == "Vendor"){
-      apiUrl += allVendorUrl;
+      apiUrl += VendorByStoreOfficerUrl + userId;
     }
     else if(type == "Purchase_Order"){
       apiUrl += POUrlByStoreOfficer + userId;
