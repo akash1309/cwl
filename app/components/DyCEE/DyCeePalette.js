@@ -12,6 +12,12 @@ export default class DyCeePalette extends React.Component {
     return (
       <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height: '100%'}}>
 
+        <a onClick={this.props.onClickPurchaseOrder} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Purchase Orders</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+        
         <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
           <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Items</span>
@@ -45,12 +51,6 @@ export default class DyCeePalette extends React.Component {
         <a onClick={this.props.onClickAddStoreOfficer} style={styles.innerContainerStyle}>
           <MaterialIcon.MdPersonAdd size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Add StoreOfficer</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickPurchaseOrder} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Purchase Orders</span>
         </a>
         <div style={styles.dividerStyle}/>
 
