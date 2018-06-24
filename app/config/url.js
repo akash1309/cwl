@@ -22,6 +22,7 @@ export const someStoreOfficerUrl="/storeofficer/some/";
 export const addPurchaseOrderUrl ="/purchaseorder/add/";
 export const allPurchaseOrderUrl = '/purchaseorder/all/';
 export const onePurchaseOrderUrl="/order/get/";
+export const POUrlByStoreOfficer = "/purchaseorder/";
 export const deletePOUrl = '/deletePO/';
 export const updatePOInfoUrl= '/updatePurchaseOrder/';
 export const vendorPOUrl = '/order/get/:code/';
@@ -32,6 +33,7 @@ export const addVendorUrl ="/vendor/add/";
 export const allVendorUrl="/vendor/all/";
 export const oneVendorUrl="/vendor/one/";
 export const someVendorUrl="/vendor/some/";
+export const VendorByStoreOfficerUrl = "/vendor/";
 
 ////////////////// INSPECTION CERTIFICATE(IC) ////////////////
 export const icGenerateUrl = '/ic/generate/';

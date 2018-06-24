@@ -10,6 +10,10 @@ import {
   Dialog,
   FlatButton
 } from 'material-ui';
+
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+
 import {
   baseUrl ,
   allVendorUrl ,
@@ -23,7 +27,9 @@ import {
   deletePOUrl,
   deleteItemUrl,
   updatePOInfoUrl,
-  onePurchaseOrderUrl
+  onePurchaseOrderUrl,
+  VendorByStoreOfficerUrl,
+  POUrlByStoreOfficer,
 } from './../../config/url';
 
 export default class StoreOfficerHome extends React.Component {
@@ -33,10 +39,12 @@ export default class StoreOfficerHome extends React.Component {
 
     this.state = {
     responseDataArray : [],
+    vendor_code : '',
     name : '',
     email : '',
     mobile : '',
     location : '',
+    address: '',
     password : '',
     flag : -1,
     order_number : '' ,
@@ -45,9 +53,6 @@ export default class StoreOfficerHome extends React.Component {
     quantity_rate:  '',
     duties_charges: '',
     delivery_date:  '',
-    code:     '',
-    email :   '',
-    address : '',
     tender_no:     '',
     tender_type:   '',
     opened_on :    '',
@@ -56,9 +61,12 @@ export default class StoreOfficerHome extends React.Component {
     role : "Vendor",
     model_number : '',
     quantity:      '',
+    selectedVendorPos: 0,
+    vendors_info : [],
     update : -1,
     open: false
    }
+
 
  };
 
@@ -68,6 +76,10 @@ export default class StoreOfficerHome extends React.Component {
 
   handleClose = () => {
     this.setState({open: false});
+  };
+
+  handleChange = (event, index, value) => {
+   this.setState({selectedVendorPos : value});
   };
 
   componentDidMount(){
@@ -86,7 +98,7 @@ export default class StoreOfficerHome extends React.Component {
             <div style={{ display: 'flex', flexDirection: 'row'}}>
 
               <StoreOfficerPalette
-                onClickPlacePurchaseOrder = {() => this.setState({flag:1 , update: 1})}
+                onClickPlacePurchaseOrder = {() => this.vendorByStoreOfficer(this)}
                 onClickIntimateDycee = {() => this.fetchAllEntities(this,"Purchase_Order")}
                 onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
                 onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
@@ -152,6 +164,11 @@ export default class StoreOfficerHome extends React.Component {
   placePurchaseOrder = () => {
 
     if(this.state.flag == 1)
+    {
+      let items = [];
+      for (let i = 0; i < this.state.vendors_info.length; i++ ) {
+        items.push(<MenuItem value={i} key={i} primaryText={this.state.vendors_info[i].vendor_code + " " + this.state.vendors_info[i].name} />);
+      }
       return (
 
         <div style={styles.outerContainerStyle}>
@@ -226,30 +243,13 @@ export default class StoreOfficerHome extends React.Component {
             <div style={{display : 'flex' , flexDirection:'row'}}>
               <div style={styles.boxStyle}>
                   <span style={styles.textLabel}>Vendor Details:</span>
-                  <TextField
-                    hintText="Vendor code"
-                    floatingLabelText="Code"
-                    value= {this.state.code}
-                    onChange = {(event,newValue) => this.setState({code:newValue })}
-                    style={styles.textFieldStyle}
-                  />
-                  <TextField
-                    hintText="Email"
-                    floatingLabelText="Email"
-                    value= {this.state.email}
-                    onChange = {(event,newValue) => this.setState({email:newValue })}
-                    style={styles.textFieldStyle}
-                  />
-                  <TextField
-                    hintText="Address"
-                    floatingLabelText="Address"
-                    multiLine={true}
-                    rows={3}
-                    rowsMax={5}
-                    value= {this.state.address}
-                    onChange = {(event,newValue) => this.setState({address:newValue })}
-                    style={styles.textFieldStyle}
-                  />
+                  <SelectField
+                    value={this.state.selectedVendorPos}
+                    onChange={this.handleChange}
+                    maxHeight={200}
+                  >
+                    {items}
+                  </SelectField>
               </div>
               <div style={styles.boxStyle}>
                   <span style={styles.textLabel}>Tender Details:</span>
@@ -316,6 +316,7 @@ export default class StoreOfficerHome extends React.Component {
         </div>
 
       );
+    }
   }
 
   intimateDycee = () => {
@@ -427,15 +428,17 @@ export default class StoreOfficerHome extends React.Component {
                       <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
                     </div>
-
-
-
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Status</span>
+                      <span style={styles.purchaseCell}>{member.status}</span>
+                    </div>
                   </div>
 
                   <div style={{display:'flex', flexDirection:'row'}}>
                   <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={this.handleOpen}/>
                   <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
                   </div>
+
                 </div>
               )
             })
@@ -451,6 +454,15 @@ export default class StoreOfficerHome extends React.Component {
         <div style={styles.outerContainerStyle}>
           <span style={styles.headingStyle}>Vendor Panel</span>
           <div style={styles.innerContainerStyle}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Vendor Code"
+                floatingLabelText="Code"
+                onChange = {(event,newValue) => this.setState({vendor_code:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
             <div style={styles.textCellStyle}>
               <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
@@ -475,6 +487,15 @@ export default class StoreOfficerHome extends React.Component {
                 hintText="Mobile"
                 floatingLabelText="Mobile"
                 onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Address"
+                floatingLabelText="Address"
+                onChange = {(event,newValue) => this.setState({address:newValue})}
                 style={styles.textFieldStyle}
               />
             </div>
@@ -641,17 +662,37 @@ export default class StoreOfficerHome extends React.Component {
 
   }
 
+vendorByStoreOfficer(event) {
+  var that = this;
+  var apiUrl = baseUrl + VendorByStoreOfficerUrl + that.state._id;
 
+  axios.get(apiUrl)
+  .then(function (response) {
+    console.log(response);
+    if(response.status == 200){
+      that.setState({vendors_info : response.data});
+    }
+    else if(response.status == 404) {
+      alert("No Vendors found with this id");
+    }
+  })
+  .catch(function (error) {
+      alert(error.response.data.message);
+  })
+  that.setState({flag:1, update: 1});
+}
   addVendorFunc(event){
     var that=this;
     var apiUrl=baseUrl + addVendorUrl;
     axios.post(apiUrl,{
+        "vendor_code" : that.state.vendor_code,
         "name" : that.state.name ,
         "mobile" : that.state.mobile,
         "email" : that.state.email,
         "role" : that.state.role,
         "_id" : that.state._id,
-        "location" : that.state.location
+        "location" : that.state.location,
+        "address" : that.state.address
     })
    .then(response => {
        if(response.status == 200){
@@ -740,9 +781,9 @@ export default class StoreOfficerHome extends React.Component {
     };
 
     var vendor_info = {
-      code: that.state.code,
-      email: that.state.email,
-      address: that.state.address
+      code : that.state.vendors_info[that.state.selectedVendorPos].vendor_code,
+      email : that.state.vendors_info[that.state.selectedVendorPos].email,
+      address: that.state.vendors_info[that.state.selectedVendorPos].address
     };
 
     var tender_info = {
@@ -751,16 +792,21 @@ export default class StoreOfficerHome extends React.Component {
       opened_on: that.state.opened_on
     };
 
-    axios.post(apiUrl,{
-      "order_number" : that.state.order_number ,
-      "order_date" :  that.state.order_date,
-      "itemdetails" : itemdetails,
-      "vendor_info" : vendor_info,
-      "tender_info" : tender_info,
-      "offer_no" :    that.state.offer_no,
-      "offer_date" : that.state.offer_date,
-      "storeofficer_id" : that.state._id
-    })
+    var body = {
+      "order_number" :    that.state.order_number ,
+      "order_date" :      that.state.order_date,
+      "itemdetails" :     itemdetails,
+      "vendor_info" :     vendor_info,
+      "tender_info" :     tender_info,
+      "offer_no" :        that.state.offer_no,
+      "offer_date" :      that.state.offer_date,
+      "storeofficer_id" : that.state._id,
+      "status":           "Initiated",
+    };
+
+    console.log(body);
+
+    axios.post(apiUrl,body)
    .then(response => {
        if(response.status == 200){
           //alert("Order placed successfully!");
@@ -927,7 +973,8 @@ export default class StoreOfficerHome extends React.Component {
     }
     else if(type == "Purchase_Order")
     {
-      apiUrl += allPurchaseOrderUrl;
+      apiUrl += POUrlByStoreOfficer + that.state._id;
+
     }
     else if(type == "AllItems")
     {
@@ -1029,7 +1076,8 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    marginRight:'10px'
   },
   purchaseOrderContainer: {
     display: 'flex',

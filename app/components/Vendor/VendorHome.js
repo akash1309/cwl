@@ -265,8 +265,31 @@ export default class VendorHome extends Component {
                       <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
                     </div>
-
+                    <div style={styles.boxStyle}>
+                      <span style={styles.textStyle}>Status</span>
+                      <span style={styles.purchaseCell}>{member.status}</span>
+                    </div>
                   </div>
+                  {
+                    member.status == "Initiated" ?
+                      <RaisedButton
+                        label="Start"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={(event) => this.updatePoStatus("In Progress")}
+                      />
+                    : null
+                  }
+                  {
+                    member.status == "In progress" ?
+                      <RaisedButton
+                        label="Processed"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={(event) => this.updatePoStatus(event,"Processed")}
+                      />
+                    : null
+                  }
                 </div>
               )
             })
