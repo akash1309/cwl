@@ -448,8 +448,20 @@ export default class StoreOfficerHome extends React.Component {
                       <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number)}}/>
                       <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
                     </div>
-                  : null }
-
+                      : null
+                  }
+                  {
+                    member.status == "Processed" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Forward"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.updatePoStatus("Forwarded",member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
                 </div>
               )
             })
@@ -911,6 +923,30 @@ vendorByStoreOfficer(userId) {
     });
   }
 
+  updatePoStatus(status,orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "status" : status
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities("Purchase_Order", that.state._id);
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
   getProfileInfo(event){
 
     var that = this;
@@ -1014,6 +1050,9 @@ vendorByStoreOfficer(userId) {
     }
     if(status == 'Processed'){
       return styles.processedStyle;
+    }
+    if(status == 'Forwarded'){
+      return styles.forwardedStyle;
     }
   }
 
@@ -1158,6 +1197,16 @@ const styles = {
   },
   processedStyle: {
     backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  forwardedStyle: {
+    backgroundColor : 'rgb(255, 75, 100)',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

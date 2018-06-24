@@ -319,6 +319,9 @@ export default class VendorHome extends Component {
     if(status == 'Processed'){
       return styles.processedStyle;
     }
+    if(status == 'Forwarded'){
+      return styles.forwardedStyle;
+    }
   }
 
   getProfileInfo(event){
@@ -440,7 +443,6 @@ export default class VendorHome extends Component {
       alert(error.response.data.message);
     });
   }
-
 }
 
 const styles = {
@@ -570,6 +572,16 @@ const styles = {
   },
   processedStyle: {
     backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  forwardedStyle: {
+    backgroundColor : 'rgb(255, 75, 100)',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,
