@@ -8,23 +8,30 @@ import {
   baseUrl ,
   allVendorUrl ,
   allInspectorUrl,
-  allStoreOfficerUrl,
+  storeOfficerUrl,
   inspectorUrl,
   addStoreOfficerUrl,
-  allPurchaseOrderUrl,
+  dyceePOUrl,
   getInfoUrl,
   updateInfoUrl ,
   allItemUrl ,
   icGenerateUrl ,
-  allIcUrl
+  allIcUrl,
+  POUrlByStoreOfficer,
+  dyceeInspectorUrl,
+  updatePOInfoUrl
 } from './../../config/url';
 
 import {
   AppBar,
   RaisedButton,
   TextField, IconButton, SvgIcon,
+  Dialog,
+  FlatButton
 } from 'material-ui';
 
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
 export default class DyCeeHome extends React.Component {
 
@@ -33,14 +40,17 @@ export default class DyCeeHome extends React.Component {
 
     this.state = {
       responseDataArray : [],
+      storeOfficerArray: [],
+      selectedStoreOfficerPos: 0,
+      selectedInspectorPos: 0,
+      inspectorArray: [],
       name : '',
       email : '',
       mobile : '',
       location : '',
       password : '',
-      flag : -1,
+      flag : 4,
       order_number : '' ,
-      role : "DyCEE",
       quantity_offered:   '',
   	  quantity_approved:  '',
   	  location_of_seal :  '',
@@ -49,15 +59,26 @@ export default class DyCeeHome extends React.Component {
   	  ic_signed_on :	    '',
   	  inspector_name :    '',
   	  inspector_mobile:	  '',
-      type : ''
-
+      type : '',
+      open: false
     }
   };
 
   componentDidMount(){
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    this.setState({_id: userInfo.userId});
+    this.setState({id: userInfo.userId, role: userInfo.role});
+    this.fetchStoreOfficers(userInfo.userId);
+    this.fetchInspectors(userInfo.userId);
   }
+
+  handleChange = (event, index, value) => {
+   this.setState({selectedStoreOfficerPos : value});
+   this.fetchAllEntities("Purchase_Order", this.state.storeOfficerArray[value]._id);
+  };
+
+  handleInspectorChange = (event, index, value) => {
+   this.setState({selectedInspectorPos : value});
+  };
 
   render() {
 
@@ -68,34 +89,113 @@ export default class DyCeeHome extends React.Component {
             <AppBar title="DyCEE Home" width="50%"/>
             <div style={{ display: 'flex', flexDirection: 'row'}}>
               <DyCeePalette
-                onClickItems={() => this.fetchAllEntities(this,"AllItems")}
-                onClickVendors={() => this.fetchAllEntities(this,"Vendor")}
-                onClickInspectors={() => this.fetchAllEntities(this,"Inspector")}
-                onClickStoreOfficers = {() => this.fetchAllEntities(this,"StoreOfficer")}
+                onClickItems={() => this.fetchAllEntities("AllItems")}
+                onClickVendors={() => this.fetchAllEntities("Vendor")}
+                onClickInspectors={() => this.fetchAllEntities("Inspector")}
+                onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer")}
                 onClickAddInspector={() => this.setState({flag : 3 , type : 'Inspector'})}
                 onClickAddStoreOfficer = {() => this.setState({flag : 3, type : 'StoreOfficer'})}
-                onClickPurchaseOrder={() => this.fetchAllEntities(this,"Purchase_Order")}
+                onClickPurchaseOrder={() => this.setState({flag: 4})}
                 onClickCreateIC={() => this.setState({flag :5})}
-                onClickIC ={() => this.fetchAllEntities(this,"AllIC")}
-                onClickCorrigendumApproval={() => this.fetchAllEntities(this,"AllItems")}
-                onClickApprovalLetter={() => this.fetchAllEntities(this,"AllItems")}
-                onClickProfile={() => this.getProfileInfo(this)}
+                onClickIC ={() => this.fetchAllEntities("AllIC")}
+                onClickCorrigendumApproval={() => this.fetchAllEntities("AllItems")}
+                onClickApprovalLetter={() => this.fetchAllEntities("AllItems")}
+                onClickProfile={() => this.getProfileInfo()}
               />
 
+              { this.showPurchaseOrders() }
               { this.showItems() }
               { this.showPeople() }
               { this.addPeople() }
-              { this.showPurchaseOrders() }
               { this.createIC() }
               { this.showIC() }
               { this.corrigendumApproval() }
               { this.approvalLetter() }
               { this.showProfile() }
+
             </div>
           </div>
         </MuiThemeProvider>
       </div>
     );
+  }
+
+  handleOpen(orderNumber){
+    this.setState({
+      open: true,
+      order_number: orderNumber
+    });
+  };
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
+
+  showInspector = () => {
+
+    let items = [];
+    for (let i = 0; i < this.state.inspectorArray.length; i++ ) {
+      items.push(<MenuItem value={i} key={i} primaryText={this.state.inspectorArray[i].name} />);
+    }
+
+    const actions = [
+      <FlatButton
+        label="Back"
+        primary={true}
+        onClick={this.handleClose}
+      />,
+      <FlatButton
+        label="Assign"
+        primary={true}
+        keyboardFocused={true}
+        onClick={this.updatePoStatus}
+      />,
+    ];
+
+    return(
+      <div>
+        <Dialog
+          title="Assign Inspector"
+          actions={actions}
+          modal={false}
+          open={this.state.open}
+          onRequestClose={this.handleClose}
+        >
+          <SelectField
+            value={this.state.selectedInspectorPos}
+            onChange={this.handleInspectorChange}
+            maxHeight={200}
+          >
+            {items}
+          </SelectField>
+        </Dialog>
+      </div>
+    );
+  }
+
+  updatePoStatus = () => {
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    axios.post(apiUrl,{
+      "order_number": that.state.order_number,
+      "inspector_id": that.state.inspectorArray[that.state.selectedInspectorPos]._id,
+      "status" : "Assigned"
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities("Purchase_Order", that.state.storeOfficerArray[that.state.selectedStoreOfficerPos]._id);
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
   }
 
   showItems = () => {
@@ -210,18 +310,36 @@ export default class DyCeeHome extends React.Component {
 
   showPurchaseOrders = () => {
 
+    let items = [];
+    for (let i = 0; i < this.state.storeOfficerArray.length; i++ ) {
+      items.push(<MenuItem value={i} key={i} primaryText={this.state.storeOfficerArray[i].name} />);
+    }
+
     if(this.state.flag == 4)
       return(
         <div style={{ flex:1 }}>
           <div style = {styles.outerContainerStyle}>
             <span style={styles.headingStyle}>List of Purchase Orders</span>
           </div>
+          <div style={styles.comboStyle}>
+            <span style={{...styles.textLabel, marginRight: 20}}>Select Store Officer:</span>
+            <SelectField
+              value={this.state.selectedStoreOfficerPos}
+              onChange={this.handleChange}
+              maxHeight={200}
+            >
+              {items}
+            </SelectField>
+          </div>
           {
             this.state.responseDataArray.map((member,key) => {
               return (
                 <div style = {styles.purchaseOrderContainer}>
 
-                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <div style={{display:'flex', flexDirection:'row' , justifyContent:'space-between'}}>
+                    <span><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                    <span><span style={styles.textLabel}>Status:</span> <span style={this.getStatusStyle(member.status)}>{member.status}</span></span>
+                  </div>
                   <div style={styles.dividerStyle}/>
 
                   <div style={{display:'flex', flexDirection:'row'}}>
@@ -256,10 +374,23 @@ export default class DyCeeHome extends React.Component {
                     </div>
 
                   </div>
+                  {
+                    member.status == "Forwarded" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Assign Inspector"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.handleOpen(member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
                 </div>
               )
             })
           }
+          { this.showInspector() }
         </div>
       );
   }
@@ -466,184 +597,240 @@ export default class DyCeeHome extends React.Component {
       );
   }
 
-addPeopleFunc(event){
-  var that = this;
-  var apiUrl = baseUrl;
+  addPeopleFunc(event){
+    var that = this;
+    var apiUrl = baseUrl;
 
-  if(that.state.type == "Inspector")
-    apiUrl += inspectorUrl;
-  else if(that.state.type == "StoreOfficer")
-    apiUrl += addStoreOfficerUrl;
+    if(that.state.type == "Inspector")
+      apiUrl += inspectorUrl;
+    else if(that.state.type == "StoreOfficer")
+      apiUrl += addStoreOfficerUrl;
 
-  axios.post(apiUrl, {
-    "dycee_id" : that.state._id,
-    "name" : that.state.name,
-    "mobile" : that.state.mobile,
-    "email" : that.state.email,
-    "location" : that.state.location,
-    "role" : that.state.type
-  })
-  .then(function (response) {
-    console.log(response);
-    if(response.status == 200){
-      alert("User is added successfully");
-    }
-    else if(response.status == 204) {
-      alert("User is already present!");
-    }
-  })
-  .catch(function (error) {
-    console.log(error.response);
+    axios.post(apiUrl, {
+      "dycee_id" : that.state.id,
+      "name" : that.state.name,
+      "mobile" : that.state.mobile,
+      "email" : that.state.email,
+      "location" : that.state.location,
+      "role" : that.state.type
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        alert("User is added successfully");
+      }
+      else if(response.status == 204) {
+        alert("User is already present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
 
-    alert(error.response.data.message);
-  });
-}
-
-getProfileInfo(event){
-
-  var that = this;
-  var apiUrl = baseUrl + getInfoUrl + that.state._id;
-
-  axios.get(apiUrl)
-  .then(function (response) {
-    console.log(response);
-    if(response.status == 200){
-        that.setState({
-          name : response.data.name ,
-          email : response.data.email,
-          mobile : response.data.mobile,
-          location : response.data.location,
-          password : response.data.password,
-          flag:9
-        });
-    }
-    else if(response.status == 404) {
-      alert("No DyCEE found with this id");
-    }
-  })
-  .catch(function (error) {
       alert(error.response.data.message);
-  })
-}
-
-createICFunc(event){
-  var that = this;
-  var apiUrl = baseUrl + icGenerateUrl;
-
-  axios.post(apiUrl, {
-     "order_number" :      that.state.order_number,
- 	  "quantity_offered":   that.state.quantity_offered,
- 	  "quantity_approved":  that.state.quantity_approved,
- 	  "location_of_seal" :  that.state.location_of_seal,
- 	  "ic_id" :              that.state.ic_id,
- 	  "inspection_date" :   that.state.inspection_date,
- 	  "ic_signed_on" :	   that.state.ic_signed_on,
- 	  "inspector_name" :    that.state.inspector_name,
- 	  "inspector_mobile" :	  that.state.inspector_mobile
-
-  })
-  .then(function (response) {
-    console.log(response);
-    if(response.status == 200){
-      alert("IC generated successfully");
-    }
-    else if(response.status == 204) {
-      alert("IC already present!");
-    }
-  })
-  .catch(function (error) {
-    console.log(error.response);
-
-    alert(error.response.data.message);
-  });
-}
-
-updateInfo(event){
-
-  var that = this;
-  var apiUrl = baseUrl + updateInfoUrl;
-
-  axios.post(apiUrl,{
-    "_id" : that.state._id,
-    "name" : that.state.name,
-    "mobile" : that.state.mobile,
-    "email" : that.state.email,
-    "password" : that.state.password,
-    "role" : "DyCEE",
-    "location" : that.state.location
-  })
-  .then(function (response) {
-    console.log(response);
-    if(response.status == 200){
-      alert("Information is updated successfully!");
-    }
-    else if(response.status == 204) {
-      alert("Mobile number to be updated is already present!");
-    }
-  })
-  .catch(function (error) {
-    console.log(error.response);
-    alert(error.response.data.message);
-  });
-}
-
-fetchAllEntities(event,type){
-
-var that = this;
-let apiUrl = baseUrl;
-if(type == "Vendor")
-{
-  apiUrl += allVendorUrl;
-  that.setState({type : type});
-}
-else if(type == "Purchase_Order")
-{
-  apiUrl += allPurchaseOrderUrl;
-}
-else if(type == "AllItems")
-{
-  apiUrl += allItemUrl;
-}
-else if(type == "Inspector")
-{
-  apiUrl += allInspectorUrl;
-  that.setState({type : type});
-}
-else if(type == "StoreOfficer")
-{
-  apiUrl += allStoreOfficerUrl;
-  that.setState({type : type});
-}
-else if(type == "AllIC")
-{
-  apiUrl += allIcUrl;
-}
-
-axios.get(apiUrl)
-.then( response => {
-
-  console.log(response);
-
-  if(response.status == 200 && type == "AllItems"){
-    that.setState({ responseDataArray : response.data , length : response.data.length  , flag :1});
-  }
-  else if(response.status == 200 && ( type == "Vendor" || type == "Inspector" || type == "StoreOfficer")){
-    that.setState({ responseDataArray : response.data , length : response.data.length  , flag :2});
-  }
-  else if(response.status == 200 && type == "Purchase_Order"){
-    that.setState({ responseDataArray : response.data , length : response.data.length  , flag :4});
-  }
-  else if(response.status == 200 && type == "AllIC"){
-    that.setState({ responseDataArray : response.data , length : response.data.length  , flag :6});
+    });
   }
 
-})
-.catch(error => {
-  console.log(error.response);
-  alert(error.response.data.message);
-});
+  getProfileInfo(){
 
-}
+    var that = this;
+    var apiUrl = baseUrl + getInfoUrl + that.state.id;
+
+    axios.get(apiUrl)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          that.setState({
+            name : response.data.name ,
+            email : response.data.email,
+            mobile : response.data.mobile,
+            location : response.data.location,
+            password : response.data.password,
+            flag:9
+          });
+      }
+      else if(response.status == 404) {
+        alert("No DyCEE found with this id");
+      }
+    })
+    .catch(function (error) {
+        alert(error.response.data.message);
+    })
+  }
+
+  createICFunc(event){
+    var that = this;
+    var apiUrl = baseUrl + icGenerateUrl;
+
+    axios.post(apiUrl, {
+       "order_number" :      that.state.order_number,
+   	  "quantity_offered":   that.state.quantity_offered,
+   	  "quantity_approved":  that.state.quantity_approved,
+   	  "location_of_seal" :  that.state.location_of_seal,
+   	  "ic_id" :              that.state.ic_id,
+   	  "inspection_date" :   that.state.inspection_date,
+   	  "ic_signed_on" :	   that.state.ic_signed_on,
+   	  "inspector_name" :    that.state.inspector_name,
+   	  "inspector_mobile" :	  that.state.inspector_mobile
+
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        alert("IC generated successfully");
+      }
+      else if(response.status == 204) {
+        alert("IC already present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+
+      alert(error.response.data.message);
+    });
+  }
+
+  updateInfo(event){
+
+    var that = this;
+    var apiUrl = baseUrl + updateInfoUrl;
+
+    axios.post(apiUrl,{
+      "_id" : that.state.id,
+      "name" : that.state.name,
+      "mobile" : that.state.mobile,
+      "email" : that.state.email,
+      "password" : that.state.password,
+      "role" : "DyCEE",
+      "location" : that.state.location
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        alert("Information is updated successfully!");
+      }
+      else if(response.status == 204) {
+        alert("Mobile number to be updated is already present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+  fetchStoreOfficers(dyceeId){
+
+    var that = this;
+    let apiUrl = baseUrl+storeOfficerUrl+dyceeId;
+
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      //this.fetchAllEntities("Purchase_Order", this.state.response.data[0].id);
+      this.setState({ storeOfficerArray: response.data });
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
+
+  fetchInspectors(dyceeId){
+
+    var that = this;
+    let apiUrl = baseUrl+dyceeInspectorUrl+dyceeId;
+
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      this.setState({ inspectorArray: response.data });
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
+
+  fetchAllEntities(type, userId){
+
+    var that = this;
+    let apiUrl = baseUrl;
+
+    if(type == "Vendor"){
+      apiUrl += allVendorUrl;
+      that.setState({type : type});
+    }
+    else if(type == "Purchase_Order"){
+      apiUrl += POUrlByStoreOfficer + userId;
+    }
+    else if(type == "AllItems"){
+      apiUrl += allItemUrl;
+    }
+    else if(type == "Inspector"){
+      apiUrl += allInspectorUrl;
+      that.setState({type : type});
+    }
+    else if(type == "StoreOfficer"){
+      apiUrl += allStoreOfficerUrl;
+      that.setState({type : type});
+    }
+    else if(type == "AllIC"){
+      apiUrl += allIcUrl;
+    }
+
+    const headers = {
+      SECURITY_TOKEN: userId
+    };
+
+    axios.get(apiUrl,{headers})
+    .then( response => {
+
+      console.log(response);
+
+      if(response.status == 200 && type == "AllItems"){
+        that.setState({ responseDataArray : response.data,  flag :1});
+      }
+      else if(response.status == 200 && ( type == "Vendor" || type == "Inspector" || type == "StoreOfficer")){
+        that.setState({ responseDataArray : response.data, flag :2});
+      }
+      else if(response.status == 200 && type == "AllIC"){
+        that.setState({ responseDataArray : response.data, flag :6});
+      }
+      else if(response.status == 200 && type == "Purchase_Order"){
+        that.setState({
+          responseDataArray : response.data,
+          flag:4,
+          open: false
+        });
+      }
+
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
+
+  getStatusStyle(status){
+    if(status == 'InProgress'){
+      return styles.inProgressStyle;
+    }
+    if(status == 'Initiated'){
+      return styles.initiatedStyle;
+    }
+    if(status == 'Processed'){
+      return styles.processedStyle;
+    }
+    if(status == 'Forwarded'){
+      return styles.forwardedStyle;
+    }
+    if(status == 'Assigned'){
+      return styles.assignedStyle;
+    }
+  }
 
 
 }
@@ -714,6 +901,13 @@ const styles = {
     flex: 1,
     flexDirection: 'column',
   },
+  comboStyle: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'row',
+    margin: 15,
+    alignItems: 'center'
+  },
   purchaseOrderContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -725,7 +919,8 @@ const styles = {
   dividerStyle: {
     height: '1px',
     backgroundColor: '#d1ccc0',
-    margin: '4px'
+    margin: '4px',
+    marginTop: 10
   },
   iconSize: 18,
   textFieldStyle: {
@@ -751,5 +946,61 @@ const styles = {
     marginTop : 10,
     fontWeight: 'Bold',
     color: '#006266'
+  },
+  initiatedStyle: {
+    backgroundColor : 'rgb(255,153,0)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  inProgressStyle: {
+    backgroundColor : 'rgb(50,70,195)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  processedStyle: {
+    backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  forwardedStyle: {
+    backgroundColor : 'rgb(255, 75, 100)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  assignedStyle: {
+    backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  buttonContainerStyle: {
+    display: 'flex',
+    flexDirection:'row',
+    justifyContent:'flex-end',
+    margin: 12
   }
 };

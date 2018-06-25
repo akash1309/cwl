@@ -17,6 +17,8 @@ export const allStoreOfficerUrl="/storeofficer/all/";
 export const addStoreOfficerUrl="/storeofficer/add/";
 export const oneStoreOfficerUrl="/storeofficer/one/";
 export const someStoreOfficerUrl="/storeofficer/some/";
+export const storeOfficerUrl="/storeofficer/";
+export const dyceeInspectorUrl="/inspector/";
 
 //////////////////////// PURCHASE ORDER //////////////////////
 export const addPurchaseOrderUrl ="/purchaseorder/add/";
@@ -65,3 +67,6 @@ export const loginUrl= "/login/";
 export const getInfoUrl = "/user/";
 export const updateInfoUrl = '/updateinfo/';
 export const deleteInfoUrl = '/deleteInfo/';
+
+//////////////////////VISIT ////////////////////
+export const getVisitUrl = "/visit/get/";
