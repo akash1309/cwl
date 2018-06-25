@@ -180,7 +180,7 @@ export default class DyCeeHome extends React.Component {
 
     axios.post(apiUrl,{
       "order_number": that.state.order_number,
-      "inspector_id": that.state.inspectorArray[that.state.selectedInspectorPos]._id,
+      "inspected_by": that.state.inspectorArray[that.state.selectedInspectorPos]._id,
       "status" : "Assigned"
     })
     .then(function (response) {
