@@ -386,6 +386,18 @@ export default class DyCeeHome extends React.Component {
                     </div>
                     : null
                   }
+                  {
+                    member.status == "Failed" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Reject"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.rejectionPo("Rejected",member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
                 </div>
               )
             })
@@ -626,6 +638,30 @@ export default class DyCeeHome extends React.Component {
     .catch(function (error) {
       console.log(error.response);
 
+      alert(error.response.data.message);
+    });
+  }
+
+  rejectionPo(status,orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "status" : status
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          that.fetchAllEntities("Purchase_Order", that.state._id);
+        }
+      else if(response.status == 204) {
+        alert("Purchase Order to be rejected is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
       alert(error.response.data.message);
     });
   }
