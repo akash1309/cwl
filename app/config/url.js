@@ -61,6 +61,7 @@ export const deleteItemUrl = '/deleteItem/';
 
 ///////////////////// VISIT ///////////
 export const addVisitUrl = '/visit/add/';
+export const getVisitUrl = "/visit/get/";
 
 //////////////////// OTHERS /////////////////////
 export const validateUrl = "/validate/";
@@ -69,6 +70,3 @@ export const loginUrl= "/login/";
 export const getInfoUrl = "/user/";
 export const updateInfoUrl = '/updateinfo/';
 export const deleteInfoUrl = '/deleteInfo/';
-
-//////////////////////VISIT ////////////////////
-export const getVisitUrl = "/visit/get/";

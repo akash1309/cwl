@@ -316,39 +316,50 @@ export default class VendorHome extends Component {
   showVisits = () => {
     if(this.state.flag == 5)
         return (
-              this.state.responseDataArray.map((member,key) => {
-                return (
-                <div style = {styles.visitContainer}>
-                  <div style = {styles.visitLeftBoxStyle}>
-                  </div>
-                  <div style = {styles.visitRightBoxStyle}>
-                    <span style = {styles.visitHeadingStyle}>
-                      {member.name}
-                    </span>
-                    <span style = {styles.visitLowerHeadingStyle}>
-                      {member.location}
-                    </span>
-                    <div style={styles.visitdividerStyle}/>
-                    <div style = {{display:'flex',flexDirection:'row'}}>
-                      <span style={styles.visitTextStyle}>{member.date}</span>
-                      <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+              <div style = {styles.visitOuterContainer}>
+              {
+                this.state.responseDataArray.map((member,key) => {
+                  return (
+                    <div style = {styles.visitInnerContainer}>
+                      <div style = {styles.visitLeftBoxStyle}>
+                      </div>
+                      <div style = {styles.visitRightBoxStyle}>
+                        <span style = {styles.visitHeadingStyle}>
+                          {member.inspector_id.name}
+                        </span>
+                        <span style = {styles.visitLowerHeadingStyle}>
+                          {'( Inspector, ' + member.inspector_id.location+' )'}
+                        </span>
+                        <div style={styles.visitdividerStyle}/>
+                        <div style = {{display:'flex',flexDirection:'row'}}>
+                          <div style = {{display:'flex',flexDirection:'column',alignItems:'flex-start',marginLeft:10,marginRight:10}}>
+                            <MaterialIcon.MdShoppingBasket size={styles.iconSize} style={styles.visiticonStyle} />
+                            <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.visiticonStyle} />
+                            <MaterialIcon.MdAccessTime size={styles.iconSize} style={styles.visiticonStyle} />
+                            <MaterialIcon.MdMail size={styles.iconSize} style={styles.visiticonStyle} />
+                            <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.visiticonStyle} />
+                          </div>
+                          <div style = {{display:'flex',flexDirection:'column',alignItems:'flex-start'}}>
+                            <span style={styles.visitTextKeyStyle}>Order Number:</span>
+                            <span style={styles.visitTextKeyStyle}>Visiting Date: </span>
+                            <span style={styles.visitTextKeyStyle}>Visiting Time: </span>
+                            <span style={styles.visitTextKeyStyle}>Email: </span>
+                            <span style={styles.visitTextKeyStyle}>Mobile:</span>
+                          </div>
+                          <div style = {{display:'flex',flexDirection:'column',alignItems:'flex-end'}}>
+                            <span style={styles.visitTextStyle}>{member.order_number}</span>
+                            <span style={styles.visitTextStyle}>{member.date}</span>
+                            <span style={styles.visitTextStyle}>{member.time}</span>
+                            <span style={styles.visitTextStyle}>{member.inspector_id.email}</span>
+                            <span style={styles.visitTextStyle}>{member.inspector_id.mobile}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div style = {{display:'flex',flexDirection:'row'}}>
-                      <span style={styles.visitTextStyle}>{member.time}</span>
-                      <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
-                    </div>
-                    <div style = {{display:'flex',flexDirection:'row'}}>
-                      <span style={styles.visitTextStyle}>{member.email}</span>
-                      <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle} />
-                    </div>
-                    <div style = {{display:'flex',flexDirection:'row'}}>
-                      <span style={styles.visitTextStyle}>{member.mobile}</span>
-                      <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle} />
-                    </div>
-                  </div>
-                </div>
-              );
-              })
+                  );
+                })
+              }
+            </div>
             );
 
   }
@@ -696,21 +707,33 @@ const styles = {
     justifyContent:'flex-end',
     margin: 12
   },
-  visitContainer: {
-    display : 'flex',
-    flexDirection : 'row',
-    width : '60%',
-    height : '40%',
+  visitOuterContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex : 1
+  },
+  visitInnerContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 20,
+    width : '48%',
+    height : '30%',
+    borderRadius: 25,
+    border : '0.5px solid rgb(220,220,220)',
+    boxShadow: '1px 6px 6px rgb(169,169,169)',
   },
   visitLeftBoxStyle: {
-    flex : 1,
+    flex : 2,
     backgroundColor : 'black',
+    borderRadius : 5
   },
   visitRightBoxStyle: {
-    flex: 1,
+    flex: 3,
     display : 'flex',
     flexDirection : 'column',
-    backgroundColor : 'rgb(248,248,248)'
   },
   visitHeadingStyle: {
     textAlign : 'right',
@@ -718,7 +741,7 @@ const styles = {
     fontSize: '18px',
     margin : 10,
     fontWeight: 'Bold',
-    color: '#006266',
+    color: 'rgb(255,215,0)'
 
   },
   visitLowerHeadingStyle: {
@@ -727,7 +750,7 @@ const styles = {
     fontSize: '12px',
     marginRight : 10,
     fontWeight: 'Bold',
-    color: 'black'
+    color: 'rgb(255, 75, 100)'
   },
   visitdividerStyle: {
     height: '1px',
@@ -736,8 +759,20 @@ const styles = {
     marginTop: 10
   },
   visitTextStyle: {
-    textAlign : 'right',
     fontFamily: 'Montserrat',
     marginRight : 10,
+    flex : 2,
+    justifyContent : 'flex-end',
+    color: 'black'
+  },
+  visitTextKeyStyle: {
+    fontFamily: 'Montserrat',
+    marginRight : 10,
+    flex : 2,
+    justifyContent : 'flex-start',
+    color : 'rgb(0,128,128)'
+  },
+  visiticonStyle: {
+    flex : 1
   },
 };
