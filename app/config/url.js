@@ -28,6 +28,7 @@ export const POUrlByStoreOfficer = "/purchaseorder/storeofficer/";
 export const deletePOUrl = '/deletePO/';
 export const updatePOInfoUrl= '/updatePurchaseOrder/';
 export const vendorPOUrl = '/purchaseorder/vendor/';
+export const inspectorPOUrl = '/purchaseorder/inspector/';
 
 
 ////////////////////////// VENDOR //////////////////////
@@ -58,6 +59,8 @@ export const allItemUrl = '/showItems/all/';
 export const oneItemUrl = '/showItems/one/';
 export const deleteItemUrl = '/deleteItem/';
 
+///////////////////// VISIT ///////////
+export const addVisitUrl = '/visit/add/';
 
 //////////////////// OTHERS /////////////////////
 export const validateUrl = "/validate/";
