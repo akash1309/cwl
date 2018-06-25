@@ -830,6 +830,12 @@ export default class DyCeeHome extends React.Component {
     if(status == 'Assigned'){
       return styles.assignedStyle;
     }
+    if(status == 'Intimated'){
+      return styles.intimatedStyle;
+    }
+    if(status == 'Visited'){
+      return styles.visitedStyle;
+    }
   }
 
 
@@ -989,6 +995,26 @@ const styles = {
   },
   assignedStyle: {
     backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  intimatedStyle: {
+    backgroundColor : 'rgb(193, 181, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  visitedStyle: {
+    backgroundColor : 'rgb(94, 13, 193)',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

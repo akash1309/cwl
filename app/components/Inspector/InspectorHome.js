@@ -10,11 +10,15 @@ import {
    allCorrigendumUrl,
    generateCorrigendumUrl ,
    addInspectionReportUrl,
-   inspectorPOUrl
+   inspectorPOUrl,
+   addVisitUrl,
+   updatePOInfoUrl,
    } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
 import axios from 'axios';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 
 import {
   AppBar,
@@ -40,13 +44,32 @@ export default class InspectorHome extends Component {
       ic_id:            	 '',
       ic_date :  			 '',
       inspector_name :  	'',
-      inspector_mobile :	''
+      inspector_mobile :	'',
+      date : '',
+      time : '',
+      vendor_code: '',
+      report_status:'',
+      item_status:'',
+      selectedIrStatusPos: '',
     }
   }
 
+  handleChange = (event, index, value) => {
+
+    if(value == 0)
+      this.setState({selectedIrStatusPos : value, report_status:'Partial'});
+    else {
+      this.setState({selectedIrStatusPos : value, report_status:'Complete'});
+    }
+  };
+
   componentDidMount(){
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    this.setState({_id: userInfo.userId, role: userInfo.role});
+    this.setState({
+      _id: userInfo.userId,
+      role: userInfo.role
+    });
+    this.fetchAllEntities("Purchase_Order",userInfo.userId);
   }
 
   render() {
@@ -59,9 +82,9 @@ export default class InspectorHome extends Component {
           <div style={{ display: 'flex', flexDirection: 'row'}}>
 
             <InspectorPalette
-              onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
-              onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
-              onClickIntimateVendor = {() => this.fetchAllEntities(this,"Vendor")}
+              onClickVendors = {() => this.fetchAllEntities("Vendor")}
+              onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
+              onClickIntimateVendor = {() => this.fetchAllEntities("Vendor")}
               onClickInspectionReport = {() => this.setState( {flag : 4}) }
               onClickCorrigendum = {() => this.setState( {flag : 3}) }
               onClickProfile = {() => this.getProfileInfo(this)}
@@ -76,6 +99,8 @@ export default class InspectorHome extends Component {
             { this.showProfile() }
 
             {this.addInspectionReport()}
+
+            {this.visitform()}
 
           </div>
         </MuiThemeProvider>
@@ -275,51 +300,65 @@ export default class InspectorHome extends Component {
 
   addInspectionReport = () => {
     if(this.state.flag == 4)
-    return(
-      <div style={styles.outerContainerStyle}>
-        <span style={styles.headingStyle}>Inspection Report Generation</span>
-        <div style={styles.innerContainerStyle}>
-          <div style={styles.childContainer}>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
-              <TextField
-                hintText="Order Number"
-                floatingLabelText="Order Number"
-                onChange = {(event,newValue) => this.setState({order_number:newValue})}
-                style={styles.textFieldStyle}
-              />
+    {
+      let items = [];
+      let statusarray = ["Partial","Complete"]
+      for (let i = 0; i < statusarray.length; i++ ) {
+        items.push(<MenuItem value={i} key={i} primaryText={statusarray[i]} />);
+      }
+      return(
+        <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>Inspection Report Generation</span>
+          <div style={styles.innerContainerStyle}>
+            <div style={styles.childContainer}>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
+                <TextField
+                  hintText="Order Number"
+                  floatingLabelText="Order Number"
+                  onChange = {(event,newValue) => this.setState({order_number:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.selectIconStyle} />
+                <SelectField
+                  floatingLabelText="Report Status"
+                  value={this.state.selectedIrStatusPos}
+                  onChange={this.handleChange}
+                  maxHeight={200}
+                >
+                  <MenuItem value='0' key='0' primaryText='Partial' />
+                  <MenuItem value='1' key='1' primaryText='Complete' />
+                </SelectField>
+              </div>
+
+              { this.state.report_status == "Complete" ?
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
+                <TextField
+                  hintText="Passed/Failed"
+                  floatingLabelText="Items Status"
+                  onChange = {(event,newValue) => this.setState({item_status:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              :null
+            }
+
             </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
-              <TextField
-                hintText="I.C. ID"
-                floatingLabelText="I.C. ID"
-                onChange = {(event,newValue) => this.setState({ic_id:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
-              <TextField
-                hintText="Approved/Rejected"
-                floatingLabelText="Status"
-                onChange = {(event,newValue) => this.setState({status:newValue })}
-                style={styles.textFieldStyle}
-              />
             </div>
 
-          </div>
-          </div>
+          <RaisedButton
+            label="Generate"
+            primary={true}
+            style={styles.buttonStyle}
+            onClick={(event) => {this.generateInspectionReport(event)}}
+          />
 
-        <RaisedButton
-          label="Generate"
-          primary={true}
-          style={styles.buttonStyle}
-          onClick={(event) => {this.generateInspectioReport(event)}}
-        />
-
-      </div>
-    );
+        </div>
+      );
+    }
   }
 
   showPurchaseOrders = () => {
@@ -372,15 +411,84 @@ export default class InspectorHome extends Component {
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
                     </div>
                   </div>
-                  <div style={styles.buttonContainerStyle}>
-                    <RaisedButton label="Visit" primary={true} style={styles.buttonStyle} />
+                  {
+                    member.status == "Assigned" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Visit"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number})}}
+                      />
                     </div>
+                    : null
+                  }
+                  {
+                    member.status == "Intimated" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Visited"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={(event) => {this.updatePoStatus("Visited",member.order_number)}}
+                      />
+                    </div>
+                    : null
+                  }
                 </div>
               )
             })
           }
         </div>
       );
+  }
+
+  visitform = () => {
+    if(this.state.flag == 6)
+     return(
+       <div style={styles.outerContainerStyle}>
+         <span style={styles.headingStyle}>Visit Information</span>
+         <div style={styles.innerContainerStyle}>
+           <div style={styles.childContainer}>
+             <div style={styles.textCellStyle}>
+               <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
+               <TextField
+                 hintText="Date"
+                 floatingLabelText="Date"
+                 onChange = {(event,newValue) => this.setState({date:newValue})}
+                 style={styles.textFieldStyle}
+               />
+             </div>
+             <div style={styles.textCellStyle}>
+               <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
+               <TextField
+                 hintText="Time"
+                 floatingLabelText="Time"
+                 onChange = {(event,newValue) => this.setState({time:newValue})}
+                 style={styles.textFieldStyle}
+               />
+             </div>
+             <div style={styles.textCellStyle}>
+               <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
+               <TextField
+                 hintText="Vendor Code"
+                 floatingLabelText="Vendor Code"
+                 onChange = {(event,newValue) => this.setState({vendor_code:newValue})}
+                 style={styles.textFieldStyle}
+               />
+             </div>
+           </div>
+           </div>
+
+         <RaisedButton
+           label="Set"
+           primary={true}
+           style={styles.buttonStyle}
+           onClick={(event) => {this.generateVisit(event)}}
+         />
+
+       </div>
+     );
   }
 
   getProfileInfo(event){
@@ -400,7 +508,6 @@ export default class InspectorHome extends Component {
           password : response.data.password,
           flag:2
         });
-        console.log(that.state.name);
       }
       else if(response.status == 404) {
         alert("No Inspector found with this id");
@@ -470,14 +577,22 @@ export default class InspectorHome extends Component {
 
   }
 
-  generateInspectioReport(event){
+
+  generateInspectionReport(event){
 
     var that = this;
     var apiUrl = baseUrl + addInspectionReportUrl;
+    let report_status = '';
+    if(that.state.selectedIrStatusPos == '0'){
+      report_status = "Partial";
+    }
+    else {
+      report_status = "Complete";
+    }
     var body = {
-	    order_number : that.state.order_number,
-	    ic_id:         that.state.ic_id,
-	    status :  	   that.state.status
+	    order_number :       that.state.order_number,
+	    item_status:         that.state.item_status,
+	    report_status :  	   report_status
     };
 
     axios.post(apiUrl,body)
@@ -495,7 +610,7 @@ export default class InspectorHome extends Component {
 
   }
 
-  fetchAllEntities(event,type){
+  fetchAllEntities(type,userId){
 
     var that = this;
     let apiUrl = baseUrl;
@@ -504,11 +619,15 @@ export default class InspectorHome extends Component {
       apiUrl += allVendorUrl;
     }
     else if(type == "Purchase_Order"){
-      apiUrl = apiUrl + inspectorPOUrl + that.state._id;
+      apiUrl = apiUrl + inspectorPOUrl + userId;
     }
 
+    const headers = {
+      SECURITY_TOKEN: userId
+    };
+
     console.log(apiUrl);
-    axios.get(apiUrl)
+    axios.get(apiUrl, { headers })
     .then( response => {
       console.log(response);
       if(response.status == 200 && type == "Vendor"){
@@ -526,19 +645,69 @@ export default class InspectorHome extends Component {
 
   }
 
+  generateVisit(event){
+
+    var that = this;
+    var apiUrl = baseUrl + addVisitUrl;
+    var body = {
+      order_number :  that.state.order_number,
+	    date : 	    	  that.state.date,
+	    time:           that.state.time,
+	    inspector_id:   that.state._id,
+      vendor_code :   that.state.vendor_code,
+      visit_status :  "Intimated"
+    };
+
+    axios.post(apiUrl,body)
+    .then(response => {
+       if(response.status == 200){
+         console.log(response);
+          that.updatePoStatus("Intimated",that.state.order_number);
+         }
+         else if(response.status == 204) {
+           alert("Visit is already present for this order!");
+         }
+      })
+   .catch(error => {
+     alert(error.response.data.message);
+   });
+
+  }
+
   getStatusStyle(status){
-    if(status == 'InProgress'){
-      return styles.inProgressStyle;
+    if(status == 'Assigned'){
+      return styles.assignedStyle;
     }
-    if(status == 'Initiated'){
-      return styles.initiatedStyle;
+    if(status == 'Intimated'){
+      return styles.intimatedStyle;
     }
-    if(status == 'Processed'){
-      return styles.processedStyle;
+    if(status == 'Visited'){
+      return styles.visitedStyle;
     }
-    if(status == 'Forwarded'){
-      return styles.forwardedStyle;
-    }
+  }
+
+  updatePoStatus(status,orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "status" : status
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities("Purchase_Order", that.state._id);
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
   }
 
 }
@@ -638,6 +807,10 @@ const styles = {
   iconStyle: {
     marginTop: 18
   },
+  selectIconStyle:{
+    marginTop: 18,
+    marginRight : 18
+  },
   headingStyle: {
     textAlign : 'center',
     width : '100%',
@@ -646,5 +819,35 @@ const styles = {
     marginTop : 20,
     fontWeight: 'Bold',
     color: '#006266'
-  }
+  },
+  assignedStyle: {
+    backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  intimatedStyle: {
+    backgroundColor : 'rgb(193, 181, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  visitedStyle: {
+    backgroundColor : 'rgb(94, 13, 193)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
 };

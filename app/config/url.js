@@ -59,6 +59,8 @@ export const allItemUrl = '/showItems/all/';
 export const oneItemUrl = '/showItems/one/';
 export const deleteItemUrl = '/deleteItem/';
 
+///////////////////// VISIT ///////////
+export const addVisitUrl = '/visit/add/';
 
 //////////////////// OTHERS /////////////////////
 export const validateUrl = "/validate/";
