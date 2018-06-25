@@ -50,8 +50,8 @@ export const oneCorrigendumUrl ="corrigendum/showCorrigendum/one";
 
 ///////////////////// INSPECTION REPORT //////////////////
 export const allIrUrl = '/showIR/';
-export const addInspectionReportUrl = '/irStatus/set/';
-export const oneInspectionReportUrl = "/irStatus/get/:order_number/:ic_id/";
+export const addInspectionReportUrl = '/generateIr/';
+export const oneInspectionReportUrl = "/irStatus/get/:order_number/";
 
 ///////////////////// ITEMS //////////////////////
 export const addItemUrl = '/items/add/';

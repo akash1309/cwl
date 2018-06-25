@@ -51,6 +51,7 @@ export default class InspectorHome extends Component {
       report_status:'',
       item_status:'',
       selectedIrStatusPos: '',
+      selectedItemStatusPos: ''
     }
   }
 
@@ -60,6 +61,15 @@ export default class InspectorHome extends Component {
       this.setState({selectedIrStatusPos : value, report_status:'Partial'});
     else {
       this.setState({selectedIrStatusPos : value, report_status:'Complete'});
+    }
+  };
+
+  handleChangeStatus = (event, index, value) => {
+
+    if(value == 0)
+      this.setState({selectedItemStatusPos : value, item_status:'Pass'});
+    else {
+      this.setState({selectedItemStatusPos : value, item_status:'Fail'});
     }
   };
 
@@ -301,11 +311,6 @@ export default class InspectorHome extends Component {
   addInspectionReport = () => {
     if(this.state.flag == 4)
     {
-      let items = [];
-      let statusarray = ["Partial","Complete"]
-      for (let i = 0; i < statusarray.length; i++ ) {
-        items.push(<MenuItem value={i} key={i} primaryText={statusarray[i]} />);
-      }
       return(
         <div style={styles.outerContainerStyle}>
           <span style={styles.headingStyle}>Inspection Report Generation</span>
@@ -316,6 +321,7 @@ export default class InspectorHome extends Component {
                 <TextField
                   hintText="Order Number"
                   floatingLabelText="Order Number"
+                  value={this.state.order_number}
                   onChange = {(event,newValue) => this.setState({order_number:newValue})}
                   style={styles.textFieldStyle}
                 />
@@ -333,15 +339,18 @@ export default class InspectorHome extends Component {
                 </SelectField>
               </div>
 
-              { this.state.report_status == "Complete" ?
-              <div style={styles.textCellStyle}>
-                <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
-                <TextField
-                  hintText="Passed/Failed"
-                  floatingLabelText="Items Status"
-                  onChange = {(event,newValue) => this.setState({item_status:newValue })}
-                  style={styles.textFieldStyle}
-                />
+              { this.state.report_status == 'Complete' ?
+
+               <div style={styles.textCellStyle}>
+                <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.selectIconStyle} />
+                <SelectField
+                  floatingLabelText="Item Status"
+                  value={this.state.selectedItemStatusPos}
+                  onChange={this.handleChangeStatus}
+                  maxHeight={200} >
+                  <MenuItem value='0' key='0' primaryText='Pass' />
+                  <MenuItem value='1' key='1' primaryText='Fail' />
+                </SelectField>
               </div>
               :null
             }
@@ -589,16 +598,35 @@ export default class InspectorHome extends Component {
     else {
       report_status = "Complete";
     }
+    let item_status = '';
+    if(that.state.selectedItemStatusPos == '0'){
+      item_status = "Pass";
+    }
+    else {
+      item_status = "Fail";
+    }
     var body = {
 	    order_number :       that.state.order_number,
-	    item_status:         that.state.item_status,
+	    item_status:         item_status,
 	    report_status :  	   report_status
     };
 
     axios.post(apiUrl,body)
     .then(response => {
        if(response.status == 200){
-          alert("Inspection_Report generated successfully!");
+            if(report_status == "Partial")
+            {
+              that.updatePoStatus("Initiated",that.state.order_number);
+            }
+            else if(item_status == "Pass")
+            {
+              that.updatePoStatus("Passed",that.state.order_number);
+            }
+            else if(item_status == "Fail")
+            {
+              that.updatePoStatus("Failed",that.state.order_number);
+            }
+          //alert("Inspection_Report generated successfully!");
          }
          else if(response.status == 204) {
            alert("Inspection_Report is already present!");
@@ -698,7 +726,13 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.fetchAllEntities("Purchase_Order", that.state._id);
+          if(status == "Visited")
+          {
+            that.setState({flag : 4 , order_number : orderNumber});
+          }
+          else{
+            that.fetchAllEntities("Purchase_Order", that.state._id);
+          }
       }
       else if(response.status == 204) {
         alert("Purchase Order to be updated is not present!");
