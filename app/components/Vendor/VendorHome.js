@@ -501,6 +501,7 @@ export default class VendorHome extends Component {
     });
   }
 
+
   updatePoStatus(status,orderNumber){
 
     var that = this;
@@ -524,6 +525,7 @@ export default class VendorHome extends Component {
       alert(error.response.data.message);
     });
   }
+
 }
 
 const styles = {

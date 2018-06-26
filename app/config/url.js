@@ -30,7 +30,6 @@ export const updatePOInfoUrl= '/updatePurchaseOrder/';
 export const vendorPOUrl = '/purchaseorder/vendor/';
 export const inspectorPOUrl = '/purchaseorder/inspector/';
 
-
 ////////////////////////// VENDOR //////////////////////
 export const addVendorUrl ="/vendor/add/";
 export const allVendorUrl="/vendor/all/";
@@ -62,6 +61,8 @@ export const deleteItemUrl = '/deleteItem/';
 ///////////////////// VISIT ///////////
 export const addVisitUrl = '/visit/add/';
 export const getVisitUrl = "/visit/get/";
+export const updateVisitInfoUrl = '/visit/update/';
+export const removeVisitUrl = '/visit/delete/';
 
 //////////////////// OTHERS /////////////////////
 export const validateUrl = "/validate/";

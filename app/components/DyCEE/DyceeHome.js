@@ -177,12 +177,38 @@ export default class DyCeeHome extends React.Component {
 
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
-
+    console.log(that.state.inspectorArray[that.state.selectedInspectorPos]);
     axios.post(apiUrl,{
       "order_number": that.state.order_number,
       "inspected_by": that.state.inspectorArray[that.state.selectedInspectorPos]._id,
       "status" : "Assigned"
     })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities("Purchase_Order", that.state.storeOfficerArray[that.state.selectedStoreOfficerPos]._id);
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+  updatePoStatus_IC_Link(status,orderNumber,ic_id){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+    var body = {
+      "order_number": orderNumber,
+      "ic_id": ic_id,
+      "status" : status
+    };
+    console.log(body);
+    axios.post(apiUrl,body)
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -365,6 +391,16 @@ export default class DyCeeHome extends React.Component {
                       <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
+                    {
+                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || member.status == "Approved") ?
+                        <div style={styles.boxStyle}>
+                          <span style={styles.textStyle}>Inspector Details</span>
+                          <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
+                          <span style={styles.purchaseCell}>Mobile: {member.inspected_by.mobile}</span>
+                          <span style={styles.purchaseCell}>Email: {member.inspected_by.email}</span>
+                        </div>
+                      : null
+                    }
 
                     <div style={styles.boxStyle}>
                       <span style={styles.textStyle}>Tender Details</span>
@@ -387,6 +423,23 @@ export default class DyCeeHome extends React.Component {
                     : null
                   }
                   {
+                    member.status == "Passed" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Create I.C."
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.setState({
+                          flag :5,
+                          order_number:member.order_number,
+                          inspector_name:member.inspected_by.name,
+                          inspector_mobile : member.inspected_by.mobile
+                        })}
+                      />
+                    </div>
+                    : null
+                  }
+                  {
                     member.status == "Failed" ?
                     <div style={styles.buttonContainerStyle}>
                       <RaisedButton
@@ -396,6 +449,31 @@ export default class DyCeeHome extends React.Component {
                         onClick={() => this.rejectionPo("Rejected",member.order_number)}
                       />
                     </div>
+                    : null
+                  }
+                  {
+                    member.status == "Approved" ?
+                      <div>
+                        <div style={styles.dividerStyle}/>
+                        <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
+                          <span style={styles.textLabel}>Inspection Certificate Details</span>
+                        </div>
+                        <div style={styles.dividerStyle}/>
+                        <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+                          <div style={styles.icBoxStyle}>
+                            <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
+                            <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
+                          </div>
+                          <div style={styles.icBoxStyle}>
+                            <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
+                            <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                          </div>
+                        </div>
+
+                        <div style={styles.icBoxStyle}>
+                          <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
+                        </div>
+                      </div>
                     : null
                   }
                 </div>
@@ -419,7 +497,15 @@ export default class DyCeeHome extends React.Component {
               <TextField
                 hintText="Order_Number"
                 floatingLabelText="Order_Number"
+                value = {this.state.order_number}
                 onChange = {(event,newValue) => this.setState({order_number:newValue})}
+                style={styles.textFieldStyle}
+              />
+              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Location_of_seal"
+                floatingLabelText="Location_of_seal"
+                onChange = {(event,newValue) => this.setState({location_of_seal:newValue})}
                 style={styles.textFieldStyle}
               />
             </div>
@@ -441,14 +527,13 @@ export default class DyCeeHome extends React.Component {
               />
             </div>
             <div style={styles.textCellStyle}>
-              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
-                hintText="Location_of_seal"
-                floatingLabelText="Location_of_seal"
-                onChange = {(event,newValue) => this.setState({location_of_seal:newValue})}
+                hintText="IC Signed On"
+                floatingLabelText="IC Signed On"
+                onChange = {(event,newValue) => this.setState({ic_signed_on:newValue})}
                 style={styles.textFieldStyle}
               />
-
               <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Inspection Date"
@@ -458,27 +543,11 @@ export default class DyCeeHome extends React.Component {
               />
             </div>
             <div style={styles.textCellStyle}>
-              <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="IC id"
-                floatingLabelText="IC id"
-                onChange = {(event,newValue) => this.setState({ic_id:newValue})}
-                style={styles.textFieldStyle}
-              />
-
-              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="IC Signed On"
-                floatingLabelText="IC Signed On"
-                onChange = {(event,newValue) => this.setState({ic_signed_on:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
               <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Inspector Name"
                 floatingLabelText="Inspector Name"
+                value = {this.state.inspector_name}
                 onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -487,6 +556,7 @@ export default class DyCeeHome extends React.Component {
               <TextField
                 hintText="Inspector Mobile"
                 floatingLabelText="Inspector Mobile"
+                value = {this.state.inspector_mobile}
                 onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -654,7 +724,7 @@ export default class DyCeeHome extends React.Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-          that.fetchAllEntities("Purchase_Order", that.state._id);
+          that.fetchAllEntities("Purchase_Order", that.state.storeOfficerArray[that.state.selectedStoreOfficerPos]._id);
         }
       else if(response.status == 204) {
         alert("Purchase Order to be rejected is not present!");
@@ -702,7 +772,6 @@ export default class DyCeeHome extends React.Component {
    	  "quantity_offered":   that.state.quantity_offered,
    	  "quantity_approved":  that.state.quantity_approved,
    	  "location_of_seal" :  that.state.location_of_seal,
-   	  "ic_id" :              that.state.ic_id,
    	  "inspection_date" :   that.state.inspection_date,
    	  "ic_signed_on" :	   that.state.ic_signed_on,
    	  "inspector_name" :    that.state.inspector_name,
@@ -712,7 +781,7 @@ export default class DyCeeHome extends React.Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        alert("IC generated successfully");
+        that.updatePoStatus_IC_Link("Approved",that.state.order_number,response.data._id);
       }
       else if(response.status == 204) {
         alert("IC already present!");
@@ -758,12 +827,12 @@ export default class DyCeeHome extends React.Component {
 
     var that = this;
     let apiUrl = baseUrl+storeOfficerUrl+dyceeId;
-
+    console.log("fetchStoreOfficers");
     axios.get(apiUrl)
     .then( response => {
       console.log(response);
       //this.fetchAllEntities("Purchase_Order", this.state.response.data[0].id);
-      this.setState({ storeOfficerArray: response.data });
+      that.setState({ storeOfficerArray: response.data });
     })
     .catch(error => {
       console.log(error.response);
@@ -773,14 +842,14 @@ export default class DyCeeHome extends React.Component {
   }
 
   fetchInspectors(dyceeId){
-
+    console.log("fetchInspectors");
     var that = this;
     let apiUrl = baseUrl+dyceeInspectorUrl+dyceeId;
 
     axios.get(apiUrl)
     .then( response => {
       console.log(response);
-      this.setState({ inspectorArray: response.data });
+      that.setState({ inspectorArray: response.data });
     })
     .catch(error => {
       console.log(error.response);
@@ -942,6 +1011,12 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
+  },
+  icBoxStyle: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    alignItems : 'center'
   },
   comboStyle: {
     display: 'flex',

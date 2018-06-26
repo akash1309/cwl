@@ -13,6 +13,8 @@ import {
    inspectorPOUrl,
    addVisitUrl,
    updatePOInfoUrl,
+   updateVisitInfoUrl,
+   removeVisitUrl
    } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
@@ -427,7 +429,7 @@ export default class InspectorHome extends Component {
                         label="Visit"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number})}}
+                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number, vendor_code : member.vendor_info.code})}}
                       />
                     </div>
                     : null
@@ -439,7 +441,19 @@ export default class InspectorHome extends Component {
                         label="Visited"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={(event) => {this.updatePoStatus("Visited",member.order_number)}}
+                        onClick={(event) => {this.updateVisitStatus("Visited",member.order_number,member.vendor_info.code)}}
+                      />
+                    </div>
+                    : null
+                  }
+                  {
+                    member.status == "Visited" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Add Inspection Report"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={(event) => this.setState({flag : 4 , order_number : member.order_number , vendor_code : member.vendor_info.code})}
                       />
                     </div>
                     : null
@@ -474,15 +488,6 @@ export default class InspectorHome extends Component {
                  hintText="Time"
                  floatingLabelText="Time"
                  onChange = {(event,newValue) => this.setState({time:newValue})}
-                 style={styles.textFieldStyle}
-               />
-             </div>
-             <div style={styles.textCellStyle}>
-               <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
-               <TextField
-                 hintText="Vendor Code"
-                 floatingLabelText="Vendor Code"
-                 onChange = {(event,newValue) => this.setState({vendor_code:newValue})}
                  style={styles.textFieldStyle}
                />
              </div>
@@ -613,10 +618,12 @@ export default class InspectorHome extends Component {
 
     axios.post(apiUrl,body)
     .then(response => {
+      console.log(response);
        if(response.status == 200){
             if(report_status == "Partial")
             {
-              that.updatePoStatus("Initiated",that.state.order_number);
+              console.log("Partial inside");
+              that.removeVisit(that.state.order_number,that.state.vendor_code);
             }
             else if(item_status == "Pass")
             {
@@ -638,6 +645,30 @@ export default class InspectorHome extends Component {
 
   }
 
+  removeVisit(orderNumber,vendor_code)
+  {
+    var that = this;
+    let apiUrl = baseUrl + removeVisitUrl;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "vendor_code" : vendor_code
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+            that.updatePoStatus("Initiated",orderNumber);
+      }
+      else if(response.status == 204) {
+        alert("Visit to be removed is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
   fetchAllEntities(type,userId){
 
     var that = this;
@@ -726,16 +757,35 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-          if(status == "Visited")
-          {
-            that.setState({flag : 4 , order_number : orderNumber});
-          }
-          else{
             that.fetchAllEntities("Purchase_Order", that.state._id);
-          }
       }
       else if(response.status == 204) {
         alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+  updateVisitStatus(status,orderNumber,vendor_code){
+
+    var that = this;
+    var apiUrl = baseUrl + updateVisitInfoUrl ;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "vendor_code" : vendor_code,
+      "visit_status" : status
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.updatePoStatus(status,orderNumber);
+      }
+      else if(response.status == 204) {
+        alert("Visit to be updated is not present!");
       }
     })
     .catch(function (error) {
