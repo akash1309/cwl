@@ -388,6 +388,7 @@ export default class DyCeeHome extends React.Component {
                     <div style={styles.boxStyle}>
                       <span style={styles.textStyle}>Vendor Details</span>
                       <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
+                      <span style={styles.purchaseCell}>Name: {member.vendor_info.name}</span>
                       <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>

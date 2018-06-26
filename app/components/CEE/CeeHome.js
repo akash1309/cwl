@@ -71,7 +71,7 @@ export default class CeeHome extends Component {
                 onClickIR = {() => this.fetchAllEntities(this,"AllIR")}
                 onClickCorrigendums = {() => this.fetchAllEntities(this,"Corrigendums")}
                 onClickProfile = {() => this.getProfileInfo(this)}
-              
+
               />
 
               { this.addDyCEE() }
@@ -208,9 +208,20 @@ export default class CeeHome extends Component {
                     <div style={styles.boxStyle}>
                       <span style={styles.textStyle}>Vendor Details</span>
                       <span style={styles.purchaseCell}>Code: {member.vendor_info.code}</span>
+                      <span style={styles.purchaseCell}>Name: {member.vendor_info.name}</span>
                       <span style={styles.purchaseCell}>Email: {member.vendor_info.email}</span>
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
+                    {
+                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || member.status == "Approved") ?
+                        <div style={styles.boxStyle}>
+                          <span style={styles.textStyle}>Inspector Details</span>
+                          <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
+                          <span style={styles.purchaseCell}>Mobile: {member.inspected_by.mobile}</span>
+                          <span style={styles.purchaseCell}>Email: {member.inspected_by.email}</span>
+                        </div>
+                      : null
+                    }
 
                     <div style={styles.boxStyle}>
                       <span style={styles.textStyle}>Tender Details</span>
@@ -220,6 +231,31 @@ export default class CeeHome extends Component {
                     </div>
 
                   </div>
+                  {
+                    member.status == "Approved" ?
+                      <div>
+                        <div style={styles.dividerStyle}/>
+                        <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
+                          <span style={styles.textLabel}>Inspection Certificate Details</span>
+                        </div>
+                        <div style={styles.dividerStyle}/>
+                        <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+                          <div style={styles.icBoxStyle}>
+                            <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
+                            <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
+                          </div>
+                          <div style={styles.icBoxStyle}>
+                            <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
+                            <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                          </div>
+                        </div>
+
+                        <div style={styles.icBoxStyle}>
+                          <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
+                        </div>
+                      </div>
+                    : null
+                  }
                 </div>
               )
             })
@@ -683,5 +719,11 @@ const styles = {
     marginTop : 10,
     fontWeight: 'Bold',
     color: '#006266'
-  }
+  },
+  icBoxStyle: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    alignItems : 'center'
+  },
 };
