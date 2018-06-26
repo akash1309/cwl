@@ -174,6 +174,9 @@ export default class CeeHome extends Component {
   }
 
   showPurchaseOrders = () => {
+
+    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
+
     if(this.state.flag == 3)
       return(
         <div style={{ flex:1 }}>
@@ -213,7 +216,7 @@ export default class CeeHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || member.status == "Approved") ?
+                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -232,7 +235,7 @@ export default class CeeHome extends Component {
 
                   </div>
                   {
-                    member.status == "Approved" ?
+                    (statusArray.some(x => x == member.status)) ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>

@@ -60,7 +60,8 @@ export default class DyCeeHome extends React.Component {
   	  inspector_name :    '',
   	  inspector_mobile:	  '',
       type : '',
-      open: false
+      open: false,
+      updateflag : ''
     }
   };
 
@@ -120,10 +121,11 @@ export default class DyCeeHome extends React.Component {
     );
   }
 
-  handleOpen(orderNumber){
+  handleOpen(orderNumber,updateflag){
     this.setState({
       open: true,
-      order_number: orderNumber
+      order_number: orderNumber,
+      updateflag : updateflag
     });
   };
 
@@ -148,7 +150,25 @@ export default class DyCeeHome extends React.Component {
         label="Assign"
         primary={true}
         keyboardFocused={true}
-        onClick={this.updatePoStatus}
+        onClick={() => {
+          let body = {};
+          if(this.state.updateflag == "inspectionInspector")
+          {
+            body = {
+            "order_number": this.state.order_number,
+            "inspected_by": this.state.inspectorArray[this.state.selectedInspectorPos]._id,
+            "status" : "Assigned"
+            };
+          }
+          else if(this.state.updateflag == "amendmentInspector")
+          {
+            body = {
+              "order_number" : this.state.order_number,
+              "status" : "Amendment Inspector Nominated",
+              "amendmentInspector" : this.state.inspectorArray[this.state.selectedInspectorPos]._id
+            }
+          }
+          this.updatePoStatus(body)}}
       />,
     ];
 
@@ -173,41 +193,12 @@ export default class DyCeeHome extends React.Component {
     );
   }
 
-  updatePoStatus = () => {
+  updatePoStatus(body){
 
+    console.log(body);
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
     console.log(that.state.inspectorArray[that.state.selectedInspectorPos]);
-    axios.post(apiUrl,{
-      "order_number": that.state.order_number,
-      "inspected_by": that.state.inspectorArray[that.state.selectedInspectorPos]._id,
-      "status" : "Assigned"
-    })
-    .then(function (response) {
-      console.log(response);
-      if(response.status == 200){
-        that.fetchAllEntities("Purchase_Order", that.state.storeOfficerArray[that.state.selectedStoreOfficerPos]._id);
-      }
-      else if(response.status == 204) {
-        alert("Purchase Order to be updated is not present!");
-      }
-    })
-    .catch(function (error) {
-      console.log(error.response);
-      alert(error.response.data.message);
-    });
-  }
-
-  updatePoStatus_IC_Link(status,orderNumber,ic_id){
-
-    var that = this;
-    var apiUrl = baseUrl + updatePOInfoUrl;
-    var body = {
-      "order_number": orderNumber,
-      "ic_id": ic_id,
-      "status" : status
-    };
-    console.log(body);
     axios.post(apiUrl,body)
     .then(function (response) {
       console.log(response);
@@ -224,6 +215,29 @@ export default class DyCeeHome extends React.Component {
     });
   }
 
+/*
+  SyncUpdatePoStatus(body){
+
+    var that = this;
+    var apiUrl = baseUrl + updatePOInfoUrl;
+
+    console.log(body);
+    axios.post(apiUrl,body)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        that.fetchAllEntities("Purchase_Order", that.state.storeOfficerArray[that.state.selectedStoreOfficerPos]._id);
+      }
+      else if(response.status == 204) {
+        alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+*/
   showItems = () => {
 
     if(this.state.flag == 1)
@@ -340,6 +354,7 @@ export default class DyCeeHome extends React.Component {
     for (let i = 0; i < this.state.storeOfficerArray.length; i++ ) {
       items.push(<MenuItem value={i} key={i} primaryText={this.state.storeOfficerArray[i].name} />);
     }
+    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
 
     if(this.state.flag == 4)
       return(
@@ -393,7 +408,7 @@ export default class DyCeeHome extends React.Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || member.status == "Approved") ?
+                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -418,7 +433,7 @@ export default class DyCeeHome extends React.Component {
                         label="Assign Inspector"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={() => this.handleOpen(member.order_number)}
+                        onClick={() => this.handleOpen(member.order_number,"inspectionInspector")}
                       />
                     </div>
                     : null
@@ -453,7 +468,7 @@ export default class DyCeeHome extends React.Component {
                     : null
                   }
                   {
-                    member.status == "Approved" ?
+                    (statusArray.some(x => x == member.status)) ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
@@ -475,6 +490,19 @@ export default class DyCeeHome extends React.Component {
                           <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
                       </div>
+                    : null
+                  }
+                  {
+                    member.status == "Amendment Requested" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <br/>
+                      <RaisedButton
+                        label="Nominate Inspector"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.handleOpen(member.order_number,"amendmentInspector")}
+                      />
+                    </div>
                     : null
                   }
                 </div>
@@ -782,7 +810,12 @@ export default class DyCeeHome extends React.Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.updatePoStatus_IC_Link("Approved",that.state.order_number,response.data._id);
+        var body = {
+          "order_number": that.state.order_number,
+          "ic_id": response.data._id,
+          "status" : "Approved"
+        };
+        that.updatePoStatus(body);
       }
       else if(response.status == 204) {
         alert("IC already present!");

@@ -230,6 +230,9 @@ export default class VendorHome extends Component {
   showPurchaseOrders = () => {
 
     if(this.state.flag == 4)
+    {
+      let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
+
       return(
         <div style={{ flex:1 }}>
           <div style = {styles.outerContainerStyle}>
@@ -275,7 +278,7 @@ export default class VendorHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || member.status == "Approved") ?
+                      ( member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status) ) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -318,7 +321,7 @@ export default class VendorHome extends Component {
 
                   </div>
                   {
-                    member.status == "Approved" ?
+                    ( statusArray.some(x => x == member.status)) ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
@@ -339,6 +342,19 @@ export default class VendorHome extends Component {
                         <div style={styles.icBoxStyle}>
                           <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
+                        {
+                          member.status == "Approved" ?
+                          <div style={styles.icBoxStyle}>
+                            <br/>
+                            <RaisedButton
+                              label="Items Dispatched"
+                              primary={true}
+                              style={styles.buttonStyle}
+                              onClick={() => this.updatePoStatus("Items Dispatched",member.order_number)}
+                            />
+                          </div>
+                          : null
+                        }
                       </div>
                     : null
                   }
@@ -348,6 +364,7 @@ export default class VendorHome extends Component {
           }
         </div>
       );
+    }
   }
 
   showVisits = () => {

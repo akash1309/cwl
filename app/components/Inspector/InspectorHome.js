@@ -374,6 +374,8 @@ export default class InspectorHome extends Component {
 
   showPurchaseOrders = () => {
 
+    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
+
     if(this.state.flag == 5)
       return(
         <div style={{ flex:1 }}>
@@ -416,7 +418,7 @@ export default class InspectorHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || member.status == "Approved") ?
+                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -469,7 +471,7 @@ export default class InspectorHome extends Component {
                     : null
                   }
                   {
-                    member.status == "Approved" ?
+                    (statusArray.some(x => x == member.status)) ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
@@ -490,6 +492,18 @@ export default class InspectorHome extends Component {
                         <div style={styles.icBoxStyle}>
                           <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
+                      </div>
+                    : null
+                  }
+                  {
+                    (member.status == "Amendment Inspector Nominated" && member.amendmentInspector==this.state._id) ?
+                      <div style={styles.buttonContainerStyle}>
+                        <RaisedButton
+                          label="Add Corrigendum"
+                          primary={true}
+                          style={styles.buttonStyle}
+                          onClick={(event) => this.setState({flag : 3 , order_number : member.order_number , vendor_code : member.vendor_info.code})}
+                        />
                       </div>
                     : null
                   }
