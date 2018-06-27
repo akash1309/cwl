@@ -16,7 +16,8 @@ import {
   allItemUrl,
   allIcUrl,
   allIrUrl,
-  allCorrigendumUrl
+  allCorrigendumUrl,
+  oneCorrigendumUrl
 
 } from './../../config/url';
 
@@ -175,7 +176,7 @@ export default class CeeHome extends Component {
 
   showPurchaseOrders = () => {
 
-    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
+    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 3)
       return(
@@ -216,7 +217,7 @@ export default class CeeHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
+                      (member.status == "Assigned" || member.status == "Intimated" || member.status == "Visited" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -259,10 +260,47 @@ export default class CeeHome extends Component {
                       </div>
                     : null
                   }
+                  {
+                    ((member.status == "Corrigendum Generated" || (member.status == "Finished" && member.corrigendum_flag == "1")) && this.state.corrigendum_flag != 1) ?
+                    <div style={styles.buttonContainerStyle}>
+                      <br/>
+                      <RaisedButton
+                        label="See Corrigendum"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.getCorrigendum(member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
+                  { this.showCorrigendumTable(member.status,member.order_number)}
+
                 </div>
               )
             })
           }
+        </div>
+      );
+  }
+
+  showCorrigendumTable = (status,orderNumber) => {
+    if(this.state.corrigendum_flag == 1 && this.state.corrigendum_array.order_number == orderNumber)
+      return (
+        <div>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
+            <span style={styles.textLabel}>Corrigendum Details</span>
+          </div>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+            <div style={styles.icBoxStyle}>
+              <span style={styles.purchaseCell}>Corrigendum No.: {this.state.corrigendum_array.corrigendum_number}</span>
+              <span style={styles.purchaseCell}>Remarks: {this.state.corrigendum_array.remarks}</span>
+            </div>
+            <div style={styles.icBoxStyle}>
+              <span style={styles.purchaseCell}>Updates: {this.state.corrigendum_array.update_values}</span>
+            </div>
+          </div>
         </div>
       );
   }
@@ -541,6 +579,78 @@ export default class CeeHome extends Component {
     });
   }
 
+  getCorrigendum(orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + oneCorrigendumUrl + orderNumber;
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      that.setState({ corrigendum_array: response.data , corrigendum_flag : 1});
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+  getStatusStyle(style){
+
+    if(status == 'InProgress'){
+      return styles.inProgressStyle;
+    }
+    else if(status == 'Initiated'){
+      return styles.initiatedStyle;
+    }
+    else if(status == 'Processed'){
+      return styles.processedStyle;
+    }
+    else if(status == 'Forwarded'){
+      return styles.forwardedStyle;
+    }
+    else if(status == 'Assigned'){
+      return styles.assignedStyle;
+    }
+    else if(status == 'Intimated'){
+      return styles.intimatedStyle;
+    }
+    else if(status == 'Visited'){
+      return styles.visitedStyle;
+    }
+    else if(status == 'Passed'){
+      return styles.passedStyle;
+    }
+    else if(status == 'Rejected'){
+      return styles.rejectedStyle;
+    }
+    else if(status == 'Approved'){
+      return styles.approvedStyle;
+    }
+    else if(status == 'Items Dispatched'){
+      return styles.dispatchedStyle;
+    }
+    else if(status == 'Items Accepted'){
+      return styles.itemAcceptedStyle;
+    }
+    else if(status == 'Items Rejected'){
+      return styles.itemRejectedStyle;
+    }
+    else if(status == 'Amendment Requested'){
+      return styles.amendmentRequestedStyle;
+    }
+    else if(status == 'Amendment Inspector Nominated'){
+      return styles.nominatedStyle;
+    }
+    else if(status == 'Corrigendum Generated'){
+      return styles.generatedStyle;
+    }
+    else if(status == 'Finished'){
+      return styles.finishedStyle;
+    }
+  }
+
   fetchAllEntities(event,type){
 
     var that = this;
@@ -729,4 +839,180 @@ const styles = {
     flexDirection: 'column',
     alignItems : 'center'
   },
+  buttonContainerStyle: {
+    display: 'flex',
+    flexDirection:'row',
+    justifyContent:'flex-end',
+    margin: 12
+  },
+  initiatedStyle: {
+    backgroundColor : 'rgb(255,153,0)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  inProgressStyle: {
+    backgroundColor : 'rgb(50,70,195)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  processedStyle: {
+    backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  forwardedStyle: {
+    backgroundColor : 'rgb(255, 75, 100)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  assignedStyle: {
+    backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  intimatedStyle: {
+    backgroundColor : 'rgb(193, 181, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  visitedStyle: {
+    backgroundColor : 'rgb(94, 13, 193)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  passedStyle: {
+    backgroundColor : '#13B47E',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  rejectedStyle: {
+    backgroundColor : '#FF0000',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  approvedStyle: {
+    backgroundColor : '#33FF00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  dispatchedStyle: {
+    backgroundColor : '#663399',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  itemAcceptedStyle: {
+    backgroundColor : '#FFCC00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  itemRejectedStyle: {
+    backgroundColor : '#CC0000',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  amendmentRequestedStyle: {
+    backgroundColor : '#809BBD',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  nominatedStyle: {
+    backgroundColor : '#D683B2',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  generatedStyle: {
+    backgroundColor : '#00CCFF',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  finishedStyle: {
+    backgroundColor : '#99FF00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  }
 };

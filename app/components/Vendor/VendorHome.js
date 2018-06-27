@@ -14,7 +14,8 @@ import {
   allIcUrl,
   vendorPOUrl,
   updatePOInfoUrl,
-  getVisitUrl
+  getVisitUrl,
+  oneCorrigendumUrl
 } from './../../config/url';
 
 import {
@@ -36,6 +37,12 @@ export default class VendorHome extends Component {
       password : '',
       flag : 4,
       code : '',
+      rejection_reason : '',
+      unit_price: '',
+      balance_quantity: '',
+      quantity_supplied_so_far: '',
+      quantity_on_order: '',
+      update_values: ''
     }
   }
 
@@ -231,7 +238,7 @@ export default class VendorHome extends Component {
 
     if(this.state.flag == 4)
     {
-      let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
+      let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
       return(
         <div style={{ flex:1 }}>
@@ -278,7 +285,7 @@ export default class VendorHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      ( member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status) ) ?
+                      ( member.status == "Assigned" || member.status == "Intimated" || member.status == "Visited" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status) ) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -321,7 +328,9 @@ export default class VendorHome extends Component {
 
                   </div>
                   {
+
                     ( statusArray.some(x => x == member.status)) ?
+
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
@@ -332,8 +341,13 @@ export default class VendorHome extends Component {
                           <div style={styles.icBoxStyle}>
                             <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
                             <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
+                            <span style={styles.purchaseCell}>Quantity On Order: {member.ic_id.quantity_on_order}</span>
+                            <span style={styles.purchaseCell}>Quantity Supplied So Far: {member.ic_id.quantity_supplied_so_far}</span>
+
                           </div>
                           <div style={styles.icBoxStyle}>
+                            <span style={styles.purchaseCell}>Balance Quantity: {member.ic_id.balance_quantity}</span>
+                            <span style={styles.purchaseCell}>Unit Price: {member.ic_id.unit_price}</span>
                             <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
                             <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
                           </div>
@@ -342,22 +356,62 @@ export default class VendorHome extends Component {
                         <div style={styles.icBoxStyle}>
                           <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
-                        {
-                          member.status == "Approved" ?
-                          <div style={styles.icBoxStyle}>
-                            <br/>
-                            <RaisedButton
-                              label="Items Dispatched"
-                              primary={true}
-                              style={styles.buttonStyle}
-                              onClick={() => this.updatePoStatus("Items Dispatched",member.order_number)}
-                            />
-                          </div>
-                          : null
+
+                        { member.rejection_reason!='' ?
+                        <div style={styles.icBoxStyle}>
+                          <span style={styles.purchaseCell}>Rejection Reason: {member.rejection_reason}</span>
+                        </div>
+                        :null
                         }
                       </div>
                     : null
                   }
+                  {
+                    member.status == "Approved" ?
+                    <div style={styles.icBoxStyle}>
+                      <br/>
+                      <RaisedButton
+                        label="Items Dispatched"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.updatePoStatus("Items Dispatched",member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
+                  {
+                    member.status == "Items Accepted" ?
+                    <div style={{display:'flex',flexDirection:'row',justifyContent:'space-around'}}>
+                      <RaisedButton
+                        label="OK"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.updatePoStatus("Finished",member.order_number)}
+                      />
+                      <RaisedButton
+                        label="Request Amendment"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.updatePoStatus("Amendment Requested",member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
+                  {
+                    ((member.status == "Corrigendum Generated" || (member.status == "Finished" && member.corrigendum_flag == "1")) && this.state.corrigendum_flag != 1) ?
+                    <div style={styles.buttonContainerStyle}>
+                      <br/>
+                      <RaisedButton
+                        label="See Corrigendum"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.getCorrigendum(member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
+                  { this.showCorrigendumTable(member.status,member.order_number)}
+
                 </div>
               )
             })
@@ -365,6 +419,28 @@ export default class VendorHome extends Component {
         </div>
       );
     }
+  }
+
+  showCorrigendumTable = (status,orderNumber) => {
+    if(this.state.corrigendum_flag == 1 && this.state.corrigendum_array.order_number == orderNumber)
+      return (
+        <div>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
+            <span style={styles.textLabel}>Corrigendum Details</span>
+          </div>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+            <div style={styles.icBoxStyle}>
+              <span style={styles.purchaseCell}>Corrigendum No.: {this.state.corrigendum_array.corrigendum_number}</span>
+              <span style={styles.purchaseCell}>Remarks: {this.state.corrigendum_array.remarks}</span>
+            </div>
+            <div style={styles.icBoxStyle}>
+              <span style={styles.purchaseCell}>Updates: {this.state.corrigendum_array.update_values}</span>
+            </div>
+          </div>
+        </div>
+      );
   }
 
   showVisits = () => {
@@ -422,23 +498,53 @@ export default class VendorHome extends Component {
     if(status == 'InProgress'){
       return styles.inProgressStyle;
     }
-    if(status == 'Initiated'){
+    else if(status == 'Initiated'){
       return styles.initiatedStyle;
     }
-    if(status == 'Processed'){
+    else if(status == 'Processed'){
       return styles.processedStyle;
     }
-    if(status == 'Forwarded'){
+    else if(status == 'Forwarded'){
       return styles.forwardedStyle;
     }
-    if(status == 'Assigned'){
+    else if(status == 'Assigned'){
       return styles.assignedStyle;
     }
-    if(status == 'Intimated'){
+    else if(status == 'Intimated'){
       return styles.intimatedStyle;
     }
-    if(status == 'Visited'){
+    else if(status == 'Visited'){
       return styles.visitedStyle;
+    }
+    else if(status == 'Passed'){
+      return styles.passedStyle;
+    }
+    else if(status == 'Rejected'){
+      return styles.rejectedStyle;
+    }
+    else if(status == 'Approved'){
+      return styles.approvedStyle;
+    }
+    else if(status == 'Items Dispatched'){
+      return styles.dispatchedStyle;
+    }
+    else if(status == 'Items Accepted'){
+      return styles.itemAcceptedStyle;
+    }
+    else if(status == 'Items Rejected'){
+      return styles.itemRejectedStyle;
+    }
+    else if(status == 'Amendment Requested'){
+      return styles.amendmentRequestedStyle;
+    }
+    else if(status == 'Amendment Inspector Nominated'){
+      return styles.nominatedStyle;
+    }
+    else if(status == 'Corrigendum Generated'){
+      return styles.generatedStyle;
+    }
+    else if(status == 'Finished'){
+      return styles.finishedStyle;
     }
   }
 
@@ -535,6 +641,23 @@ export default class VendorHome extends Component {
       alert(error.response.data.message);
     });
 
+  }
+
+  getCorrigendum(orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + oneCorrigendumUrl + orderNumber;
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      that.setState({ corrigendum_array: response.data , corrigendum_flag : 1});
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
   }
 
   getVisits(){
@@ -757,6 +880,106 @@ const styles = {
     fontWeight : 'bold',
     color : 'white'
   },
+  passedStyle: {
+    backgroundColor : '#13B47E',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  rejectedStyle: {
+    backgroundColor : '#FF0000',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  approvedStyle: {
+    backgroundColor : '#33FF00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  dispatchedStyle: {
+    backgroundColor : '#663399',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  itemAcceptedStyle: {
+    backgroundColor : '#FFCC00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  itemRejectedStyle: {
+    backgroundColor : '#CC0000',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  amendmentRequestedStyle: {
+    backgroundColor : '#809BBD',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  nominatedStyle: {
+    backgroundColor : '#D683B2',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  generatedStyle: {
+    backgroundColor : '#00CCFF',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  finishedStyle: {
+    backgroundColor : '#99FF00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
   buttonContainerStyle: {
     display: 'flex',
     flexDirection:'row',
@@ -775,8 +998,8 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'center',
     margin: 20,
-    width : '48%',
-    height : '30%',
+    width : '500px',
+    height : '200px',
     borderRadius: 25,
     border : '0.5px solid rgb(220,220,220)',
     boxShadow: '1px 6px 6px rgb(169,169,169)',

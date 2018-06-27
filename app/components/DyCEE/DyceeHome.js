@@ -19,7 +19,8 @@ import {
   allIcUrl,
   POUrlByStoreOfficer,
   dyceeInspectorUrl,
-  updatePOInfoUrl
+  updatePOInfoUrl,
+  oneCorrigendumUrl
 } from './../../config/url';
 
 import {
@@ -61,7 +62,13 @@ export default class DyCeeHome extends React.Component {
   	  inspector_mobile:	  '',
       type : '',
       open: false,
-      updateflag : ''
+      updateflag : '',
+      rejection_reason : '',
+      unit_price: '',
+      balance_quantity: '',
+      quantity_supplied_so_far: '',
+      quantity_on_order: '',
+      update_values: ''
     }
   };
 
@@ -91,12 +98,12 @@ export default class DyCeeHome extends React.Component {
             <div style={{ display: 'flex', flexDirection: 'row'}}>
               <DyCeePalette
                 onClickItems={() => this.fetchAllEntities("AllItems")}
-                onClickVendors={() => this.fetchAllEntities("Vendor")}
-                onClickInspectors={() => this.fetchAllEntities("Inspector")}
-                onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer")}
+                onClickVendors={() => this.fetchAllEntities("Vendor",this.state.id)}
+                onClickInspectors={() => this.fetchAllEntities("Inspector",this.state.id)}
+                onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer",this.state.id)}
                 onClickAddInspector={() => this.setState({flag : 3 , type : 'Inspector'})}
                 onClickAddStoreOfficer = {() => this.setState({flag : 3, type : 'StoreOfficer'})}
-                onClickPurchaseOrder={() => this.setState({flag: 4})}
+                onClickPurchaseOrder={() => this.setState({flag : 4, responseDataArray : []})}
                 onClickCreateIC={() => this.setState({flag :5})}
                 onClickIC ={() => this.fetchAllEntities("AllIC")}
                 onClickCorrigendumApproval={() => this.fetchAllEntities("AllItems")}
@@ -106,7 +113,9 @@ export default class DyCeeHome extends React.Component {
 
               { this.showPurchaseOrders() }
               { this.showItems() }
-              { this.showPeople() }
+              { this.showVendorList() }
+              { this.showInspectorList() }
+              { this.showStoreOfficerList() }
               { this.addPeople() }
               { this.createIC() }
               { this.showIC() }
@@ -266,7 +275,7 @@ export default class DyCeeHome extends React.Component {
       );
   }
 
-  showPeople = () => {
+  showVendorList = () => {
 
     if(this.state.flag == 2)
       return(
@@ -282,6 +291,66 @@ export default class DyCeeHome extends React.Component {
           </div>
           {
             this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.name}</span>
+                  <span style={styles.textCellContainer}>{member.email}</span>
+                  <span style={styles.textCellContainer}>{member.mobile}</span>
+                  <span style={styles.textCellContainer}>{member.location}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showInspectorList = () => {
+
+    if(this.state.flag == 10)
+      return(
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Name</span>
+            <span style={styles.textCellContainer}>Email</span>
+            <span style={styles.textCellContainer}>Mobile</span>
+            <span style={styles.textCellContainer}>Location</span>
+          </div>
+          {
+            this.state.inspectorArray.map((member,key) => {
+              return (
+                <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{member.name}</span>
+                  <span style={styles.textCellContainer}>{member.email}</span>
+                  <span style={styles.textCellContainer}>{member.mobile}</span>
+                  <span style={styles.textCellContainer}>{member.location}</span>
+                </div>
+              )
+            })
+          }
+        </div>
+      );
+  }
+
+  showStoreOfficerList = () => {
+
+    if(this.state.flag == 11)
+      return(
+        <div style={{flex : 1}}>
+          <div style = {styles.outerContainerStyle}>
+            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+          </div>
+          <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>Name</span>
+            <span style={styles.textCellContainer}>Email</span>
+            <span style={styles.textCellContainer}>Mobile</span>
+            <span style={styles.textCellContainer}>Location</span>
+          </div>
+          {
+            this.state.storeOfficerArray.map((member,key) => {
               return (
                 <div style={styles.itemContainer}>
                   <span style={styles.textCellContainer}>{member.name}</span>
@@ -354,7 +423,7 @@ export default class DyCeeHome extends React.Component {
     for (let i = 0; i < this.state.storeOfficerArray.length; i++ ) {
       items.push(<MenuItem value={i} key={i} primaryText={this.state.storeOfficerArray[i].name} />);
     }
-    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated"];
+    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 4)
       return(
@@ -408,7 +477,7 @@ export default class DyCeeHome extends React.Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
+                      (member.status == "Assigned" || member.status == "Intimated" || member.status == "Visited" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -479,16 +548,28 @@ export default class DyCeeHome extends React.Component {
                           <div style={styles.icBoxStyle}>
                             <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
                             <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
+                            <span style={styles.purchaseCell}>Quantity On Order: {member.ic_id.quantity_on_order}</span>
+                            <span style={styles.purchaseCell}>Quantity Supplied So Far: {member.ic_id.quantity_supplied_so_far}</span>
+
                           </div>
                           <div style={styles.icBoxStyle}>
+                            <span style={styles.purchaseCell}>Balance Quantity: {member.ic_id.balance_quantity}</span>
+                            <span style={styles.purchaseCell}>Unit Price: {member.ic_id.unit_price}</span>
                             <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
                             <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
+
                           </div>
                         </div>
 
                         <div style={styles.icBoxStyle}>
                           <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
+                        { member.rejection_reason!='' ?
+                        <div style={styles.icBoxStyle}>
+                          <span style={styles.purchaseCell}>Rejection Reason: {member.rejection_reason}</span>
+                        </div>
+                        :null
+                        }
                       </div>
                     : null
                   }
@@ -505,6 +586,21 @@ export default class DyCeeHome extends React.Component {
                     </div>
                     : null
                   }
+                  {
+                    ((member.status == "Corrigendum Generated" || (member.status == "Finished" && member.corrigendum_flag == "1")) && this.state.corrigendum_flag != 1) ?
+                    <div style={styles.buttonContainerStyle}>
+                      <br/>
+                      <RaisedButton
+                        label="See Corrigendum"
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.getCorrigendum(member.order_number)}
+                      />
+                    </div>
+                    : null
+                  }
+                  { this.showCorrigendumTable(member.status,member.order_number)}
+
                 </div>
               )
             })
@@ -514,6 +610,44 @@ export default class DyCeeHome extends React.Component {
       );
   }
 
+  showCorrigendumTable = (status,orderNumber) => {
+    if(this.state.corrigendum_flag == 1 && this.state.corrigendum_array.order_number == orderNumber)
+      return (
+        <div>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
+            <span style={styles.textLabel}>Corrigendum Details</span>
+          </div>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+            <div style={styles.icBoxStyle}>
+              <span style={styles.purchaseCell}>Corrigendum No.: {this.state.corrigendum_array.corrigendum_number}</span>
+              <span style={styles.purchaseCell}>Remarks: {this.state.corrigendum_array.remarks}</span>
+            </div>
+            <div style={styles.icBoxStyle}>
+              <span style={styles.purchaseCell}>Updates: {this.state.corrigendum_array.update_values}</span>
+            </div>
+          </div>
+          {
+            status == "Corrigendum Generated" ?
+            <div style={styles.buttonContainerStyle}>
+              <RaisedButton
+                label="Approve"
+                primary={true}
+                style={styles.buttonStyle}
+                onClick={() => this.updatePoStatus(
+                  {
+                    "status" : "Finished",
+                    "order_number" : this.state.corrigendum_array.order_number
+                  }
+                )}
+              />
+            </div>
+            : null
+          }
+        </div>
+      );
+  }
   createIC = () => {
 
     if(this.state.flag == 5)
@@ -590,6 +724,41 @@ export default class DyCeeHome extends React.Component {
                 style={styles.textFieldStyle}
               />
             </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity On Order"
+                floatingLabelText="Quantity On Order"
+                onChange = {(event,newValue) => this.setState({quantity_on_order:newValue})}
+                style={styles.textFieldStyle}
+              />
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity Supplied So Far"
+                floatingLabelText="Quantity Supplied So Far"
+                onChange = {(event,newValue) => this.setState({quantity_supplied_so_far:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Balance Quantity"
+                floatingLabelText="Balance Quantity"
+                value = {this.state.balance_quantity}
+                onChange = {(event,newValue) => this.setState({balance_quantity:newValue})}
+                style={styles.textFieldStyle}
+              />
+
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Unit Price"
+                floatingLabelText="Unit Price"
+                value = {this.state.unit_price}
+                onChange = {(event,newValue) => this.setState({unit_price:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
             <br/>
             <div style={styles.textCellStyle}>
               <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.createICFunc(event)}} />
@@ -617,6 +786,10 @@ export default class DyCeeHome extends React.Component {
             <span style={styles.textCellContainer}>IC Signed On</span>
             <span style={styles.textCellContainer}>Inspector Name</span>
             <span style={styles.textCellContainer}>Inspector Mobile</span>
+            <span style={styles.textCellContainer}>Quantity On Order</span>
+            <span style={styles.textCellContainer}>Quantity Supplied So Far</span>
+            <span style={styles.textCellContainer}>Balance Quantity</span>
+            <span style={styles.textCellContainer}>Unit Price</span>
           </div>
           {
             this.state.responseDataArray.map((member,key) => {
@@ -631,6 +804,11 @@ export default class DyCeeHome extends React.Component {
                   <span style={styles.textCellContainer}>{member.ic_signed_on}</span>
                   <span style={styles.textCellContainer}>{member.inspector_name}</span>
                   <span style={styles.textCellContainer}>{member.inspector_mobile}</span>
+                  <span style={styles.textCellContainer}>{member.quantity_on_order}</span>
+                  <span style={styles.textCellContainer}>{member.quantity_supplied_so_far}</span>
+                  <span style={styles.textCellContainer}>{member.balance_quantity}</span>
+                  <span style={styles.textCellContainer}>{member.unit_price}</span>
+
                 </div>
               )
             })
@@ -708,6 +886,61 @@ export default class DyCeeHome extends React.Component {
       );
   }
 
+  getStatusStyle(status){
+
+    if(status == 'InProgress'){
+      return styles.inProgressStyle;
+    }
+    else if(status == 'Initiated'){
+      return styles.initiatedStyle;
+    }
+    else if(status == 'Processed'){
+      return styles.processedStyle;
+    }
+    else if(status == 'Forwarded'){
+      return styles.forwardedStyle;
+    }
+    else if(status == 'Assigned'){
+      return styles.assignedStyle;
+    }
+    else if(status == 'Intimated'){
+      return styles.intimatedStyle;
+    }
+    else if(status == 'Visited'){
+      return styles.visitedStyle;
+    }
+    else if(status == 'Passed'){
+      return styles.passedStyle;
+    }
+    else if(status == 'Rejected'){
+      return styles.rejectedStyle;
+    }
+    else if(status == 'Approved'){
+      return styles.approvedStyle;
+    }
+    else if(status == 'Items Dispatched'){
+      return styles.dispatchedStyle;
+    }
+    else if(status == 'Items Accepted'){
+      return styles.itemAcceptedStyle;
+    }
+    else if(status == 'Items Rejected'){
+      return styles.itemRejectedStyle;
+    }
+    else if(status == 'Amendment Requested'){
+      return styles.amendmentRequestedStyle;
+    }
+    else if(status == 'Amendment Inspector Nominated'){
+      return styles.nominatedStyle;
+    }
+    else if(status == 'Corrigendum Generated'){
+      return styles.generatedStyle;
+    }
+    else if(status == 'Finished'){
+      return styles.finishedStyle;
+    }
+  }
+
   addPeopleFunc(event){
     var that = this;
     var apiUrl = baseUrl;
@@ -728,7 +961,7 @@ export default class DyCeeHome extends React.Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        alert("User is added successfully");
+        that.fetchAllEntities(that.state.type,that.state.id);
       }
       else if(response.status == 204) {
         alert("User is already present!");
@@ -804,7 +1037,11 @@ export default class DyCeeHome extends React.Component {
    	  "inspection_date" :   that.state.inspection_date,
    	  "ic_signed_on" :	   that.state.ic_signed_on,
    	  "inspector_name" :    that.state.inspector_name,
-   	  "inspector_mobile" :	  that.state.inspector_mobile
+   	  "inspector_mobile" :	  that.state.inspector_mobile,
+      "quantity_on_order" : that.state.quantity_on_order,
+      "quantity_supplied_so_far" : that.state.quantity_supplied_so_far,
+      "balance_quantity" : that.state.balance_quantity,
+      "unit_price" :       that.state.unit_price
 
     })
     .then(function (response) {
@@ -824,6 +1061,23 @@ export default class DyCeeHome extends React.Component {
     .catch(function (error) {
       console.log(error.response);
 
+      alert(error.response.data.message);
+    });
+  }
+
+  getCorrigendum(orderNumber){
+
+    var that = this;
+    var apiUrl = baseUrl + oneCorrigendumUrl + orderNumber;
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      that.setState({ corrigendum_array: response.data , corrigendum_flag : 1});
+    })
+    .catch(error => {
+      console.log(error.response);
       alert(error.response.data.message);
     });
   }
@@ -908,11 +1162,11 @@ export default class DyCeeHome extends React.Component {
       apiUrl += allItemUrl;
     }
     else if(type == "Inspector"){
-      apiUrl += allInspectorUrl;
+      apiUrl += dyceeInspectorUrl + userId;
       that.setState({type : type});
     }
     else if(type == "StoreOfficer"){
-      apiUrl += allStoreOfficerUrl;
+      apiUrl += storeOfficerUrl + userId;
       that.setState({type : type});
     }
     else if(type == "AllIC"){
@@ -931,8 +1185,14 @@ export default class DyCeeHome extends React.Component {
       if(response.status == 200 && type == "AllItems"){
         that.setState({ responseDataArray : response.data,  flag :1});
       }
-      else if(response.status == 200 && ( type == "Vendor" || type == "Inspector" || type == "StoreOfficer")){
+      else if(response.status == 200 &&  type == "Vendor"){
         that.setState({ responseDataArray : response.data, flag :2});
+      }
+      else if(response.status == 200 &&  type == "Inspector"){
+        that.setState({ inspectorArray : response.data, flag :10});
+      }
+      else if(response.status == 200 &&  type == "StoreOfficer"){
+        that.setState({ storeOfficerArray : response.data, flag :11});
       }
       else if(response.status == 200 && type == "AllIC"){
         that.setState({ responseDataArray : response.data, flag :6});
@@ -953,29 +1213,7 @@ export default class DyCeeHome extends React.Component {
 
   }
 
-  getStatusStyle(status){
-    if(status == 'InProgress'){
-      return styles.inProgressStyle;
-    }
-    if(status == 'Initiated'){
-      return styles.initiatedStyle;
-    }
-    if(status == 'Processed'){
-      return styles.processedStyle;
-    }
-    if(status == 'Forwarded'){
-      return styles.forwardedStyle;
-    }
-    if(status == 'Assigned'){
-      return styles.assignedStyle;
-    }
-    if(status == 'Intimated'){
-      return styles.intimatedStyle;
-    }
-    if(status == 'Visited'){
-      return styles.visitedStyle;
-    }
-  }
+
 
 
 }
@@ -1098,6 +1336,12 @@ const styles = {
     fontWeight: 'Bold',
     color: '#006266'
   },
+  buttonContainerStyle: {
+    display: 'flex',
+    flexDirection:'row',
+    justifyContent:'flex-end',
+    margin: 12
+  },
   initiatedStyle: {
     backgroundColor : 'rgb(255,153,0)',
     borderRadius: 2,
@@ -1168,10 +1412,104 @@ const styles = {
     fontWeight : 'bold',
     color : 'white'
   },
-  buttonContainerStyle: {
-    display: 'flex',
-    flexDirection:'row',
-    justifyContent:'flex-end',
-    margin: 12
+  passedStyle: {
+    backgroundColor : '#13B47E',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  rejectedStyle: {
+    backgroundColor : '#FF0000',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  approvedStyle: {
+    backgroundColor : '#33FF00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  dispatchedStyle: {
+    backgroundColor : '#663399',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  itemAcceptedStyle: {
+    backgroundColor : '#FFCC00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  itemRejectedStyle: {
+    backgroundColor : '#CC0000',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  amendmentRequestedStyle: {
+    backgroundColor : '#809BBD',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  nominatedStyle: {
+    backgroundColor : '#D683B2',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  generatedStyle: {
+    backgroundColor : '#00CCFF',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  finishedStyle: {
+    backgroundColor : '#99FF00',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
   }
 };

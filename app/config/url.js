@@ -11,6 +11,7 @@ export const allInspectorUrl="/inspector/all/";
 export const inspectorUrl="/inspector/add/";
 export const oneInspectorUrl="/inspector/one/";
 export const someInspectorUrl="/inspector/some/";
+export const dyceeInspectorUrl="/inspector/";
 
 ///////////////////////////// STORE OFFICER ///////////////////
 export const allStoreOfficerUrl="/storeofficer/all/";
@@ -18,7 +19,7 @@ export const addStoreOfficerUrl="/storeofficer/add/";
 export const oneStoreOfficerUrl="/storeofficer/one/";
 export const someStoreOfficerUrl="/storeofficer/some/";
 export const storeOfficerUrl="/storeofficer/";
-export const dyceeInspectorUrl="/inspector/";
+
 
 //////////////////////// PURCHASE ORDER //////////////////////
 export const addPurchaseOrderUrl ="/purchaseorder/add/";
@@ -45,7 +46,7 @@ export const oneIcUrl ="/showIC/one/";
 //////////////////////// CORRIGENDUM //////////////////
 export const allCorrigendumUrl ='/corrigendum/showCorrigendum/all/';
 export const generateCorrigendumUrl = '/corrigendum/generate/';
-export const oneCorrigendumUrl ="corrigendum/showCorrigendum/one";
+export const oneCorrigendumUrl ="/corrigendum/showCorrigendum/one/";
 
 ///////////////////// INSPECTION REPORT //////////////////
 export const allIrUrl = '/showIR/';
