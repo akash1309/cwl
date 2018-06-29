@@ -106,8 +106,6 @@ export default class DyCeeHome extends React.Component {
                 onClickPurchaseOrder={() => this.setState({flag : 4, responseDataArray : []})}
                 onClickCreateIC={() => this.setState({flag :5})}
                 onClickIC ={() => this.fetchAllEntities("AllIC")}
-                onClickCorrigendumApproval={() => this.fetchAllEntities("AllItems")}
-                onClickApprovalLetter={() => this.fetchAllEntities("AllItems")}
                 onClickProfile={() => this.getProfileInfo()}
               />
 
@@ -119,8 +117,6 @@ export default class DyCeeHome extends React.Component {
               { this.addPeople() }
               { this.createIC() }
               { this.showIC() }
-              { this.corrigendumApproval() }
-              { this.approvalLetter() }
               { this.showProfile() }
 
             </div>
@@ -224,29 +220,7 @@ export default class DyCeeHome extends React.Component {
     });
   }
 
-/*
-  SyncUpdatePoStatus(body){
 
-    var that = this;
-    var apiUrl = baseUrl + updatePOInfoUrl;
-
-    console.log(body);
-    axios.post(apiUrl,body)
-    .then(function (response) {
-      console.log(response);
-      if(response.status == 200){
-        that.fetchAllEntities("Purchase_Order", that.state.storeOfficerArray[that.state.selectedStoreOfficerPos]._id);
-      }
-      else if(response.status == 204) {
-        alert("Purchase Order to be updated is not present!");
-      }
-    })
-    .catch(function (error) {
-      console.log(error.response);
-      alert(error.response.data.message);
-    });
-  }
-*/
   showItems = () => {
 
     if(this.state.flag == 1)
@@ -496,7 +470,7 @@ export default class DyCeeHome extends React.Component {
 
                   </div>
                   {
-                    member.status == "Forwarded" ?
+                    member.status == "Processed" ?
                     <div style={styles.buttonContainerStyle}>
                       <RaisedButton
                         label="Assign Inspector"
@@ -648,6 +622,7 @@ export default class DyCeeHome extends React.Component {
         </div>
       );
   }
+
   createIC = () => {
 
     if(this.state.flag == 5)
@@ -815,14 +790,6 @@ export default class DyCeeHome extends React.Component {
           }
         </div>
       );
-  }
-
-  corrigendumApproval = () => {
-
-  }
-
-  approvalLetter = () => {
-
   }
 
   showProfile = () => {

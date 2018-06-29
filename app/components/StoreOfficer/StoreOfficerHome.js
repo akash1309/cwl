@@ -466,18 +466,7 @@ export default class StoreOfficerHome extends React.Component {
                     </div>
                       : null
                   }
-                  {
-                    member.status == "Processed" ?
-                    <div style={styles.buttonContainerStyle}>
-                      <RaisedButton
-                        label="Forward"
-                        primary={true}
-                        style={styles.buttonStyle}
-                        onClick={() => this.updatePoStatus("Forwarded",member.order_number)}
-                      />
-                    </div>
-                    : null
-                  }
+                  
                   {
                     (statusArray.some(x => x == member.status)) ?
                       <div>

@@ -17,7 +17,7 @@ export default class DyCeePalette extends React.Component {
           <span style={styles.textStyle}>Purchase Orders</span>
         </a>
         <div style={styles.dividerStyle}/>
-        
+
         <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
           <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Items</span>
@@ -63,18 +63,6 @@ export default class DyCeePalette extends React.Component {
         <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
           <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>I.C.</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickCorrigendumApproval} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Corrigendum Approval</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickApprovalLetter} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdAssignment size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Approval Letter</span>
         </a>
         <div style={styles.dividerStyle}/>
 
