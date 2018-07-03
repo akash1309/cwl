@@ -35,6 +35,7 @@ export default class CeeHome extends Component {
     super(props);
     this.state = {
       responseDataArray : [],
+      corrigendum_array : [],
       flag : -1,
       name :'',
       email : '',
@@ -176,7 +177,7 @@ export default class CeeHome extends Component {
 
   showPurchaseOrders = () => {
 
-    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
+    let statusArray = ["IC Generated","Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 3)
       return(
@@ -217,7 +218,7 @@ export default class CeeHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Intimated" || member.status == "Visited" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
+                      ( member.inspected_by != undefined || member.inspected_by != null ) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -236,44 +237,55 @@ export default class CeeHome extends Component {
 
                   </div>
                   {
-                    (statusArray.some(x => x == member.status)) ?
+                    member.ic_id != undefined ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-                          <span style={styles.textLabel}>Inspection Certificate Details</span>
+                          <span style={styles.textLabel}>Latest Inspection Certificate Details</span>
                         </div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
                           <div style={styles.icBoxStyle}>
-                            <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
-                            <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
+                            <span>Quantity Offered: {member.ic_id.quantity_offered}</span>
+                            <span>Quantity Accepted: {member.ic_id.quantity_approved}</span>
+                            <span>Quantity On Order: {member.ic_id.quantity_on_order}</span>
+                            <span>Quantity Supplied/Inspected So Far: {member.ic_id.quantity_supplied_so_far}</span>
+                            <span>Balance Quantity: {member.ic_id.balance_quantity}</span>
+                            <span>Date when materials were offered for inspection: {member.ic_id.materials_offered_date}</span>
+
                           </div>
                           <div style={styles.icBoxStyle}>
-                            <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
-                            <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                            <span>Unit Price: {member.ic_id.unit_price}</span>
+                            <span>Inspection Date: {member.ic_id.inspection_date}</span>
+                            <span>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                            <span>Inspecting Officer Name: {member.ic_id.inspector_name}</span>
+                            <span>Inspecting Officer Mobile: {member.ic_id.inspector_mobile}</span>
+                            <span>Remarks: {member.ic_id.remarks}</span>
+
                           </div>
                         </div>
 
-                        <div style={styles.icBoxStyle}>
-                          <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
+                        <div style={{marginTop : 10, marginLeft:60}}>
+                          <span>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
+                        { member.ic_id.rejection_reason != undefined ?
+                        <div style={{marginTop : 10, marginLeft:60}}>
+                          <span>Rejection Reason: {member.ic_id.rejection_reason}</span>
+                        </div>
+                        :null
+                        }
+                        <div style={styles.buttonContainerStyle}>
+                          <RaisedButton
+                            label="SEE ALL ICs"
+                            primary={true}
+                            style={styles.buttonStyle}
+                            onClick={() => this.fetchAllEntities("AllIC",member.order_number)}
+                          />
+                        </div>
+
                       </div>
                     : null
                   }
-                  {
-                    ((member.status == "Corrigendum Generated" || (member.status == "Finished" && member.corrigendum_flag == "1")) && this.state.corrigendum_flag != 1) ?
-                    <div style={styles.buttonContainerStyle}>
-                      <br/>
-                      <RaisedButton
-                        label="See Corrigendum"
-                        primary={true}
-                        style={styles.buttonStyle}
-                        onClick={() => this.getCorrigendum(member.order_number)}
-                      />
-                    </div>
-                    : null
-                  }
-                  { this.showCorrigendumTable(member.status,member.order_number)}
 
                 </div>
               )
@@ -283,22 +295,23 @@ export default class CeeHome extends Component {
       );
   }
 
-  showCorrigendumTable = (status,orderNumber) => {
-    if(this.state.corrigendum_flag == 1 && this.state.corrigendum_array.order_number == orderNumber)
+  showCorrigendumTable = () => {
+    if(this.state.corrigendum_flag == 1)
       return (
-        <div>
-          <div style={styles.dividerStyle}/>
-          <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-            <span style={styles.textLabel}>Corrigendum Details</span>
+        <div style={{border : '2px solid #989898' , borderRadius : 4 , boxShadow : '1px 3px 5px', padding : '20px', margin:'10px'}}>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'flex-end'}}>
+            <span style={styles.corrigendumLabel}>Corrigendum Details</span>
+            <span style={{flex : 1}}><span style={{fontWeight : 'bold' , color : '#000099'}}>Corrigendum No.: </span>{this.state.corrigendum_array.corrigendum_number}</span>
           </div>
           <div style={styles.dividerStyle}/>
           <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
-            <div style={styles.icBoxStyle}>
-              <span style={styles.purchaseCell}>Corrigendum No.: {this.state.corrigendum_array.corrigendum_number}</span>
-              <span style={styles.purchaseCell}>Remarks: {this.state.corrigendum_array.remarks}</span>
+            <div style={{display : 'flex' , flexDirection : 'column' , justifyContent : 'space-around'}}>
+              <span><span style={styles.BoldText}>Inspector Name: </span>{this.state.corrigendum_array.generated_by.name}</span>
+              <span><span style={styles.BoldText}>Inspector Mobile: </span>{this.state.corrigendum_array.generated_by.mobile}</span>
             </div>
-            <div style={styles.icBoxStyle}>
-              <span style={styles.purchaseCell}>Updates: {this.state.corrigendum_array.update_values}</span>
+            <div style={{display : 'flex' , flexDirection : 'column' }}>
+              <span><span style={styles.BoldText}>Updates: </span>{this.state.corrigendum_array.update_values}</span>
+              <span><span style={styles.BoldText}>Remarks: </span>{this.state.corrigendum_array.remarks}</span>
             </div>
           </div>
         </div>
@@ -338,35 +351,66 @@ export default class CeeHome extends Component {
     if(this.state.flag == 5)
       return (
         <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Inspection Certificates</span>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'center',marginTop:20}}>
+            <span style={styles.ICLabel}>Inspection Certificate Details</span>
           </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Order No.</span>
-            <span style={styles.textCellContainer}>Quantity Offered</span>
-            <span style={styles.textCellContainer}>Quantity Approved</span>
-            <span style={styles.textCellContainer}>Location of Seal</span>
-            <span style={styles.textCellContainer}>IC id</span>
-            <span style={styles.textCellContainer}>Inspection Date</span>
-            <span style={styles.textCellContainer}>IC Signed On</span>
-            <span style={styles.textCellContainer}>Inspector Name</span>
-            <span style={styles.textCellContainer}>Inspector Mobile</span>
-          </div>
+          <div style={styles.dividerStyle}/>
           {
             this.state.responseDataArray.map((member,key) => {
               return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.order_number}</span>
-                  <span style={styles.textCellContainer}>{member.quantity_offered}</span>
-                  <span style={styles.textCellContainer}>{member.quantity_approved}</span>
-                  <span style={styles.textCellContainer}>{member.location_of_seal}</span>
-                  <span style={styles.textCellContainer}>{member.ic_id}</span>
-                  <span style={styles.textCellContainer}>{member.inspection_date}</span>
-                  <span style={styles.textCellContainer}>{member.ic_signed_on}</span>
-                  <span style={styles.textCellContainer}>{member.inspector_name}</span>
-                  <span style={styles.textCellContainer}>{member.inspector_mobile}</span>
+                <div style={{border : '2px solid #989898' , borderRadius : 4 , boxShadow : '1px 3px 5px', padding : '20px', margin:'10px'}}>
+                  <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+                    <div style={styles.icBoxStyle}>
+                      <span><span style={styles.BoldText}>Quantity Offered: </span>{member.quantity_offered}</span>
+                      <span><span style={styles.BoldText}>Quantity Accepted: </span>{member.quantity_approved}</span>
+                      <span><span style={styles.BoldText}>Quantity On Order: </span>{member.quantity_on_order}</span>
+                      <span><span style={styles.BoldText}>Quantity Supplied/Inspected So Far: </span>{member.quantity_supplied_so_far}</span>
+                      <span><span style={styles.BoldText}>Balance Quantity: </span>{member.balance_quantity}</span>
+                      <span><span style={styles.BoldText}>Date when materials were offered for inspection: </span>{member.materials_offered_date}</span>
+
+                    </div>
+                    <div style={styles.icBoxStyle}>
+                      <span><span style={styles.BoldText}>Unit Price: </span>{member.unit_price}</span>
+                      <span><span style={styles.BoldText}>Inspection Date: </span>{member.inspection_date}</span>
+                      <span><span style={styles.BoldText}>IC Signed On: </span>{member.ic_signed_on}</span>
+                      <span><span style={styles.BoldText}>Inspecting Officer Name: </span>{member.inspector_name}</span>
+                      <span><span style={styles.BoldText}>Inspecting Officer Mobile: </span>{member.inspector_mobile}</span>
+                      <span><span style={styles.BoldText}>Remarks: </span>{member.remarks}</span>
+
+                    </div>
+                  </div>
+                  <div style={{marginTop : 10, marginLeft:60}}>
+                    <span><span style={styles.BoldText}>Location of Seal: </span>{member.location_of_seal}</span>
+                  </div>
+                  {
+                    member.rejection_reason != undefined ?
+                      <div style={{marginTop : 10, marginLeft:60}}>
+                        <span><span style={styles.BoldText}>Rejection Reason: </span>{member.rejection_reason}</span>
+                      </div>
+                    :null
+                  }
+                  <div style={styles.dividerStyle}/>
+                  {
+                    member.corrigendum_id != undefined ?
+                      <div style={styles.buttonContainerStyle}>
+                        <br/>
+                        <RaisedButton
+                          label="See Corrigendum"
+                          primary={true}
+                          style={styles.buttonStyle}
+                          onClick={() => this.getCorrigendum(member.corrigendum_id)}
+                        />
+                      </div>
+                    : null
+                  }
+                  {
+                    member.corrigendum_id != undefined && member.corrigendum_id == this.state.corrigendum_array._id ?
+                      this.showCorrigendumTable()
+                    : null
+                  }
                 </div>
-              )
+              );
             })
           }
         </div>
@@ -499,6 +543,23 @@ export default class CeeHome extends Component {
   }
 
 
+  getCorrigendum(corrigendum_id){
+
+    var that = this;
+    var apiUrl = baseUrl + oneCorrigendumUrl + corrigendum_id;
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      that.setState({ corrigendum_array : response.data , corrigendum_flag : 1});
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
   addDyCEEFunc(event){
     var that=this;
     var apiUrl=baseUrl + addDyCEEUrl;
@@ -579,23 +640,6 @@ export default class CeeHome extends Component {
     });
   }
 
-  getCorrigendum(orderNumber){
-
-    var that = this;
-    var apiUrl = baseUrl + oneCorrigendumUrl + orderNumber;
-
-    console.log(apiUrl);
-    axios.get(apiUrl)
-    .then( response => {
-      console.log(response);
-      that.setState({ corrigendum_array: response.data , corrigendum_flag : 1});
-    })
-    .catch(error => {
-      console.log(error.response);
-      alert(error.response.data.message);
-    });
-  }
-
   getStatusStyle(style){
 
     if(status == 'InProgress'){
@@ -651,7 +695,7 @@ export default class CeeHome extends Component {
     }
   }
 
-  fetchAllEntities(event,type){
+  fetchAllEntities(type,userId){
 
     var that = this;
     var apiUrl = baseUrl;
@@ -686,7 +730,7 @@ export default class CeeHome extends Component {
     }
     else if(type == "AllIC")
     {
-      apiUrl += allIcUrl;
+      apiUrl += allIcUrl + userId;
     }
     else if (type == "AllIR")
     {
@@ -779,10 +823,26 @@ const styles = {
   purchaseCell:{
 
   },
+  BoldText:{
+    fontWeight : 'Bold'
+  },
+  corrigendumLabel: {
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#ff5719',
+    fontSize : '18px',
+    flex : 2
+  },
   textLabel:{
     fontFamily: 'Montserrat',
     fontWeight: 'Bold',
     color: '#006266'
+  },
+  ICLabel:{
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#FF1493',
+    fontSize : '20px'
   },
   textStyle:{
     fontFamily: 'Montserrat',
@@ -837,7 +897,8 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
-    alignItems : 'center'
+    alignItems : 'left',
+    marginLeft : '60px'
   },
   buttonContainerStyle: {
     display: 'flex',

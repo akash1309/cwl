@@ -54,12 +54,6 @@ export default class DyCeePalette extends React.Component {
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickCreateIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Create I.C.</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
         <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
           <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>I.C.</span>

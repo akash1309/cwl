@@ -15,7 +15,10 @@ import {
    updatePOInfoUrl,
    updateVisitInfoUrl,
    removeVisitUrl,
-   oneCorrigendumUrl
+   oneCorrigendumUrl,
+   icGenerateUrl,
+   allIcUrl,
+   updateICInfoUrl
    } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
@@ -35,6 +38,7 @@ export default class InspectorHome extends Component {
     super(props);
     this.state = {
       responseDataArray : [],
+      corrigendum_array : [],
       name : '',
       email : '',
       mobile : '',
@@ -45,7 +49,6 @@ export default class InspectorHome extends Component {
       order_date : '' ,
       corrigendum_number : '',
       ic_id:            	 '',
-      ic_date :  			 '',
       inspector_name :  	'',
       inspector_mobile :	'',
       date : '',
@@ -62,7 +65,12 @@ export default class InspectorHome extends Component {
       quantity_supplied_so_far: '',
       quantity_on_order: '',
       ic_signed_on:'',
-      update_values: ''
+      inspection_date :   '',
+      update_values: '',
+      quantity_offered:   '',
+  	  quantity_approved:  '',
+      location_of_seal :  '',
+      materials_offered_date : ''
     }
   }
 
@@ -112,15 +120,12 @@ export default class InspectorHome extends Component {
             />
 
             { this.showVendors() }
-
             { this.showPurchaseOrders() }
-
+            { this.createIC() }
+            { this.showIC() }
             { this.addCorrigendum() }
-
             { this.showProfile() }
-
             {this.addInspectionReport()}
-
             {this.visitform()}
 
           </div>
@@ -286,8 +291,24 @@ export default class InspectorHome extends Component {
                 value={this.state.ic_signed_on}
                 inputStyle={styles.opaqueTextStyle}
               />
-              </div>
-              <div style={styles.textCellStyle}>
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity Offered"
+                floatingLabelText="Quantity Offered"
+                value={this.state.quantity_offered}
+                inputStyle={styles.opaqueTextStyle}
+              />
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity Accepted"
+                floatingLabelText="Quantity Accepted"
+                value={this.state.quantity_approved}
+                inputStyle={styles.opaqueTextStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Quantity On Order"
@@ -297,8 +318,8 @@ export default class InspectorHome extends Component {
               />
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
-                hintText="Quantity Supplied So Far"
-                floatingLabelText="Quantity Supplied So Far"
+                hintText="Qty Supplied/Inspected So Far"
+                floatingLabelText="Qty Supplied/Inspected So Far"
                 value={this.state.quantity_supplied_so_far}
                 inputStyle={styles.opaqueTextStyle}
               />
@@ -329,7 +350,7 @@ export default class InspectorHome extends Component {
                 rowsMax={6}
                 onChange = {(event,newValue) => this.setState({update_values:newValue})}
                 style={styles.corriStyle}
-              />
+                />
                 <TextField
                 hintText="Remarks"
                 floatingLabelText="Remarks"
@@ -338,7 +359,7 @@ export default class InspectorHome extends Component {
                 rowsMax={6}
                 onChange = {(event,newValue) => this.setState({remarks:newValue})}
                 style={styles.corriStyle}
-              />
+                />
             </div>
           </div>
         </div>
@@ -418,7 +439,7 @@ export default class InspectorHome extends Component {
 
   showPurchaseOrders = () => {
 
-    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
+    let statusArray = ["IC Generated","Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 5)
       return(
@@ -462,7 +483,7 @@ export default class InspectorHome extends Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Intimated" || member.status == "Visited" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
+                      ( member.inspected_by != undefined || member.inspected_by != null ) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -515,38 +536,69 @@ export default class InspectorHome extends Component {
                     : null
                   }
                   {
-                    (statusArray.some(x => x == member.status)) ?
+                    member.status == "Passed" ?
+                    <div style={styles.buttonContainerStyle}>
+                      <RaisedButton
+                        label="Create I.C."
+                        primary={true}
+                        style={styles.buttonStyle}
+                        onClick={() => this.setState({
+                          flag :7,
+                          order_number:member.order_number,
+                          inspector_name:member.inspected_by.name,
+                          inspector_mobile : member.inspected_by.mobile
+                        })}
+                      />
+                    </div>
+                    : null
+                  }
+                  {
+                    member.ic_id != undefined ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-                          <span style={styles.textLabel}>Inspection Certificate Details</span>
+                          <span style={styles.textLabel}>Latest Inspection Certificate Details</span>
                         </div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
                           <div style={styles.icBoxStyle}>
-                            <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
-                            <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
-                            <span style={styles.purchaseCell}>Quantity On Order: {member.ic_id.quantity_on_order}</span>
-                            <span style={styles.purchaseCell}>Quantity Supplied So Far: {member.ic_id.quantity_supplied_so_far}</span>
+                            <span>Quantity Offered: {member.ic_id.quantity_offered}</span>
+                            <span>Quantity Accepted: {member.ic_id.quantity_approved}</span>
+                            <span>Quantity On Order: {member.ic_id.quantity_on_order}</span>
+                            <span>Quantity Supplied/Inspected So Far: {member.ic_id.quantity_supplied_so_far}</span>
+                            <span>Balance Quantity: {member.ic_id.balance_quantity}</span>
+                            <span>Date when materials were offered for inspection: {member.ic_id.materials_offered_date}</span>
 
                           </div>
                           <div style={styles.icBoxStyle}>
-                            <span style={styles.purchaseCell}>Balance Quantity: {member.ic_id.balance_quantity}</span>
-                            <span style={styles.purchaseCell}>Unit Price: {member.ic_id.unit_price}</span>
-                            <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
-                            <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                            <span>Unit Price: {member.ic_id.unit_price}</span>
+                            <span>Inspection Date: {member.ic_id.inspection_date}</span>
+                            <span>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                            <span>Inspecting Officer Name: {member.ic_id.inspector_name}</span>
+                            <span>Inspecting Officer Mobile: {member.ic_id.inspector_mobile}</span>
+                            <span>Remarks: {member.ic_id.remarks}</span>
+
                           </div>
                         </div>
 
-                        <div style={styles.icBoxStyle}>
-                          <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
+                        <div style={{marginTop : 10, marginLeft:60}}>
+                          <span>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
-                        { member.rejection_reason!='' ?
-                        <div style={styles.icBoxStyle}>
-                          <span style={styles.purchaseCell}>Rejection Reason: {member.rejection_reason}</span>
+                        { member.ic_id.rejection_reason != undefined ?
+                        <div style={{marginTop : 10, marginLeft:60}}>
+                          <span>Rejection Reason: {member.ic_id.rejection_reason}</span>
                         </div>
                         :null
                         }
+                        <div style={styles.buttonContainerStyle}>
+                          <RaisedButton
+                            label="SEE ALL ICs"
+                            primary={true}
+                            style={styles.buttonStyle}
+                            onClick={() => this.fetchAllEntities("AllIC",member.order_number)}
+                          />
+                        </div>
+
                       </div>
                     : null
                   }
@@ -566,28 +618,18 @@ export default class InspectorHome extends Component {
                               ic_signed_on : member.ic_id.ic_signed_on,
                               unit_price : member.ic_id.unit_price,
                               balance_quantity : member.ic_id.balance_quantity,
+                              quantity_offered : member.ic_id.quantity_offered,
+                              quantity_approved : member.ic_id.quantity_approved,
                               quantity_on_order: member.ic_id.quantity_on_order,
-                              quantity_supplied_so_far : member.ic_id.quantity_supplied_so_far
+                              quantity_supplied_so_far : member.ic_id.quantity_supplied_so_far,
+                              update_values : '',
+                              remarks : ''
                             })
                           }
                         />
                       </div>
                     : null
                   }
-                  {
-                    ((member.status == "Corrigendum Generated" || (member.status == "Finished" && member.corrigendum_flag == "1")) && this.state.corrigendum_flag != 1) ?
-                    <div style={styles.buttonContainerStyle}>
-                      <br/>
-                      <RaisedButton
-                        label="See Corrigendum"
-                        primary={true}
-                        style={styles.buttonStyle}
-                        onClick={() => this.getCorrigendum(member.order_number)}
-                      />
-                    </div>
-                    : null
-                  }
-                  { this.showCorrigendumTable(member.status,member.order_number)}
 
                 </div>
               )
@@ -597,22 +639,165 @@ export default class InspectorHome extends Component {
       );
   }
 
-  showCorrigendumTable = (status,orderNumber) => {
-    if(this.state.corrigendum_flag == 1 && this.state.corrigendum_array.order_number == orderNumber)
+  createIC = () => {
+
+    if(this.state.flag == 7)
       return (
-        <div>
-          <div style={styles.dividerStyle}/>
-          <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-            <span style={styles.textLabel}>Corrigendum Details</span>
+        <div style={styles.outerContainerStyle}>
+          <span style={styles.headingStyle}>IC Generation</span>
+          <div style={styles.childContainer}>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Order_Number"
+                floatingLabelText="Order_Number"
+                value = {this.state.order_number}
+                onChange = {(event,newValue) => this.setState({order_number:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity_offered"
+                floatingLabelText="Quantity_offered"
+                onChange = {(event,newValue) => this.setState({quantity_offered:newValue})}
+                style={styles.textFieldStyle}
+              />
+
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity_accepted"
+                floatingLabelText="Quantity_accepted"
+                onChange = {(event,newValue) => this.setState({quantity_approved:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Quantity On Order"
+                floatingLabelText="Quantity On Order"
+                onChange = {(event,newValue) => this.setState({quantity_on_order:newValue})}
+                style={styles.textFieldStyle}
+              />
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Qty Supplied/Inspected So Far"
+                floatingLabelText="Qty Supplied/Inspected So Far"
+                onChange = {(event,newValue) => this.setState({quantity_supplied_so_far:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Balance Quantity"
+                floatingLabelText="Balance Quantity"
+                value = {this.state.balance_quantity}
+                onChange = {(event,newValue) => this.setState({balance_quantity:newValue})}
+                style={styles.textFieldStyle}
+              />
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Date"
+                floatingLabelText="Date materials offered for inspection"
+                onChange = {(event,newValue) => this.setState({materials_offered_date:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Inspection Date"
+                floatingLabelText="Inspection Date"
+                onChange = {(event,newValue) => this.setState({inspection_date:newValue})}
+                style={styles.textFieldStyle}
+              />
+
+              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Unit Price"
+                floatingLabelText="Unit Price"
+                value = {this.state.unit_price}
+                onChange = {(event,newValue) => this.setState({unit_price:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Inspecting Officer Name"
+                floatingLabelText="Inspecting Officer Name"
+                value = {this.state.inspector_name}
+                onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
+                style={styles.textFieldStyle}
+              />
+
+              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="Inspecting Officer Mobile"
+                floatingLabelText="Inspecting Officer Mobile"
+                value = {this.state.inspector_mobile}
+                onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <div style={styles.textCellStyle}>
+              <TextField
+                hintText="Location_of_seal"
+                floatingLabelText="Location_of_seal"
+                multiLine={true}
+                rows={2}
+                rowsMax={4}
+                onChange = {(event,newValue) => this.setState({location_of_seal:newValue})}
+                style={styles.areaStyle}
+              />
+              <TextField
+              hintText="Remarks"
+              floatingLabelText="Remarks if any"
+              multiLine={true}
+              rows={2}
+              rowsMax={4}
+              onChange = {(event,newValue) => this.setState({remarks:newValue})}
+              style={styles.areaStyle}
+              />
+            </div>
+            <div style={styles.signedOnStyle}>
+              <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
+              <TextField
+                hintText="IC Signed On"
+                floatingLabelText="IC Signed On"
+                onChange = {(event,newValue) => this.setState({ic_signed_on:newValue})}
+                style={styles.textFieldStyle}
+              />
+            </div>
+            <br/>
+            <div style={styles.textCellStyle}>
+              <RaisedButton label="Generate" primary={true} style={styles.buttonStyle} onClick={(event) => {this.createICFunc(event)}} />
+            </div>
+          </div>
+        </div>
+      );
+  }
+
+  showCorrigendumTable = () => {
+    if(this.state.corrigendum_flag == 1)
+      return (
+        <div style={{border : '2px solid #989898' , borderRadius : 4 , boxShadow : '1px 3px 5px', padding : '20px', margin:'10px'}}>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'flex-end'}}>
+            <span style={styles.corrigendumLabel}>Corrigendum Details</span>
+            <span style={{flex : 1}}><span style={{fontWeight : 'bold' , color : '#000099'}}>Corrigendum No.: </span>{this.state.corrigendum_array.corrigendum_number}</span>
           </div>
           <div style={styles.dividerStyle}/>
           <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
-            <div style={styles.icBoxStyle}>
-              <span style={styles.purchaseCell}>Corrigendum No.: {this.state.corrigendum_array.corrigendum_number}</span>
-              <span style={styles.purchaseCell}>Remarks: {this.state.corrigendum_array.remarks}</span>
+            <div style={{display : 'flex' , flexDirection : 'column' , justifyContent : 'space-around'}}>
+              <span><span style={styles.BoldText}>Inspector Name: </span>{this.state.corrigendum_array.generated_by.name}</span>
+              <span><span style={styles.BoldText}>Inspector Mobile: </span>{this.state.corrigendum_array.generated_by.mobile}</span>
             </div>
-            <div style={styles.icBoxStyle}>
-              <span style={styles.purchaseCell}>Updates: {this.state.corrigendum_array.update_values}</span>
+            <div style={{display : 'flex' , flexDirection : 'column' }}>
+              <span><span style={styles.BoldText}>Updates: </span>{this.state.corrigendum_array.update_values}</span>
+              <span><span style={styles.BoldText}>Remarks: </span>{this.state.corrigendum_array.remarks}</span>
             </div>
           </div>
         </div>
@@ -656,6 +841,116 @@ export default class InspectorHome extends Component {
 
        </div>
      );
+  }
+
+  showIC = () => {
+
+    if(this.state.flag == 8)
+      return (
+        <div style={{flex : 1}}>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'center',marginTop:20}}>
+            <span style={styles.ICLabel}>Inspection Certificate Details</span>
+          </div>
+          <div style={styles.dividerStyle}/>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={{border : '2px solid #989898' , borderRadius : 4 , boxShadow : '1px 3px 5px', padding : '20px', margin:'10px'}}>
+                  <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+                    <div style={styles.icBoxStyle}>
+                      <span><span style={styles.BoldText}>Quantity Offered: </span>{member.quantity_offered}</span>
+                      <span><span style={styles.BoldText}>Quantity Accepted: </span>{member.quantity_approved}</span>
+                      <span><span style={styles.BoldText}>Quantity On Order: </span>{member.quantity_on_order}</span>
+                      <span><span style={styles.BoldText}>Quantity Supplied/Inspected So Far: </span>{member.quantity_supplied_so_far}</span>
+                      <span><span style={styles.BoldText}>Balance Quantity: </span>{member.balance_quantity}</span>
+                      <span><span style={styles.BoldText}>Date when materials were offered for inspection: </span>{member.materials_offered_date}</span>
+
+                    </div>
+                    <div style={styles.icBoxStyle}>
+                      <span><span style={styles.BoldText}>Unit Price: </span>{member.unit_price}</span>
+                      <span><span style={styles.BoldText}>Inspection Date: </span>{member.inspection_date}</span>
+                      <span><span style={styles.BoldText}>IC Signed On: </span>{member.ic_signed_on}</span>
+                      <span><span style={styles.BoldText}>Inspecting Officer Name: </span>{member.inspector_name}</span>
+                      <span><span style={styles.BoldText}>Inspecting Officer Mobile: </span>{member.inspector_mobile}</span>
+                      <span><span style={styles.BoldText}>Remarks: </span>{member.remarks}</span>
+
+                    </div>
+                  </div>
+                  <div style={{marginTop : 10, marginLeft:60}}>
+                    <span><span style={styles.BoldText}>Location of Seal: </span>{member.location_of_seal}</span>
+                  </div>
+                  {
+                    member.rejection_reason != undefined ?
+                      <div style={{marginTop : 10, marginLeft:60}}>
+                        <span><span style={styles.BoldText}>Rejection Reason: </span>{member.rejection_reason}</span>
+                      </div>
+                    :null
+                  }
+                  <div style={styles.dividerStyle}/>
+                  {
+                    member.corrigendum_id != undefined ?
+                      <div style={styles.buttonContainerStyle}>
+                        <br/>
+                        <RaisedButton
+                          label="See Corrigendum"
+                          primary={true}
+                          style={styles.buttonStyle}
+                          onClick={() => this.getCorrigendum(member.corrigendum_id)}
+                        />
+                      </div>
+                    : null
+                  }
+                  {
+                    member.corrigendum_id != undefined && member.corrigendum_id == this.state.corrigendum_array._id ?
+                      this.showCorrigendumTable()
+                    : null
+                  }
+                </div>
+              );
+            })
+          }
+        </div>
+      );
+  }
+
+  createICFunc(event){
+    var that = this;
+    var apiUrl = baseUrl + icGenerateUrl;
+
+    axios.post(apiUrl, {
+       "order_number" :      that.state.order_number,
+      "quantity_offered":   that.state.quantity_offered,
+      "quantity_approved":  that.state.quantity_approved,
+      "location_of_seal" :  that.state.location_of_seal,
+      "inspection_date" :   that.state.inspection_date,
+      "ic_signed_on" :	   that.state.ic_signed_on,
+      "inspector_name" :    that.state.inspector_name,
+      "inspector_mobile" :	  that.state.inspector_mobile,
+      "quantity_on_order" : that.state.quantity_on_order,
+      "quantity_supplied_so_far" : that.state.quantity_supplied_so_far,
+      "balance_quantity" : that.state.balance_quantity,
+      "unit_price" :       that.state.unit_price,
+      "remarks" :          that.state.remarks,
+      "materials_offered_date" : that.state.materials_offered_date
+
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        var body = {
+          "order_number": that.state.order_number,
+          "ic_id": response.data._id,
+          "status" : "IC Generated"
+        };
+        that.updatePoStatus(body);
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+
+      alert(error.response.data.message);
+    });
   }
 
   getProfileInfo(event){
@@ -732,8 +1027,7 @@ export default class InspectorHome extends Component {
     axios.post(apiUrl,body)
     .then(response => {
        if(response.status == 200){
-          that.updatePoStatus("Corrigendum Generated",that.state.order_number);
-          //alert("Corrigendum generated successfully!");
+          that.updateIC(that.state.order_number , that.state.ic_id , response.data._id);
          }
          else if(response.status == 204) {
            alert("Corrigendum is already present!");
@@ -745,16 +1039,42 @@ export default class InspectorHome extends Component {
 
   }
 
-  getCorrigendum(orderNumber){
+  updateIC(orderNumber,ic_id,corrigendum_id){
 
     var that = this;
-    var apiUrl = baseUrl + oneCorrigendumUrl + orderNumber;
+    var apiUrl = baseUrl + updateICInfoUrl;
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "ic_id" : ic_id,
+      "corrigendum_id" : corrigendum_id
+    })
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+        var corr_body = {
+          "order_number": that.state.order_number,
+          "status" : "Corrigendum Generated"
+        };
+        that.updatePoStatus(corr_body);
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+  getCorrigendum(corrigendum_id){
+
+    var that = this;
+    var apiUrl = baseUrl + oneCorrigendumUrl + corrigendum_id;
 
     console.log(apiUrl);
     axios.get(apiUrl)
     .then( response => {
       console.log(response);
-      that.setState({ corrigendum_array: response.data , corrigendum_flag : 1});
+      that.setState({ corrigendum_array : response.data , corrigendum_flag : 1});
     })
     .catch(error => {
       console.log(error.response);
@@ -792,16 +1112,19 @@ export default class InspectorHome extends Component {
        if(response.status == 200){
             if(report_status == "Partial")
             {
-              console.log("Partial inside");
-              that.removeVisit(that.state.order_number,that.state.vendor_code);
+              that.removeVisit(that.state.order_number,that.state.vendor_code,"IR Partial");
             }
             else if(item_status == "Pass")
             {
-              that.updatePoStatus("Passed",that.state.order_number);
+              var body1 = {
+                "order_number": that.state.order_number,
+                "status" : "Passed"
+              };
+              that.updatePoStatus(body1);
             }
             else if(item_status == "Fail")
             {
-              that.updatePoStatus("Rejected",that.state.order_number);
+              that.removeVisit(that.state.order_number,that.state.vendor_code,"Rejected");
             }
           //alert("Inspection_Report generated successfully!");
          }
@@ -815,7 +1138,7 @@ export default class InspectorHome extends Component {
 
   }
 
-  removeVisit(orderNumber,vendor_code)
+  removeVisit(orderNumber,vendor_code,status)
   {
     var that = this;
     let apiUrl = baseUrl + removeVisitUrl;
@@ -827,7 +1150,11 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-            that.updatePoStatus("InProgress",orderNumber);
+            var body = {
+              "order_number": orderNumber,
+              "status" : status
+            };
+            that.updatePoStatus(body);
       }
       else if(response.status == 204) {
         alert("Visit to be removed is not present!");
@@ -837,7 +1164,6 @@ export default class InspectorHome extends Component {
       console.log(error.response);
       alert(error.response.data.message);
     });
-
   }
   fetchAllEntities(type,userId){
 
@@ -849,6 +1175,9 @@ export default class InspectorHome extends Component {
     }
     else if(type == "Purchase_Order"){
       apiUrl = apiUrl + inspectorPOUrl + userId;
+    }
+    else if(type == "AllIC"){
+      apiUrl += allIcUrl + userId;
     }
 
     const headers = {
@@ -864,6 +1193,9 @@ export default class InspectorHome extends Component {
       }
       else if(response.status == 200 && type == "Purchase_Order"){
         that.setState({ responseDataArray : response.data , flag : 5});
+      }
+      else if(response.status == 200 && type == "AllIC"){
+        that.setState({ responseDataArray : response.data, flag :8});
       }
 
     })
@@ -891,7 +1223,11 @@ export default class InspectorHome extends Component {
     .then(response => {
        if(response.status == 200){
          console.log(response);
-          that.updatePoStatus("Intimated",that.state.order_number);
+         var body1 = {
+           "order_number": that.state.order_number,
+           "status" : "Intimated"
+         };
+          that.updatePoStatus(body1);
          }
          else if(response.status == 204) {
            alert("Visit is already present for this order!");
@@ -946,32 +1282,11 @@ export default class InspectorHome extends Component {
     }
   }
 
-  updatePoStatus(status,orderNumber){
+  updatePoStatus(body){
 
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
-    var body = {};
-    if(status == "InProgress"){
-      body = {
-        "order_number": orderNumber,
-        "status" : status,
-        "inspected_by" : null
-      };
-    }
-    else if(status == "Corrigendum Generated"){
-      body = {
-        "order_number": orderNumber,
-        "status" : status,
-        "corrigendum_flag" : "1"
-      };
-    }
-    else {
-      body = {
-        "order_number": orderNumber,
-        "status" : status
-      };
-    }
     axios.post(apiUrl,body)
     .then(function (response) {
       console.log(response);
@@ -1001,7 +1316,11 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.updatePoStatus(status,orderNumber);
+        var body = {
+          "order_number": orderNumber,
+          "status" : status
+        };
+        that.updatePoStatus(body);
       }
       else if(response.status == 204) {
         alert("Visit to be updated is not present!");
@@ -1070,6 +1389,22 @@ const styles = {
     fontWeight: 'Bold',
     color: '#006266'
   },
+  ICLabel:{
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#FF1493',
+    fontSize : '20px'
+  },
+  BoldText:{
+    fontWeight : 'Bold'
+  },
+  corrigendumLabel: {
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#ff5719',
+    fontSize : '18px',
+    flex : 2
+  },
   textStyle:{
     fontFamily: 'Montserrat',
     fontSize: '14px',
@@ -1110,6 +1445,13 @@ const styles = {
     alignItems : 'center',
     justifyContent: 'center',
     marginTop: 10
+  },
+  signedOnStyle: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems : 'center',
+    justifyContent: 'flex-end',
+    margin: 10,
   },
   iconStyle: {
     marginTop: 18
@@ -1261,12 +1603,19 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
-    alignItems : 'center'
+    alignItems : 'left',
+    marginLeft : '60px'
   },
   corriStyle: {
     margin: 15,
     padding: 8,
     paddingRight:8,
+    boxShadow : '1px 3px 5px #A9A9A9',
+    border : '1px solid #D3D3D3'
+  },
+areaStyle: {
+    margin: 15,
+    padding: 4,
     boxShadow : '1px 3px 5px #A9A9A9',
     border : '1px solid #D3D3D3'
   },

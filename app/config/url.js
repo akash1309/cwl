@@ -30,6 +30,7 @@ export const deletePOUrl = '/deletePO/';
 export const updatePOInfoUrl= '/updatePurchaseOrder/';
 export const vendorPOUrl = '/purchaseorder/vendor/';
 export const inspectorPOUrl = '/purchaseorder/inspector/';
+export const getPOCountUrl = '/purchaseorder/po_remaining/';
 
 ////////////////////////// VENDOR //////////////////////
 export const addVendorUrl ="/vendor/add/";
@@ -41,7 +42,8 @@ export const VendorByStoreOfficerUrl = "/vendor/";
 ////////////////// INSPECTION CERTIFICATE(IC) ////////////////
 export const icGenerateUrl = '/ic/generate/';
 export const allIcUrl = '/showIC/all/';
-export const oneIcUrl ="/showIC/one/";
+export const oneIcUrl = '/showIC/one/';
+export const updateICInfoUrl = '/updateIC/';
 
 //////////////////////// CORRIGENDUM //////////////////
 export const allCorrigendumUrl ='/corrigendum/showCorrigendum/all/';
