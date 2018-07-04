@@ -10,7 +10,7 @@ export default class InspectorPalette extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100%'}}>
+      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height : '100vh'}}>
 
         <a onClick={this.props.onClickVendors} style={styles.innerContainerStyle}>
           <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
@@ -21,24 +21,6 @@ export default class InspectorPalette extends React.Component {
         <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickIntimateVendor} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdContactMail size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Intimate Vendor</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickInspectionReport} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdFeaturedPlayList size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Genarate InspectionReport</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickCorrigendum} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Genarate Corrigendum</span>
         </a>
         <div style={styles.dividerStyle}/>
 

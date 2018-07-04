@@ -2,12 +2,9 @@ import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import {
    baseUrl,
-   allPurchaseOrderUrl ,
-   inspectorUrl,
    getInfoUrl,
    updateInfoUrl ,
    allVendorUrl ,
-   allCorrigendumUrl,
    generateCorrigendumUrl ,
    addInspectionReportUrl,
    inspectorPOUrl,
@@ -113,9 +110,6 @@ export default class InspectorHome extends Component {
             <InspectorPalette
               onClickVendors = {() => this.fetchAllEntities("Vendor")}
               onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
-              onClickIntimateVendor = {() => this.fetchAllEntities("Vendor")}
-              onClickInspectionReport = {() => this.setState( {flag : 4}) }
-              onClickCorrigendum = {() => this.setState( {flag : 3}) }
               onClickProfile = {() => this.getProfileInfo(this)}
             />
 
@@ -142,6 +136,8 @@ export default class InspectorHome extends Component {
           <span style={styles.headingStyle}>List of Vendors</span>
         </div>
         <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>S.No.</span>
+          <span style={styles.textCellContainer}>Code</span>
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
           <span style={styles.textCellContainer}>Mobile</span>
@@ -151,6 +147,8 @@ export default class InspectorHome extends Component {
           this.state.responseDataArray.map((member,key) => {
             return (
               <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{key + 1}</span>
+                <span style={styles.textCellContainer}>{member.vendor_code}</span>
                 <span style={styles.textCellContainer}>{member.name}</span>
                 <span style={styles.textCellContainer}>{member.email}</span>
                 <span style={styles.textCellContainer}>{member.mobile}</span>
@@ -248,7 +246,7 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
               <TextField
                 hintText="Corrigendum Number"
-                floatingLabelText="Corrigendum Number"
+                floatingLabelText="*Corrigendum Number"
                 onChange = {(event,newValue) => this.setState({corrigendum_number:newValue})}
               />
               <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
@@ -269,7 +267,7 @@ export default class InspectorHome extends Component {
               />
               <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
               <TextField
-                hintText="Order Date"
+                hintText="YYYY-MM-DD"
                 floatingLabelText="Order Date"
                 value={this.state.order_date}
                 inputStyle={styles.opaqueTextStyle}
@@ -286,7 +284,7 @@ export default class InspectorHome extends Component {
 
               <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle} />
               <TextField
-                hintText="I.C. Date"
+                hintText="YYYY-MM-DD"
                 floatingLabelText="I.C. Date"
                 value={this.state.ic_signed_on}
                 inputStyle={styles.opaqueTextStyle}
@@ -344,7 +342,7 @@ export default class InspectorHome extends Component {
             <div style={{display:'flex',flexDirection:'row',alignItems:'center'}}>
                <TextField
                 hintText="Updated Values"
-                floatingLabelText="Updated Values"
+                floatingLabelText="*Updated Values"
                 multiLine={true}
                 rows={6}
                 rowsMax={6}
@@ -438,8 +436,6 @@ export default class InspectorHome extends Component {
   }
 
   showPurchaseOrders = () => {
-
-    let statusArray = ["IC Generated","Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 5)
       return(
@@ -567,7 +563,7 @@ export default class InspectorHome extends Component {
                             <span>Quantity On Order: {member.ic_id.quantity_on_order}</span>
                             <span>Quantity Supplied/Inspected So Far: {member.ic_id.quantity_supplied_so_far}</span>
                             <span>Balance Quantity: {member.ic_id.balance_quantity}</span>
-                            <span>Date when materials were offered for inspection: {member.ic_id.materials_offered_date}</span>
+                            <span>Date when items were offered for inspection: {member.ic_id.materials_offered_date}</span>
 
                           </div>
                           <div style={styles.icBoxStyle}>
@@ -650,7 +646,7 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Order_Number"
-                floatingLabelText="Order_Number"
+                floatingLabelText="*Order_Number"
                 value = {this.state.order_number}
                 onChange = {(event,newValue) => this.setState({order_number:newValue})}
                 style={styles.textFieldStyle}
@@ -660,7 +656,7 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Quantity_offered"
-                floatingLabelText="Quantity_offered"
+                floatingLabelText="*Quantity_offered"
                 onChange = {(event,newValue) => this.setState({quantity_offered:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -668,7 +664,7 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Quantity_accepted"
-                floatingLabelText="Quantity_accepted"
+                floatingLabelText="*Quantity_accepted"
                 onChange = {(event,newValue) => this.setState({quantity_approved:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -677,14 +673,14 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Quantity On Order"
-                floatingLabelText="Quantity On Order"
+                floatingLabelText="*Quantity On Order"
                 onChange = {(event,newValue) => this.setState({quantity_on_order:newValue})}
                 style={styles.textFieldStyle}
               />
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Qty Supplied/Inspected So Far"
-                floatingLabelText="Qty Supplied/Inspected So Far"
+                floatingLabelText="*Qty Supplied/Inspected So Far"
                 onChange = {(event,newValue) => this.setState({quantity_supplied_so_far:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -693,15 +689,15 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Balance Quantity"
-                floatingLabelText="Balance Quantity"
+                floatingLabelText="*Balance Quantity"
                 value = {this.state.balance_quantity}
                 onChange = {(event,newValue) => this.setState({balance_quantity:newValue})}
                 style={styles.textFieldStyle}
               />
               <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
-                hintText="Date"
-                floatingLabelText="Date materials offered for inspection"
+                hintText="YYYY-MM-DD"
+                floatingLabelText="*Date item offered for inspection"
                 onChange = {(event,newValue) => this.setState({materials_offered_date:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -709,8 +705,8 @@ export default class InspectorHome extends Component {
             <div style={styles.textCellStyle}>
               <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
-                hintText="Inspection Date"
-                floatingLabelText="Inspection Date"
+                hintText="YYYY-MM-DD"
+                floatingLabelText="*Inspection Date"
                 onChange = {(event,newValue) => this.setState({inspection_date:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -718,7 +714,7 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Unit Price"
-                floatingLabelText="Unit Price"
+                floatingLabelText="*Unit Price"
                 value = {this.state.unit_price}
                 onChange = {(event,newValue) => this.setState({unit_price:newValue})}
                 style={styles.textFieldStyle}
@@ -728,25 +724,23 @@ export default class InspectorHome extends Component {
               <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Inspecting Officer Name"
-                floatingLabelText="Inspecting Officer Name"
+                floatingLabelText="*Inspecting Officer Name"
                 value = {this.state.inspector_name}
-                onChange = {(event,newValue) => this.setState({inspector_name:newValue})}
                 style={styles.textFieldStyle}
               />
 
               <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Inspecting Officer Mobile"
-                floatingLabelText="Inspecting Officer Mobile"
+                floatingLabelText="*Inspecting Officer Mobile"
                 value = {this.state.inspector_mobile}
-                onChange = {(event,newValue) => this.setState({inspector_mobile:newValue})}
                 style={styles.textFieldStyle}
               />
             </div>
             <div style={styles.textCellStyle}>
               <TextField
                 hintText="Location_of_seal"
-                floatingLabelText="Location_of_seal"
+                floatingLabelText="*Location_of_seal"
                 multiLine={true}
                 rows={2}
                 rowsMax={4}
@@ -766,8 +760,8 @@ export default class InspectorHome extends Component {
             <div style={styles.signedOnStyle}>
               <MaterialIcon.MdDateRange size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
-                hintText="IC Signed On"
-                floatingLabelText="IC Signed On"
+                hintText="YYYY-MM-DD"
+                floatingLabelText="*IC Signed On"
                 onChange = {(event,newValue) => this.setState({ic_signed_on:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -814,8 +808,8 @@ export default class InspectorHome extends Component {
              <div style={styles.textCellStyle}>
                <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle} />
                <TextField
-                 hintText="Date"
-                 floatingLabelText="Date"
+                 hintText="YYYY-MM-DD"
+                 floatingLabelText="*Date"
                  onChange = {(event,newValue) => this.setState({date:newValue})}
                  style={styles.textFieldStyle}
                />
@@ -823,8 +817,8 @@ export default class InspectorHome extends Component {
              <div style={styles.textCellStyle}>
                <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle} />
                <TextField
-                 hintText="Time"
-                 floatingLabelText="Time"
+                 hintText="__am/pm"
+                 floatingLabelText="*Time"
                  onChange = {(event,newValue) => this.setState({time:newValue})}
                  style={styles.textFieldStyle}
                />
@@ -918,8 +912,47 @@ export default class InspectorHome extends Component {
     var that = this;
     var apiUrl = baseUrl + icGenerateUrl;
 
+    if(
+      that.state.order_number == '' ||
+      that.state.quantity_offered == '' ||
+      that.state.quantity_approved == '' ||
+      that.state.location_of_seal == '' ||
+      that.state.inspection_date == '' ||
+      that.state.ic_signed_on == '' ||
+      that.state.inspector_name == '' ||
+      that.state.inspector_mobile == '' ||
+      that.state.quantity_on_order == '' ||
+      that.state.quantity_supplied_so_far == '' ||
+      that.state.balance_quantity == '' ||
+      that.state.unit_price == '' ||
+      that.state.materials_offered_date == ''
+    ){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
+
+    if(that.state.ic_signed_on.charAt(4) != '-' || that.state.ic_signed_on.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 7});
+      return;
+    }
+    if(that.state.inspection_date.charAt(4) != '-' || that.state.inspection_date.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 7});
+      return;
+    }
+    if(that.state.materials_offered_date.charAt(4) != '-' || that.state.materials_offered_date.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 7});
+      return;
+    }
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl, {
-       "order_number" :      that.state.order_number,
+      "order_number" :      that.state.order_number,
       "quantity_offered":   that.state.quantity_offered,
       "quantity_approved":  that.state.quantity_approved,
       "location_of_seal" :  that.state.location_of_seal,
@@ -934,10 +967,25 @@ export default class InspectorHome extends Component {
       "remarks" :          that.state.remarks,
       "materials_offered_date" : that.state.materials_offered_date
 
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
+        this.setState({
+          quantity_offered: '',
+          quantity_approved:'',
+          location_of_seal:'',
+          inspection_date:'',
+          ic_signed_on:'',
+          inspector_name:'',
+          inspector_mobile:'',
+          quantity_on_order:'',
+          quantity_supplied_so_far:'',
+          balance_quantity:'',
+          unit_price:'',
+          remarks:'',
+          materials_offered_date:''
+        });
         var body = {
           "order_number": that.state.order_number,
           "ic_id": response.data._id,
@@ -1013,6 +1061,10 @@ export default class InspectorHome extends Component {
   generateCorrigendum(event){
 
     var that = this;
+    if(that.state.corrigendum_number == '' || that.state.update_values == ''){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
     var apiUrl = baseUrl + generateCorrigendumUrl;
     var body = {
       corrigendum_number : that.state.corrigendum_number,
@@ -1024,9 +1076,14 @@ export default class InspectorHome extends Component {
       update_values :    that.state.update_values
     };
 
-    axios.post(apiUrl,body)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl,body,{headers})
     .then(response => {
        if(response.status == 200){
+          that.setState({remarks : '', update_values:''});
           that.updateIC(that.state.order_number , that.state.ic_id , response.data._id);
          }
          else if(response.status == 204) {
@@ -1106,7 +1163,11 @@ export default class InspectorHome extends Component {
 	    report_status :  	   report_status
     };
 
-    axios.post(apiUrl,body)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl,body,{headers})
     .then(response => {
       console.log(response);
        if(response.status == 200){
@@ -1181,7 +1242,7 @@ export default class InspectorHome extends Component {
     }
 
     const headers = {
-      SECURITY_TOKEN: userId
+      SECURITY_TOKEN: that.state._id
     };
 
     console.log(apiUrl);
@@ -1209,6 +1270,11 @@ export default class InspectorHome extends Component {
   generateVisit(event){
 
     var that = this;
+
+    if(that.state.date == '' || that.state.time == ''){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
     var apiUrl = baseUrl + addVisitUrl;
     var body = {
       order_number :  that.state.order_number,
@@ -1219,10 +1285,15 @@ export default class InspectorHome extends Component {
       visit_status :  "Intimated"
     };
 
-    axios.post(apiUrl,body)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl,body,{headers})
     .then(response => {
        if(response.status == 200){
          console.log(response);
+         that.setState({date : '', time: ''});
          var body1 = {
            "order_number": that.state.order_number,
            "status" : "Intimated"
@@ -1258,6 +1329,9 @@ export default class InspectorHome extends Component {
     }
     else if(status == 'Approved'){
       return styles.approvedStyle;
+    }
+    else if(status == 'IR Partial'){
+      return styles.IRPartialStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -1308,11 +1382,15 @@ export default class InspectorHome extends Component {
     var that = this;
     var apiUrl = baseUrl + updateVisitInfoUrl ;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "vendor_code" : vendor_code,
       "visit_status" : status
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1471,6 +1549,16 @@ const styles = {
   },
   assignedStyle: {
     backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  IRPartialStyle: {
+    backgroundColor : '#420420',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

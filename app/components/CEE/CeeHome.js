@@ -13,10 +13,7 @@ import {
   getInfoUrl,
   updateInfoUrl,
   allPurchaseOrderUrl,
-  allItemUrl,
   allIcUrl,
-  allIrUrl,
-  allCorrigendumUrl,
   oneCorrigendumUrl
 
 } from './../../config/url';
@@ -49,6 +46,7 @@ export default class CeeHome extends Component {
  componentDidMount(){
    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
    this.setState({_id: userInfo.userId});
+   this.fetchAllEntities("Purchase_Order");
  }
 
 
@@ -63,15 +61,11 @@ export default class CeeHome extends Component {
 
               <CeePalette
                 onClickAddDycee = {() => this.setState({flag : 1 }) }
-                onClickDycee = {() => this.fetchAllEntities(this,"DyCEE")}
-                onClickVendors = {() => this.fetchAllEntities(this,"Vendor")}
-                onClickInspectors = {() => this.fetchAllEntities(this,"Inspector")}
-                onClickStoreOfficers = {() => this.fetchAllEntities(this,"StoreOfficer")}
-                onClickPurchaseOrders = {() => this.fetchAllEntities(this,"Purchase_Order")}
-                onClickItems = {() => this.fetchAllEntities(this,"AllItems")}
-                onClickIC = {() => this.fetchAllEntities(this,"AllIC")}
-                onClickIR = {() => this.fetchAllEntities(this,"AllIR")}
-                onClickCorrigendums = {() => this.fetchAllEntities(this,"Corrigendums")}
+                onClickDycee = {() => this.fetchAllEntities("DyCEE")}
+                onClickVendors = {() => this.fetchAllEntities("Vendor")}
+                onClickInspectors = {() => this.fetchAllEntities("Inspector")}
+                onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer")}
+                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order")}
                 onClickProfile = {() => this.getProfileInfo(this)}
 
               />
@@ -79,10 +73,7 @@ export default class CeeHome extends Component {
               { this.addDyCEE() }
               { this.showPeople() }
               { this.showPurchaseOrders() }
-              { this.showItems() }
               { this.showIC() }
-              { this.showIR() }
-              { this.showCorrigendums() }
               { this.showProfile() }
 
             </div>
@@ -104,7 +95,7 @@ export default class CeeHome extends Component {
               <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Name"
-                floatingLabelText="Name"
+                floatingLabelText="*Name"
                 onChange = {(event,newValue) => this.setState({name:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -113,7 +104,7 @@ export default class CeeHome extends Component {
               <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Email"
-                floatingLabelText="Email"
+                floatingLabelText="*Email"
                 onChange = {(event,newValue) => this.setState({email:newValue })}
                 style={styles.textFieldStyle}
               />
@@ -122,7 +113,7 @@ export default class CeeHome extends Component {
               <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Mobile"
-                floatingLabelText="Mobile"
+                floatingLabelText="*Mobile"
                 onChange = {(event,newValue) => this.setState({mobile:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -154,6 +145,12 @@ export default class CeeHome extends Component {
           <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
         </div>
         <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>S.No.</span>
+          {
+            this.state.type == "Vendor" ?
+              <span style={styles.textCellContainer}>Code</span>
+            : null
+          }
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
           <span style={styles.textCellContainer}>Mobile</span>
@@ -163,6 +160,12 @@ export default class CeeHome extends Component {
           this.state.responseDataArray.map((member,key) => {
             return (
               <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{key + 1}</span>
+                {
+                  this.state.type == "Vendor" ?
+                    <span style={styles.textCellContainer}>{member.vendor_code}</span>
+                  : null
+                }
                 <span style={styles.textCellContainer}>{member.name}</span>
                 <span style={styles.textCellContainer}>{member.email}</span>
                 <span style={styles.textCellContainer}>{member.mobile}</span>
@@ -177,8 +180,6 @@ export default class CeeHome extends Component {
 
   showPurchaseOrders = () => {
 
-    let statusArray = ["IC Generated","Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
-
     if(this.state.flag == 3)
       return(
         <div style={{ flex:1 }}>
@@ -190,7 +191,10 @@ export default class CeeHome extends Component {
               return (
                 <div style = {styles.purchaseOrderContainer}>
 
-                  <span style={styles.purchaseCell}><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <div style={{display:'flex', flexDirection:'row' , justifyContent:'space-between'}}>
+                  <span><span style={styles.textLabel}>Order Number:</span> {member.order_number}</span>
+                  <span><span style={styles.textLabel}>Status:</span> <span style={this.getStatusStyle(member.status)}>{member.status}</span></span>
+                  </div>
                   <div style={styles.dividerStyle}/>
 
                   <div style={{display:'flex', flexDirection:'row'}}>
@@ -227,15 +231,14 @@ export default class CeeHome extends Component {
                         </div>
                       : null
                     }
-
                     <div style={styles.boxStyle}>
                       <span style={styles.textStyle}>Tender Details</span>
                       <span style={styles.purchaseCell}>No: {member.tender_info.tender_no}</span>
                       <span style={styles.purchaseCell}>Type: {member.tender_info.tender_type}</span>
                       <span style={styles.purchaseCell}>Opened On: {member.tender_info.opened_on}</span>
                     </div>
-
                   </div>
+
                   {
                     member.ic_id != undefined ?
                       <div>
@@ -318,34 +321,6 @@ export default class CeeHome extends Component {
       );
   }
 
-  showItems = () => {
-
-    if(this.state.flag == 4)
-      return (
-        <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Items</span>
-          </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Model_number</span>
-            <span style={styles.textCellContainer}>Item_Name</span>
-            <span style={styles.textCellContainer}>Quantity</span>
-          </div>
-          {
-            this.state.responseDataArray.map((member,key) => {
-              return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.model_number}</span>
-                  <span style={styles.textCellContainer}>{member.name}</span>
-                  <span style={styles.textCellContainer}>{member.quantity}</span>
-                </div>
-              )
-            })
-          }
-        </div>
-      );
-  }
-
   showIC = () => {
 
     if(this.state.flag == 5)
@@ -411,70 +386,6 @@ export default class CeeHome extends Component {
                   }
                 </div>
               );
-            })
-          }
-        </div>
-      );
-  }
-
-  showIR = () => {
-
-    if(this.state.flag == 6)
-      return (
-        <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Inspection Reports</span>
-          </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Order No.</span>
-            <span style={styles.textCellContainer}>IC id</span>
-            <span style={styles.textCellContainer}>Status</span>
-          </div>
-          {
-            this.state.responseDataArray.map((member,key) => {
-              return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.order_number}</span>
-                  <span style={styles.textCellContainer}>{member.ic_id}</span>
-                  <span style={styles.textCellContainer}>{member.status}</span>
-                </div>
-              )
-            })
-          }
-        </div>
-      );
-  }
-
-  showCorrigendums = () => {
-
-    if(this.state.flag == 7)
-      return (
-        <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Corrigendums</span>
-          </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Corrigendum No.</span>
-            <span style={styles.textCellContainer}>Order No.</span>
-            <span style={styles.textCellContainer}>Order Date</span>
-            <span style={styles.textCellContainer}>IC Id</span>
-            <span style={styles.textCellContainer}>IC Date</span>
-            <span style={styles.textCellContainer}>Inspector Name</span>
-            <span style={styles.textCellContainer}>Inspector Mobile</span>
-          </div>
-          {
-            this.state.responseDataArray.map((member,key) => {
-              return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.corrigendum_number}</span>
-                  <span style={styles.textCellContainer}>{member.order_number}</span>
-                  <span style={styles.textCellContainer}>{member.order_date}</span>
-                  <span style={styles.textCellContainer}>{member.ic_id}</span>
-                  <span style={styles.textCellContainer}>{member.ic_date}</span>
-                  <span style={styles.textCellContainer}>{member.inspector_name}</span>
-                  <span style={styles.textCellContainer}>{member.inspector_mobile}</span>
-                </div>
-              )
             })
           }
         </div>
@@ -562,7 +473,17 @@ export default class CeeHome extends Component {
 
   addDyCEEFunc(event){
     var that=this;
+
+    if(that.state.name == '' || that.state.email == '' || that.state.mobile == ''){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
     var apiUrl=baseUrl + addDyCEEUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
         "name" : that.state.name ,
         "mobile" : that.state.mobile,
@@ -570,10 +491,11 @@ export default class CeeHome extends Component {
         "email" : that.state.email,
         "role" : that.state.role,
         "cee_id" : that.state._id
-    })
+    },{headers})
    .then(response => {
        if(response.status == 200){
-          alert("DyCee added successfully!");
+          that.setState({name : '', mobile: '', email:'', location:''});
+          that.fetchAllEntities("DyCEE");
          }
          else if(response.status == 204) {
            alert("DyCee is already present!");
@@ -640,7 +562,7 @@ export default class CeeHome extends Component {
     });
   }
 
-  getStatusStyle(style){
+  getStatusStyle(status){
 
     if(status == 'InProgress'){
       return styles.inProgressStyle;
@@ -671,6 +593,9 @@ export default class CeeHome extends Component {
     }
     else if(status == 'Approved'){
       return styles.approvedStyle;
+    }
+    else if(status == 'IR Partial'){
+      return styles.IRPartialStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -703,62 +628,45 @@ export default class CeeHome extends Component {
     if(type =="DyCEE")
     {
       apiUrl += allDyCeeUrl;
-      that.setState({type : type});
+      that.setState({type : type, responseDataArray:[]});
     }
     else if(type =="Inspector")
     {
       apiUrl += allInspectorUrl;
-      that.setState({type : type});
+      that.setState({type : type, responseDataArray:[]});
     }
     else if(type =="StoreOfficer")
     {
       apiUrl += allStoreOfficerUrl;
-      that.setState({type : type});
+      that.setState({type : type, responseDataArray:[]});
     }
     else if(type =="Vendor")
     {
       apiUrl += allVendorUrl;
-      that.setState({type : type});
+      that.setState({type : type, responseDataArray:[]});
     }
     else if( type == "Purchase_Order")
     {
       apiUrl += allPurchaseOrderUrl;
     }
-    else if(type == "AllItems")
-    {
-      apiUrl += allItemUrl;
-    }
     else if(type == "AllIC")
     {
       apiUrl += allIcUrl + userId;
     }
-    else if (type == "AllIR")
-    {
-      apiUrl += allIrUrl;
-    }
-    else if (type == "Corrigendums")
-    {
-      apiUrl += allCorrigendumUrl;
-    }
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then( response => {
 
       console.log(response);
       if(response.status == 200 && type == "Purchase_Order"){
         that.setState({ responseDataArray : response.data , flag :3});
       }
-      else if(response.status == 200 && type == "AllItems"){
-        that.setState({ responseDataArray : response.data , flag :4});
-      }
       else if(response.status == 200 && type == "AllIC"){
         that.setState({ responseDataArray : response.data , flag :5});
-      }
-      else if(response.status == 200 && type == "AllIR"){
-        that.setState({ responseDataArray : response.data , flag :6});
-      }
-      else if(response.status == 200 && type == "Corrigendums"){
-        that.setState({ responseDataArray : response.data , flag :7});
       }
       else if(response.status == 200){
         that.setState({ responseDataArray : response.data , flag : 2 });
@@ -788,12 +696,7 @@ const styles = {
     margin: 20,
     width : '80%'
   },
-  childContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    margin: 20,
-    padding: 20
-  },
+
   buttonStyle: {
     margin: 0
   },
@@ -819,9 +722,6 @@ const styles = {
   textCellContainer: {
     flex : 1,
     textAlign : 'center'
-  },
-  purchaseCell:{
-
   },
   BoldText:{
     fontWeight : 'Bold'
@@ -855,6 +755,13 @@ const styles = {
     flex: 1,
     flexDirection: 'column',
   },
+  icBoxStyle: {
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
+    alignItems : 'left',
+    marginLeft : '60px'
+  },
   purchaseOrderContainer: {
     display: 'flex',
     flexDirection: 'column',
@@ -866,7 +773,8 @@ const styles = {
   dividerStyle: {
     height: '1px',
     backgroundColor: '#d1ccc0',
-    margin: '4px'
+    margin: '4px',
+    marginTop: 10
   },
   iconSize: 18,
   textFieldStyle: {
@@ -892,13 +800,6 @@ const styles = {
     marginTop : 10,
     fontWeight: 'Bold',
     color: '#006266'
-  },
-  icBoxStyle: {
-    display: 'flex',
-    flex: 1,
-    flexDirection: 'column',
-    alignItems : 'left',
-    marginLeft : '60px'
   },
   buttonContainerStyle: {
     display: 'flex',
@@ -948,6 +849,16 @@ const styles = {
   },
   assignedStyle: {
     backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  IRPartialStyle: {
+    backgroundColor : '#420420',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

@@ -7,14 +7,11 @@ import DyCeePalette from './DyCeePalette';
 import {
   baseUrl ,
   VendorByStoreOfficerUrl ,
-  allInspectorUrl,
   storeOfficerUrl,
   inspectorUrl,
   addStoreOfficerUrl,
-  dyceePOUrl,
   getInfoUrl,
   updateInfoUrl ,
-  allItemUrl ,
   allIcUrl,
   POUrlByStoreOfficer,
   dyceeInspectorUrl,
@@ -91,19 +88,16 @@ export default class DyCeeHome extends React.Component {
             <AppBar title="DyCEE Home" width="50%"/>
             <div style={{ display: 'flex', flexDirection: 'row'}}>
               <DyCeePalette
-                onClickItems={() => this.fetchAllEntities("AllItems")}
                 onClickVendors={() => this.setState({flag : 2, responseDataArray : []})}
                 onClickInspectors={() => this.fetchAllEntities("Inspector",this.state.id)}
                 onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer",this.state.id)}
                 onClickAddInspector={() => this.setState({flag : 3 , type : 'Inspector'})}
                 onClickAddStoreOfficer = {() => this.setState({flag : 3, type : 'StoreOfficer'})}
                 onClickPurchaseOrder={() => this.setState({flag : 4, responseDataArray : []})}
-                onClickIC ={() => this.fetchAllEntities("AllIC")}
                 onClickProfile={() => this.getProfileInfo()}
               />
 
               { this.showPurchaseOrders() }
-              { this.showItems() }
               { this.showVendorList() }
               { this.showInspectorList() }
               { this.showStoreOfficerList() }
@@ -192,10 +186,9 @@ export default class DyCeeHome extends React.Component {
 
   updatePoStatus(body){
 
-    console.log(body);
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
-    console.log(that.state.inspectorArray[that.state.selectedInspectorPos]);
+
     axios.post(apiUrl,body)
     .then(function (response) {
       console.log(response);
@@ -210,35 +203,6 @@ export default class DyCeeHome extends React.Component {
       console.log(error.response);
       alert(error.response.data.message);
     });
-  }
-
-
-  showItems = () => {
-
-    if(this.state.flag == 1)
-      return (
-        <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Items</span>
-          </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Model_number</span>
-            <span style={styles.textCellContainer}>Item_Name</span>
-            <span style={styles.textCellContainer}>Quantity</span>
-          </div>
-          {
-            this.state.responseDataArray.map((member,key) => {
-              return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.model_number}</span>
-                  <span style={styles.textCellContainer}>{member.name}</span>
-                  <span style={styles.textCellContainer}>{member.quantity}</span>
-                </div>
-              )
-            })
-          }
-        </div>
-      );
   }
 
   showVendorList = () => {
@@ -268,6 +232,7 @@ export default class DyCeeHome extends React.Component {
 
 
           <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>S.No.</span>
             <span style={styles.textCellContainer}>Code</span>
             <span style={styles.textCellContainer}>Name</span>
             <span style={styles.textCellContainer}>Email</span>
@@ -280,6 +245,7 @@ export default class DyCeeHome extends React.Component {
             this.state.responseDataArray.map((member,key) => {
               return (
                 <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{key + 1}</span>
                   <span style={styles.textCellContainer}>{member.vendor_code}</span>
                   <span style={styles.textCellContainer}>{member.name}</span>
                   <span style={styles.textCellContainer}>{member.email}</span>
@@ -303,6 +269,7 @@ export default class DyCeeHome extends React.Component {
             <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
           </div>
           <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>S.No.</span>
             <span style={styles.textCellContainer}>Name</span>
             <span style={styles.textCellContainer}>Email</span>
             <span style={styles.textCellContainer}>Mobile</span>
@@ -312,6 +279,7 @@ export default class DyCeeHome extends React.Component {
             this.state.inspectorArray.map((member,key) => {
               return (
                 <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{key + 1}</span>
                   <span style={styles.textCellContainer}>{member.name}</span>
                   <span style={styles.textCellContainer}>{member.email}</span>
                   <span style={styles.textCellContainer}>{member.mobile}</span>
@@ -333,6 +301,7 @@ export default class DyCeeHome extends React.Component {
             <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
           </div>
           <div style={styles.itemHeaderContainer}>
+            <span style={styles.textCellContainer}>S.No.</span>
             <span style={styles.textCellContainer}>Name</span>
             <span style={styles.textCellContainer}>Email</span>
             <span style={styles.textCellContainer}>Mobile</span>
@@ -342,6 +311,7 @@ export default class DyCeeHome extends React.Component {
             this.state.storeOfficerArray.map((member,key) => {
               return (
                 <div style={styles.itemContainer}>
+                  <span style={styles.textCellContainer}>{key + 1}</span>
                   <span style={styles.textCellContainer}>{member.name}</span>
                   <span style={styles.textCellContainer}>{member.email}</span>
                   <span style={styles.textCellContainer}>{member.mobile}</span>
@@ -365,7 +335,7 @@ export default class DyCeeHome extends React.Component {
               <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Name"
-                floatingLabelText="Name"
+                floatingLabelText="*Name"
                 onChange = {(event,newValue) => this.setState({name:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -374,7 +344,7 @@ export default class DyCeeHome extends React.Component {
               <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Email"
-                floatingLabelText="Email"
+                floatingLabelText="*Email"
                 onChange = {(event,newValue) => this.setState({email:newValue })}
                 style={styles.textFieldStyle}
               />
@@ -383,7 +353,7 @@ export default class DyCeeHome extends React.Component {
               <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
                 hintText="Mobile"
-                floatingLabelText="Mobile"
+                floatingLabelText="*Mobile"
                 onChange = {(event,newValue) => this.setState({mobile:newValue})}
                 style={styles.textFieldStyle}
               />
@@ -412,8 +382,6 @@ export default class DyCeeHome extends React.Component {
     for (let i = 0; i < this.state.storeOfficerArray.length; i++ ) {
       items.push(<MenuItem value={i} key={i} primaryText={this.state.storeOfficerArray[i].name} />);
     }
-    console.log("Hi",this.state.responseDataArray);
-    let statusArray = ["IC Generated","Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 4)
       return(
@@ -696,46 +664,60 @@ export default class DyCeeHome extends React.Component {
 
         <div style={styles.outerContainerStyle}>
           <span style={styles.headingStyle}>My Profile</span>
-          <div style={styles.innerContainerStyle}>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
-              <TextField
-                hintText="Enter name"
-                floatingLabelText="Name"
-                value = {this.state.name}
-                onChange = {(event,newValue) => this.setState({name:newValue})}
-                style={styles.textFieldStyle}
-              />
+          <div style={styles.innerContainerStyleUpdate}>
+            <div style={styles.childContainer}>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle} />
+                <TextField
+                  hintText="Enter name"
+                  floatingLabelText="Name"
+                  value = {this.state.name}
+                  onChange = {(event,newValue) => this.setState({name:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdLockOpen size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Enter password"
+                  floatingLabelText="Password"
+                  value = {this.state.password}
+                  onChange = {(event,newValue) => this.setState({password:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Enter mobile number"
+                  floatingLabelText="Mobile Number"
+                  value = {this.state.mobile}
+                  onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
             </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdLockOpen size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Enter password"
-                floatingLabelText="Password"
-                value = {this.state.password}
-                onChange = {(event,newValue) => this.setState({password:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Enter mobile number"
-                floatingLabelText="Mobile Number"
-                value = {this.state.mobile}
-                onChange = {(event,newValue) => this.setState({mobile:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Enter email"
-                floatingLabelText="Email"
-                value = {this.state.email}
-                onChange = {(event,newValue) => this.setState({email:newValue})}
-                style={styles.textFieldStyle}
-              />
+            <div style={styles.childContainer}>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Enter email"
+                  floatingLabelText="Email"
+                  value = {this.state.email}
+                  onChange = {(event,newValue) => this.setState({email:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Enter location"
+                  floatingLabelText="Location"
+                  value = {this.state.location}
+                  onChange = {(event,newValue) => this.setState({location:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
             </div>
           </div>
 
@@ -755,7 +737,6 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     var apiUrl = baseUrl + oneCorrigendumUrl + corrigendum_id;
 
-    console.log(apiUrl , ' ',key);
     axios.get(apiUrl)
     .then( response => {
       console.log(response);
@@ -798,6 +779,9 @@ export default class DyCeeHome extends React.Component {
     }
     else if(status == 'Approved'){
       return styles.approvedStyle;
+    }
+    else if(status == 'IR Partial'){
+      return styles.IRPartialStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -885,10 +869,19 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     var apiUrl = baseUrl;
 
+    if(that.state.name == '' || that.state.email == '' || that.state.mobile == ''){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
+
     if(that.state.type == "Inspector")
       apiUrl += inspectorUrl;
     else if(that.state.type == "StoreOfficer")
       apiUrl += addStoreOfficerUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
 
     axios.post(apiUrl, {
       "dycee_id" : that.state.id,
@@ -897,11 +890,11 @@ export default class DyCeeHome extends React.Component {
       "email" : that.state.email,
       "location" : that.state.location,
       "role" : that.state.type
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.fetchAllEntities(that.state.type,that.state.id);
+        that.clearFields();
       }
       else if(response.status == 204) {
         alert("User is already present!");
@@ -912,6 +905,11 @@ export default class DyCeeHome extends React.Component {
 
       alert(error.response.data.message);
     });
+  }
+
+  clearFields(){
+    this.setState({name : '', mobile: '', email:'', location:''});
+    this.fetchAllEntities(this.state.type,this.state.id);
   }
 
   rejectionPo(status,orderNumber){
@@ -999,7 +997,12 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     let apiUrl = baseUrl+storeOfficerUrl+dyceeId;
     console.log("fetchStoreOfficers");
-    axios.get(apiUrl)
+
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
+
+    axios.get(apiUrl,{headers})
     .then( response => {
       console.log(response);
       //this.fetchAllEntities("Purchase_Order", this.state.response.data[0].id);
@@ -1017,7 +1020,11 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     let apiUrl = baseUrl+dyceeInspectorUrl+dyceeId;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then( response => {
       console.log(response);
       that.setState({ inspectorArray: response.data });
@@ -1041,9 +1048,6 @@ export default class DyCeeHome extends React.Component {
     else if(type == "Purchase_Order"){
       apiUrl += POUrlByStoreOfficer + userId;
     }
-    else if(type == "AllItems"){
-      apiUrl += allItemUrl;
-    }
     else if(type == "Inspector"){
       apiUrl += dyceeInspectorUrl + userId;
       that.setState({type : type});
@@ -1057,7 +1061,7 @@ export default class DyCeeHome extends React.Component {
     }
 
     const headers = {
-      SECURITY_TOKEN: userId
+      SECURITY_TOKEN: that.state.id
     };
 
     axios.get(apiUrl,{headers})
@@ -1065,10 +1069,7 @@ export default class DyCeeHome extends React.Component {
 
       console.log(response);
 
-      if(response.status == 200 && type == "AllItems"){
-        that.setState({ responseDataArray : response.data,  flag :1});
-      }
-      else if(response.status == 200 &&  type == "Vendor"){
+      if(response.status == 200 &&  type == "Vendor"){
         that.setState({ responseDataArray : response.data, flag :2});
       }
       else if(response.status == 200 &&  type == "Inspector"){
@@ -1096,9 +1097,6 @@ export default class DyCeeHome extends React.Component {
 
   }
 
-
-
-
 }
 
 const styles = {
@@ -1115,6 +1113,13 @@ const styles = {
     justifyContent: 'center',
     margin: 20,
     width : '80%'
+  },
+  innerContainerStyleUpdate: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    margin: 20,
+    width : '80%',
   },
   childContainer: {
     display: 'flex',
@@ -1251,6 +1256,16 @@ const styles = {
   },
   inProgressStyle: {
     backgroundColor : 'rgb(50,70,195)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  IRPartialStyle: {
+    backgroundColor : '#420420',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

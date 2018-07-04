@@ -6,11 +6,8 @@ import axios from 'axios';
 
 import {
   baseUrl,
-  allPurchaseOrderUrl,
   getInfoUrl,
   updateInfoUrl ,
-  addItemUrl ,
-  allItemUrl ,
   allIcUrl,
   vendorPOUrl,
   updatePOInfoUrl,
@@ -38,12 +35,7 @@ export default class VendorHome extends Component {
       location : '',
       password : '',
       flag : 4,
-      code : '',
-      unit_price: '',
-      balance_quantity: '',
-      quantity_supplied_so_far: '',
-      quantity_on_order: '',
-      update_values: ''
+      code : ''
     }
   }
 
@@ -63,18 +55,13 @@ export default class VendorHome extends Component {
             <div style={{ display: 'flex', flexDirection: 'row', height: '100vh'}}>
 
               <VendorPalette
-                onClickItems = {() => this.fetchAllEntities("AllItems")}
-                onClickVisits = {() => this.getVisits()}
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order", this.state.code)}
-                onClickInspectionCalls = {() => this.fetchAllEntities("Purchase_Order")}
-                onClickIC = {() => this.fetchAllEntities("AllIC")}
-                onClickAmendmentRequest = {() => this.fetchAllEntities("Purchase_Order")}
+                onClickVisits = {() => this.getVisits()}
                 onClickProfile = {() => this.getProfileInfo()}
               />
 
               { this.showProfile() }
               { this.showIC() }
-              { this.showItems() }
               { this.showPurchaseOrders() }
               { this.showVisits() }
 
@@ -229,35 +216,6 @@ export default class VendorHome extends Component {
           }
         </div>
       );
-  }
-
-  showItems = () => {
-
-    if(this.state.flag == 3)
-      return (
-        <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Items</span>
-          </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Model_number</span>
-            <span style={styles.textCellContainer}>Item_Name</span>
-            <span style={styles.textCellContainer}>Quantity</span>
-          </div>
-          {
-            this.state.responseDataArray.map((member,key) => {
-              return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.model_number}</span>
-                  <span style={styles.textCellContainer}>{member.name}</span>
-                  <span style={styles.textCellContainer}>{member.quantity}</span>
-                </div>
-              )
-            })
-          }
-        </div>
-      );
-
   }
 
   showPurchaseOrders = () => {
@@ -523,7 +481,6 @@ export default class VendorHome extends Component {
     var that = this;
     var apiUrl = baseUrl + oneCorrigendumUrl + corrigendum_id;
 
-    console.log(apiUrl);
     axios.get(apiUrl)
     .then( response => {
       console.log(response);
@@ -565,6 +522,9 @@ export default class VendorHome extends Component {
     }
     else if(status == 'Approved'){
       return styles.approvedStyle;
+    }
+    else if(status == 'IR Partial'){
+      return styles.IRPartialStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -688,23 +648,20 @@ export default class VendorHome extends Component {
     if(type == "Purchase_Order"){
       apiUrl =apiUrl+vendorPOUrl+userId;
     }
-    else if(type == "AllItems"){
-      apiUrl += allItemUrl;
-    }
     else if(type == "AllIC"){
       apiUrl += allIcUrl + userId;
     }
 
-    console.log(apiUrl);
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then( response => {
       console.log(response);
 
       if(response.status == 200 && type == "AllIC"){
         that.setState({ responseDataArray : response.data , flag :2});
-      }
-      else if(response.status == 200 && type == "AllItems"){
-        that.setState({ responseDataArray : response.data , flag :3});
       }
       else if(response.status == 200 && type == "Purchase_Order"){
         that.setState({ responseDataArray : response.data , flag :4});
@@ -722,7 +679,11 @@ export default class VendorHome extends Component {
     var that = this;
     let apiUrl = baseUrl + getVisitUrl + that.state.code;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then( response => {
       console.log(response);
 
@@ -906,6 +867,16 @@ const styles = {
   },
   processedStyle: {
     backgroundColor : 'rgb(50,220,50)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  IRPartialStyle: {
+    backgroundColor : '#420420',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

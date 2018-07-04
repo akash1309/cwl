@@ -10,7 +10,7 @@ export default class CeePalette extends Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100%'}}>
+      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px' , height : '100vh'}}>
 
         <a onClick={this.props.onClickAddDycee} style={styles.innerContainerStyle}>
           <MaterialIcon.MdPersonAdd size={styles.iconSize} style={styles.iconStyle}/>
@@ -46,30 +46,6 @@ export default class CeePalette extends Component {
         <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdShoppingBasket size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Inspection Certificates</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickIR} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdFeaturedPlayList size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Inspection Reports</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickCorrigendums} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Corrigendums</span>
         </a>
         <div style={styles.dividerStyle}/>
 
