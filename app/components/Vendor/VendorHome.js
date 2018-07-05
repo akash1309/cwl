@@ -6,8 +6,8 @@ import axios from 'axios';
 
 import {
   baseUrl,
-  getInfoUrl,
-  updateInfoUrl ,
+  getVendorInfoUrl,
+  updateVendorInfoUrl ,
   allIcUrl,
   vendorPOUrl,
   updatePOInfoUrl,
@@ -564,10 +564,14 @@ export default class VendorHome extends Component {
     var that = this;
     let apiUrl = baseUrl + removeVisitUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "vendor_code" : vendor_code
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -586,9 +590,13 @@ export default class VendorHome extends Component {
   getProfileInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+    var apiUrl = baseUrl + getVendorInfoUrl + that.state._id;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -613,7 +621,11 @@ export default class VendorHome extends Component {
   updateInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + updateInfoUrl;
+    var apiUrl = baseUrl + updateVendorInfoUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
 
     axios.post(apiUrl,{
       "_id" : that.state._id,
@@ -623,7 +635,7 @@ export default class VendorHome extends Component {
       "password" : that.state.password,
       "role" : "Vendor",
       "location" : that.state.location
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -703,10 +715,14 @@ export default class VendorHome extends Component {
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "status" : status
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){

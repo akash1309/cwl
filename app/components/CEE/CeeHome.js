@@ -10,8 +10,8 @@ import {
   allStoreOfficerUrl,
   allVendorUrl,
   addDyCEEUrl,
-  getInfoUrl,
-  updateInfoUrl,
+  getCeeInfoUrl,
+  updateCeeInfoUrl,
   allPurchaseOrderUrl,
   allIcUrl,
   oneCorrigendumUrl
@@ -510,9 +510,13 @@ export default class CeeHome extends Component {
   getProfileInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+    var apiUrl = baseUrl + getCeeInfoUrl + that.state._id;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -537,7 +541,11 @@ export default class CeeHome extends Component {
     console.log("inside updateInfo");
 
     var that = this;
-    var apiUrl = baseUrl + updateInfoUrl;
+    var apiUrl = baseUrl + updateCeeInfoUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
 
     axios.post(apiUrl,{
       "_id" : that.state._id,
@@ -546,7 +554,7 @@ export default class CeeHome extends Component {
       "email" : that.state.email,
       "password" : that.state.password,
       "role" : "CEE"
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){

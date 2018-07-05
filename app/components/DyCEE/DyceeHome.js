@@ -10,8 +10,8 @@ import {
   storeOfficerUrl,
   inspectorUrl,
   addStoreOfficerUrl,
-  getInfoUrl,
-  updateInfoUrl ,
+  getDyceeInfoUrl,
+  updateDyceeInfoUrl ,
   allIcUrl,
   POUrlByStoreOfficer,
   dyceeInspectorUrl,
@@ -189,7 +189,11 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
-    axios.post(apiUrl,body)
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
+
+    axios.post(apiUrl,body,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -842,10 +846,14 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     let apiUrl = baseUrl + removeVisitUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "vendor_code" : vendor_code
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -917,10 +925,14 @@ export default class DyCeeHome extends React.Component {
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "status" : status
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -939,9 +951,13 @@ export default class DyCeeHome extends React.Component {
   getProfileInfo(){
 
     var that = this;
-    var apiUrl = baseUrl + getInfoUrl + that.state.id;
+    var apiUrl = baseUrl + getDyceeInfoUrl + that.state.id;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -966,7 +982,11 @@ export default class DyCeeHome extends React.Component {
   updateInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + updateInfoUrl;
+    var apiUrl = baseUrl + updateDyceeInfoUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state.id
+    };
 
     axios.post(apiUrl,{
       "_id" : that.state.id,
@@ -976,7 +996,7 @@ export default class DyCeeHome extends React.Component {
       "password" : that.state.password,
       "role" : "DyCEE",
       "location" : that.state.location
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){

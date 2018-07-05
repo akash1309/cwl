@@ -71,6 +71,17 @@ export const removeVisitUrl = '/visit/delete/';
 export const validateUrl = "/validate/";
 export const signupUrl = "/signUp/";
 export const loginUrl= "/login/";
-export const getInfoUrl = "/user/";
-export const updateInfoUrl = '/updateinfo/';
+
+export const getCeeInfoUrl = "/user/cee/";
+export const getDyceeInfoUrl = "/user/dycee/";
+export const getInspectorInfoUrl = "/user/inspector/";
+export const getStoreOfficerInfoUrl = "/user/storeofficer/";
+export const getVendorInfoUrl = "/user/vendor/";
+
+export const updateCeeInfoUrl = '/updateinfo/cee/';
+export const updateDyceeInfoUrl = '/updateinfo/dycee/';
+export const updateInspectorInfoUrl = '/updateinfo/inspector/';
+export const updateStoreOfficerInfoUrl = '/updateinfo/storeofficer/';
+export const updateVendorInfoUrl = '/updateinfo/vendor/';
+
 export const deleteInfoUrl = '/deleteInfo/';

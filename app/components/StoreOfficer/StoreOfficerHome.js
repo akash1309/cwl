@@ -18,8 +18,8 @@ import {
   baseUrl ,
   addPurchaseOrderUrl ,
   addVendorUrl,
-  getInfoUrl,
-  updateInfoUrl ,
+  getStoreOfficerInfoUrl,
+  updateStoreOfficerInfoUrl ,
   deletePOUrl,
   updatePOInfoUrl,
   onePurchaseOrderUrl,
@@ -802,11 +802,15 @@ updateIC(rejection_reason,orderNumber,ic_id){
   var that = this;
   var apiUrl = baseUrl + updateICInfoUrl;
 
+  const headers = {
+    SECURITY_TOKEN: that.state._id
+  };
+
   axios.post(apiUrl,{
     "order_number": orderNumber,
     "ic_id" : ic_id,
     "rejection_reason" : rejection_reason
-  })
+  },{headers})
   .then(function (response) {
     console.log(response);
     if(response.status == 200){
@@ -822,7 +826,11 @@ vendorByStoreOfficer(userId) {
   var that = this;
   var apiUrl = baseUrl + VendorByStoreOfficerUrl + userId;
 
-  axios.get(apiUrl)
+  const headers = {
+    SECURITY_TOKEN: that.state._id
+  };
+
+  axios.get(apiUrl,{headers})
   .then(function (response) {
     console.log(response);
     if(response.status == 200){
@@ -1060,6 +1068,10 @@ vendorByStoreOfficer(userId) {
       opened_on: that.state.opened_on
     };
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number" : that.state.order_number ,
       "order_date" :  that.state.order_date,
@@ -1069,7 +1081,7 @@ vendorByStoreOfficer(userId) {
       "offer_no" :    that.state.offer_no,
       "offer_date" : that.state.offer_date,
       "storeofficer_id" : that.state.storeofficer_id
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1090,10 +1102,14 @@ vendorByStoreOfficer(userId) {
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "status" : status
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1112,9 +1128,13 @@ vendorByStoreOfficer(userId) {
   getProfileInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+    var apiUrl = baseUrl + getStoreOfficerInfoUrl + that.state._id;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1133,7 +1153,11 @@ vendorByStoreOfficer(userId) {
   updateInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + updateInfoUrl;
+    var apiUrl = baseUrl + updateStoreOfficerInfoUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
 
     axios.post(apiUrl,{
       "_id" : that.state._id,
@@ -1143,7 +1167,7 @@ vendorByStoreOfficer(userId) {
       "password" : that.state.password,
       "role" : "StoreOfficer",
       "location" : that.state.location
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){

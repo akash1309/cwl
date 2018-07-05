@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import {
    baseUrl,
-   getInfoUrl,
-   updateInfoUrl ,
+   getInspectorInfoUrl,
+   updateInspectorInfoUrl ,
    allVendorUrl ,
    generateCorrigendumUrl ,
    addInspectionReportUrl,
@@ -1004,9 +1004,13 @@ export default class InspectorHome extends Component {
   getProfileInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+    var apiUrl = baseUrl + getInspectorInfoUrl + that.state._id;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1031,7 +1035,12 @@ export default class InspectorHome extends Component {
   updateInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + updateInfoUrl;
+    var apiUrl = baseUrl + updateInspectorInfoUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     var body = {
       "_id" : that.state._id,
       "name" : that.state.name,
@@ -1042,7 +1051,7 @@ export default class InspectorHome extends Component {
       "location" : that.state.location
     };
 
-    axios.post(apiUrl,body)
+    axios.post(apiUrl,body,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1101,11 +1110,15 @@ export default class InspectorHome extends Component {
     var that = this;
     var apiUrl = baseUrl + updateICInfoUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "ic_id" : ic_id,
       "corrigendum_id" : corrigendum_id
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1204,10 +1217,14 @@ export default class InspectorHome extends Component {
     var that = this;
     let apiUrl = baseUrl + removeVisitUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
       "vendor_code" : vendor_code
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1361,7 +1378,11 @@ export default class InspectorHome extends Component {
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
-    axios.post(apiUrl,body)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl,body,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
