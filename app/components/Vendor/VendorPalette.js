@@ -17,27 +17,9 @@ export default class VendorPalette extends Component {
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickInspectionCalls} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdContactMail size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Inspection Calls</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Inspection Certificate</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickAmendmentRequest} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdEdit size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Amendment Request</span>
+        <a onClick={this.props.onClickVisits} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Visits</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -58,7 +40,8 @@ const styles = {
     backgroundColor: '#f7f1e3',
     padding: '20px',
     paddingBottom: '0px',
-    marginRight: '10px'
+    marginRight: '10px',
+    height : '100vh'
   },
   innerContainerStyle: {
     display: 'flex',

@@ -10,17 +10,11 @@ export default class DyCeePalette extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height: '100%'}}>
+      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height : '100vh'}}>
 
         <a onClick={this.props.onClickPurchaseOrder} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-        
-        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -51,30 +45,6 @@ export default class DyCeePalette extends React.Component {
         <a onClick={this.props.onClickAddStoreOfficer} style={styles.innerContainerStyle}>
           <MaterialIcon.MdPersonAdd size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Add StoreOfficer</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickCreateIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Create I.C.</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>I.C.</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickCorrigendumApproval} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdDescription size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Corrigendum Approval</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickApprovalLetter} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdAssignment size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Approval Letter</span>
         </a>
         <div style={styles.dividerStyle}/>
 
