@@ -111,6 +111,7 @@ export default class InspectorHome extends Component {
               onClickVendors = {() => this.fetchAllEntities("Vendor")}
               onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
               onClickProfile = {() => this.getProfileInfo(this)}
+              onClickLogout={() => this.logout()}
             />
 
             { this.showVendors() }
@@ -126,6 +127,12 @@ export default class InspectorHome extends Component {
         </MuiThemeProvider>
       </div>
     );
+  }
+  
+  logout(){
+    this.props.history.replace({
+      pathname : '/'
+    });
   }
 
   showVendors = () => {

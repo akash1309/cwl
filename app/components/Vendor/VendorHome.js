@@ -58,6 +58,7 @@ export default class VendorHome extends Component {
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order", this.state.code)}
                 onClickVisits = {() => this.getVisits()}
                 onClickProfile = {() => this.getProfileInfo()}
+                onClickLogout={() => this.logout()}
               />
 
               { this.showProfile() }
@@ -70,6 +71,12 @@ export default class VendorHome extends Component {
         </MuiThemeProvider>
       </div>
     );
+  }
+  
+  logout(){
+    this.props.history.replace({
+      pathname : '/'
+    });
   }
 
   showProfile = () => {

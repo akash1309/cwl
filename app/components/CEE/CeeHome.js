@@ -67,6 +67,7 @@ export default class CeeHome extends Component {
                 onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer")}
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order")}
                 onClickProfile = {() => this.getProfileInfo(this)}
+                onClickLogout={() => this.logout()}
 
               />
 
@@ -82,6 +83,12 @@ export default class CeeHome extends Component {
         </MuiThemeProvider>
       </div>
     );
+  }
+
+  logout(){
+    this.props.history.replace({
+      pathname : '/'
+    });
   }
 
   addDyCEE = () => {

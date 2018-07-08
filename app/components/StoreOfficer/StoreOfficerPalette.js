@@ -41,6 +41,12 @@ export default class StoreOfficerPalette extends Component {
         </a>
         <div style={styles.dividerStyle}/>
 
+        <a onClick={this.props.onClickLogout} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdPowerSettingsNew size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Logout</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
       </div>
     );
   }

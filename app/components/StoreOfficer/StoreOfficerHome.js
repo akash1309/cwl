@@ -136,6 +136,7 @@ export default class StoreOfficerHome extends React.Component {
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
                 onClickAddVendor = {() => this.setState({flag:6})}
                 onClickProfile = {() => this.getProfileInfo(this)}
+                onClickLogout={() => this.logout()}
               />
 
               { this.placePurchaseOrder() }
@@ -153,6 +154,12 @@ export default class StoreOfficerHome extends React.Component {
       </div>
 
     );
+  }
+
+  logout(){
+    this.props.history.replace({
+      pathname : '/'
+    });
   }
 
   cancelPOconfirmation = () => {

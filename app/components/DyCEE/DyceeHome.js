@@ -95,6 +95,7 @@ export default class DyCeeHome extends React.Component {
                 onClickAddStoreOfficer = {() => this.setState({flag : 3, type : 'StoreOfficer'})}
                 onClickPurchaseOrder={() => this.setState({flag : 4, responseDataArray : []})}
                 onClickProfile={() => this.getProfileInfo()}
+                onClickLogout={() => this.logout()}
               />
 
               { this.showPurchaseOrders() }
@@ -948,6 +949,13 @@ export default class DyCeeHome extends React.Component {
     });
   }
 
+
+  logout(){
+    this.props.history.replace({
+      pathname : '/'
+    });
+  }
+
   getProfileInfo(){
 
     var that = this;
@@ -1019,7 +1027,7 @@ export default class DyCeeHome extends React.Component {
     console.log("fetchStoreOfficers");
 
     const headers = {
-      SECURITY_TOKEN: that.state.id
+      SECURITY_TOKEN: dyceeId
     };
 
     axios.get(apiUrl,{headers})
@@ -1041,7 +1049,7 @@ export default class DyCeeHome extends React.Component {
     let apiUrl = baseUrl+dyceeInspectorUrl+dyceeId;
 
     const headers = {
-      SECURITY_TOKEN: that.state._id
+      SECURITY_TOKEN: dyceeId
     };
 
     axios.get(apiUrl,{headers})
