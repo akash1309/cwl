@@ -157,6 +157,7 @@ export default class StoreOfficerHome extends React.Component {
   }
 
   logout(){
+    localStorage.clear();
     this.props.history.replace({
       pathname : '/'
     });

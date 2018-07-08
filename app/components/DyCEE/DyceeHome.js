@@ -951,6 +951,7 @@ export default class DyCeeHome extends React.Component {
 
 
   logout(){
+    localStorage.clear();
     this.props.history.replace({
       pathname : '/'
     });

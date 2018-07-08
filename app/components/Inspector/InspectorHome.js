@@ -128,8 +128,9 @@ export default class InspectorHome extends Component {
       </div>
     );
   }
-  
+
   logout(){
+    localStorage.clear();
     this.props.history.replace({
       pathname : '/'
     });
@@ -1266,7 +1267,7 @@ export default class InspectorHome extends Component {
     }
 
     const headers = {
-      SECURITY_TOKEN: that.state._id
+      SECURITY_TOKEN: userId || that.state._id
     };
 
     console.log(apiUrl);

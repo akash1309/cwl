@@ -72,8 +72,9 @@ export default class VendorHome extends Component {
       </div>
     );
   }
-  
+
   logout(){
+    localStorage.clear();
     this.props.history.replace({
       pathname : '/'
     });
