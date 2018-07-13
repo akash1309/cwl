@@ -42,7 +42,7 @@ export default class VendorHome extends Component {
   componentDidMount(){
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     this.setState({_id: userInfo.userId , code : userInfo.code});
-    this.fetchAllEntities("Purchase_Order", userInfo.code);
+    this.fetchAllEntities("Purchase_Order", userInfo.code , userInfo.userId);
   }
 
   render() {
@@ -660,20 +660,20 @@ export default class VendorHome extends Component {
   }
 
 
-  fetchAllEntities(type, userId){
+  fetchAllEntities(type, userCode, userId){
 
     var that = this;
     let apiUrl = baseUrl;
 
     if(type == "Purchase_Order"){
-      apiUrl =apiUrl+vendorPOUrl+userId;
+      apiUrl =apiUrl+vendorPOUrl+userCode;
     }
     else if(type == "AllIC"){
-      apiUrl += allIcUrl + userId;
+      apiUrl += allIcUrl + userCode;
     }
 
     const headers = {
-      SECURITY_TOKEN: that.state._id
+      SECURITY_TOKEN: userId
     };
 
     axios.get(apiUrl,{headers})

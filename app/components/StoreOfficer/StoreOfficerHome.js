@@ -370,6 +370,7 @@ export default class StoreOfficerHome extends React.Component {
           <span style={styles.textCellContainer}>Email</span>
           <span style={styles.textCellContainer}>Mobile</span>
           <span style={styles.textCellContainer}>Address</span>
+          <span style={styles.textCellContainer}>PO_Remaining</span>
         </div>
         {
           this.state.responseDataArray.map((member,key) => {
@@ -381,6 +382,7 @@ export default class StoreOfficerHome extends React.Component {
                 <span style={styles.textCellContainer}>{member.email}</span>
                 <span style={styles.textCellContainer}>{member.mobile}</span>
                 <span style={styles.textCellContainer}>{member.address}</span>
+                <span style={styles.textCellContainer}>{member.po_remaining}</span>
               </div>
             )
           })
@@ -835,7 +837,7 @@ vendorByStoreOfficer(userId) {
   var apiUrl = baseUrl + VendorByStoreOfficerUrl + userId;
 
   const headers = {
-    SECURITY_TOKEN: that.state._id
+    SECURITY_TOKEN: userId
   };
 
   axios.get(apiUrl,{headers})
@@ -977,6 +979,12 @@ vendorByStoreOfficer(userId) {
       opened_on: that.state.opened_on
     };
 
+    let po_remaining = 0;
+
+    if( that.state.vendors_info[that.state.selectedVendorPos].po_remaining != undefined){
+        po_remaining = that.state.vendors_info[that.state.selectedVendorPos].po_remaining;
+    }
+
     var body = {
       "order_number" :    that.state.order_number ,
       "order_date" :      that.state.order_date,
@@ -986,7 +994,8 @@ vendorByStoreOfficer(userId) {
       "offer_no" :        that.state.offer_no,
       "offer_date" :      that.state.offer_date,
       "storeofficer_id" : that.state._id,
-      "status":           "Initiated"
+      "status":           "Initiated",
+      "po_remaining" :    po_remaining
     };
 
     console.log(body);
@@ -1208,7 +1217,7 @@ vendorByStoreOfficer(userId) {
     }
 
     const headers = {
-      SECURITY_TOKEN: that.state._id
+      SECURITY_TOKEN: userId
     };
 
     axios.get(apiUrl, { headers })

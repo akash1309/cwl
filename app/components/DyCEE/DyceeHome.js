@@ -221,7 +221,7 @@ export default class DyCeeHome extends React.Component {
       return(
         <div style={{flex : 1}}>
           <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+            <span style={styles.headingStyle}>List of Vendors</span>
           </div>
 
           <div style={styles.comboStyle}>
@@ -256,7 +256,7 @@ export default class DyCeeHome extends React.Component {
                   <span style={styles.textCellContainer}>{member.email}</span>
                   <span style={styles.textCellContainer}>{member.mobile}</span>
                   <span style={styles.textCellContainer}>{member.location}</span>
-                  <span style={styles.textCellContainer}>{this.POCount(member.vendor_code)}</span>
+                  <span style={styles.textCellContainer}>{member.po_remaining}</span>
                 </div>
               )
             })
@@ -271,7 +271,7 @@ export default class DyCeeHome extends React.Component {
       return(
         <div style={{flex : 1}}>
           <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+            <span style={styles.headingStyle}>List of Inspectors</span>
           </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>S.No.</span>
@@ -303,7 +303,7 @@ export default class DyCeeHome extends React.Component {
       return(
         <div style={{flex : 1}}>
           <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+            <span style={styles.headingStyle}>List of StoreOfficers</span>
           </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>S.No.</span>

@@ -46,7 +46,7 @@ export default class CeeHome extends Component {
  componentDidMount(){
    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
    this.setState({_id: userInfo.userId});
-   this.fetchAllEntities("Purchase_Order");
+   this.fetchAllEntities("Purchase_Order",userInfo.userId);
  }
 
 
@@ -61,12 +61,12 @@ export default class CeeHome extends Component {
 
               <CeePalette
                 onClickAddDycee = {() => this.setState({flag : 1 }) }
-                onClickDycee = {() => this.fetchAllEntities("DyCEE")}
-                onClickVendors = {() => this.fetchAllEntities("Vendor")}
-                onClickInspectors = {() => this.fetchAllEntities("Inspector")}
-                onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer")}
-                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order")}
-                onClickProfile = {() => this.getProfileInfo(this)}
+                onClickDycee = {() => this.fetchAllEntities("DyCEE",this.state._id)}
+                onClickVendors = {() => this.fetchAllEntities("Vendor",this.state._id)}
+                onClickInspectors = {() => this.fetchAllEntities("Inspector",this.state._id)}
+                onClickStoreOfficers = {() => this.fetchAllEntities("StoreOfficer",this.state._id)}
+                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
+                onClickProfile = {() => this.getProfileInfo()}
                 onClickLogout={() => this.logout()}
 
               />
@@ -136,7 +136,7 @@ export default class CeeHome extends Component {
             </div>
             <br/>
             <div style={styles.textCellStyle}>
-              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addDyCEEFunc(event)}} />
+              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addDyCEEFunc()}} />
             </div>
           </div>
         </div>
@@ -453,7 +453,7 @@ export default class CeeHome extends Component {
           label="UPDATE"
           primary={true}
           style={styles.buttonStyle}
-          onClick={(event) => this.updateInfo(event)}
+          onClick={(event) => this.updateInfo()}
         />
 
       </div>
@@ -478,7 +478,7 @@ export default class CeeHome extends Component {
     });
   }
 
-  addDyCEEFunc(event){
+  addDyCEEFunc(){
     var that=this;
 
     if(that.state.name == '' || that.state.email == '' || that.state.mobile == ''){
@@ -502,7 +502,7 @@ export default class CeeHome extends Component {
    .then(response => {
        if(response.status == 200){
           that.setState({name : '', mobile: '', email:'', location:''});
-          that.fetchAllEntities("DyCEE");
+          that.fetchAllEntities("DyCEE",that.state._id);
          }
          else if(response.status == 204) {
            alert("DyCee is already present!");
@@ -514,7 +514,7 @@ export default class CeeHome extends Component {
 
   }
 
-  getProfileInfo(event){
+  getProfileInfo(){
 
     var that = this;
     var apiUrl = baseUrl + getCeeInfoUrl + that.state._id;
@@ -543,7 +543,7 @@ export default class CeeHome extends Component {
     })
   }
 
-  updateInfo(event){
+  updateInfo(){
 
     console.log("inside updateInfo");
 
@@ -670,7 +670,7 @@ export default class CeeHome extends Component {
     }
 
     const headers = {
-      SECURITY_TOKEN: that.state._id
+      SECURITY_TOKEN: userId
     };
 
     axios.get(apiUrl,{headers})

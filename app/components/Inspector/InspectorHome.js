@@ -4,7 +4,6 @@ import {
    baseUrl,
    getInspectorInfoUrl,
    updateInspectorInfoUrl ,
-   allVendorUrl ,
    generateCorrigendumUrl ,
    addInspectionReportUrl,
    inspectorPOUrl,
@@ -108,13 +107,11 @@ export default class InspectorHome extends Component {
           <div style={{ display: 'flex', flexDirection: 'row'}}>
 
             <InspectorPalette
-              onClickVendors = {() => this.fetchAllEntities("Vendor")}
               onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
               onClickProfile = {() => this.getProfileInfo(this)}
               onClickLogout={() => this.logout()}
             />
 
-            { this.showVendors() }
             { this.showPurchaseOrders() }
             { this.createIC() }
             { this.showIC() }
@@ -134,39 +131,6 @@ export default class InspectorHome extends Component {
     this.props.history.replace({
       pathname : '/'
     });
-  }
-
-  showVendors = () => {
-    if(this.state.flag == 1)
-    return(
-      <div style={{flex : 1}}>
-        <div style = {styles.outerContainerStyle}>
-          <span style={styles.headingStyle}>List of Vendors</span>
-        </div>
-        <div style={styles.itemHeaderContainer}>
-          <span style={styles.textCellContainer}>S.No.</span>
-          <span style={styles.textCellContainer}>Code</span>
-          <span style={styles.textCellContainer}>Name</span>
-          <span style={styles.textCellContainer}>Email</span>
-          <span style={styles.textCellContainer}>Mobile</span>
-          <span style={styles.textCellContainer}>Location</span>
-        </div>
-        {
-          this.state.responseDataArray.map((member,key) => {
-            return (
-              <div style={styles.itemContainer}>
-                <span style={styles.textCellContainer}>{key + 1}</span>
-                <span style={styles.textCellContainer}>{member.vendor_code}</span>
-                <span style={styles.textCellContainer}>{member.name}</span>
-                <span style={styles.textCellContainer}>{member.email}</span>
-                <span style={styles.textCellContainer}>{member.mobile}</span>
-                <span style={styles.textCellContainer}>{member.location}</span>
-              </div>
-            )
-          })
-        }
-      </div>
-    );
   }
 
   showProfile = () => {
@@ -1256,10 +1220,7 @@ export default class InspectorHome extends Component {
     var that = this;
     let apiUrl = baseUrl;
 
-    if(type == "Vendor"){
-      apiUrl += allVendorUrl;
-    }
-    else if(type == "Purchase_Order"){
+    if(type == "Purchase_Order"){
       apiUrl = apiUrl + inspectorPOUrl + userId;
     }
     else if(type == "AllIC"){
@@ -1267,17 +1228,14 @@ export default class InspectorHome extends Component {
     }
 
     const headers = {
-      SECURITY_TOKEN: userId || that.state._id
+      SECURITY_TOKEN: userId
     };
 
     console.log(apiUrl);
     axios.get(apiUrl, { headers })
     .then( response => {
       console.log(response);
-      if(response.status == 200 && type == "Vendor"){
-        that.setState({ responseDataArray : response.data , flag : 1});
-      }
-      else if(response.status == 200 && type == "Purchase_Order"){
+      if(response.status == 200 && type == "Purchase_Order"){
         that.setState({ responseDataArray : response.data , flag : 5});
       }
       else if(response.status == 200 && type == "AllIC"){
