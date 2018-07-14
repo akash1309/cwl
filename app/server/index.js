@@ -8,7 +8,7 @@ const http               = require('http');
 const server = http.createServer(app);
 
 //const port = process.env.PORT || 8080;
-const port = 8080;
+const port = 80;
 
 const assets = express.static(path.join(__dirname, '../'));
 
