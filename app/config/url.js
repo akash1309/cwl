@@ -30,6 +30,7 @@ export const deletePOUrl = '/deletePO/';
 export const updatePOInfoUrl= '/updatePurchaseOrder/';
 export const vendorPOUrl = '/purchaseorder/vendor/';
 export const inspectorPOUrl = '/purchaseorder/inspector/';
+export const getPOCountUrl = '/purchaseorder/po_remaining/';
 
 ////////////////////////// VENDOR //////////////////////
 export const addVendorUrl ="/vendor/add/";
@@ -41,7 +42,8 @@ export const VendorByStoreOfficerUrl = "/vendor/";
 ////////////////// INSPECTION CERTIFICATE(IC) ////////////////
 export const icGenerateUrl = '/ic/generate/';
 export const allIcUrl = '/showIC/all/';
-export const oneIcUrl ="/showIC/one/";
+export const oneIcUrl = '/showIC/one/';
+export const updateICInfoUrl = '/updateIC/';
 
 //////////////////////// CORRIGENDUM //////////////////
 export const allCorrigendumUrl ='/corrigendum/showCorrigendum/all/';
@@ -69,6 +71,17 @@ export const removeVisitUrl = '/visit/delete/';
 export const validateUrl = "/validate/";
 export const signupUrl = "/signUp/";
 export const loginUrl= "/login/";
-export const getInfoUrl = "/user/";
-export const updateInfoUrl = '/updateinfo/';
+
+export const getCeeInfoUrl = "/user/cee/";
+export const getDyceeInfoUrl = "/user/dycee/";
+export const getInspectorInfoUrl = "/user/inspector/";
+export const getStoreOfficerInfoUrl = "/user/storeofficer/";
+export const getVendorInfoUrl = "/user/vendor/";
+
+export const updateCeeInfoUrl = '/updateinfo/cee/';
+export const updateDyceeInfoUrl = '/updateinfo/dycee/';
+export const updateInspectorInfoUrl = '/updateinfo/inspector/';
+export const updateStoreOfficerInfoUrl = '/updateinfo/storeofficer/';
+export const updateVendorInfoUrl = '/updateinfo/vendor/';
+
 export const deleteInfoUrl = '/deleteInfo/';

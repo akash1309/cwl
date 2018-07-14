@@ -10,17 +10,11 @@ export default class DyCeePalette extends React.Component {
 
   render() {
     return (
-      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height: '100%'}}>
+      <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height : '100vh'}}>
 
         <a onClick={this.props.onClickPurchaseOrder} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickItems} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdShoppingCart size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Items</span>
         </a>
         <div style={styles.dividerStyle}/>
 
@@ -54,21 +48,15 @@ export default class DyCeePalette extends React.Component {
         </a>
         <div style={styles.dividerStyle}/>
 
-        <a onClick={this.props.onClickCreateIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Create I.C.</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
-        <a onClick={this.props.onClickIC} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdReceipt size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>I.C.</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
         <a onClick={this.props.onClickProfile} style={styles.innerContainerStyle}>
           <MaterialIcon.MdFace size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>My Profile</span>
+        </a>
+        <div style={styles.dividerStyle}/>
+
+        <a onClick={this.props.onClickLogout} style={styles.innerContainerStyle}>
+          <MaterialIcon.MdPowerSettingsNew size={styles.iconSize} style={styles.iconStyle}/>
+          <span style={styles.textStyle}>Logout</span>
         </a>
         <div style={styles.dividerStyle}/>
 

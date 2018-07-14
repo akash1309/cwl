@@ -16,21 +16,18 @@ import MenuItem from 'material-ui/MenuItem';
 
 import {
   baseUrl ,
-  allVendorUrl ,
   addPurchaseOrderUrl ,
   addVendorUrl,
-  allPurchaseOrderUrl,
-  getInfoUrl,
-  updateInfoUrl ,
-  addItemUrl ,
-  allItemUrl,
+  getStoreOfficerInfoUrl,
+  updateStoreOfficerInfoUrl ,
   deletePOUrl,
-  deleteItemUrl,
   updatePOInfoUrl,
   onePurchaseOrderUrl,
   VendorByStoreOfficerUrl,
   POUrlByStoreOfficer,
-  oneCorrigendumUrl
+  oneCorrigendumUrl,
+  updateICInfoUrl,
+  allIcUrl
 } from './../../config/url';
 
 export default class StoreOfficerHome extends React.Component {
@@ -40,6 +37,7 @@ export default class StoreOfficerHome extends React.Component {
 
     this.state = {
     responseDataArray : [],
+    corrigendum_array : [],
     vendor_code : '',
     name : '',
     email : '',
@@ -59,8 +57,6 @@ export default class StoreOfficerHome extends React.Component {
     opened_on :    '',
     offer_no : '' ,
     offer_date : '',
-    model_number : '',
-    quantity:      '',
     selectedVendorPos: 0,
     vendors_info : [],
     update : -1,
@@ -102,6 +98,28 @@ export default class StoreOfficerHome extends React.Component {
     this.vendorByStoreOfficer(userInfo.userId);
   }
 
+  clearVendorFields(){
+    this.setState({vendor_code : '' , name : '', email : '', mobile: '' ,address : ''});
+    this.fetchAllEntities("Vendor",this.state._id);
+  }
+
+  clearPurchaseFields(){
+    this.setState({
+      order_number :    '' ,
+      order_date :      '',
+      specification :   '',
+      quantity_rate :   '',
+      duties_charges :  '',
+      delivery_date :   '',
+      tender_no :       '',
+      tender_type :     '',
+      opened_on :       '',
+      offer_no :        '',
+      offer_date :      '',
+      selectedVendorPos : 0
+    });
+    this.fetchAllEntities("Purchase_Order", this.state._id);
+  }
 
   render() {
     return (
@@ -115,21 +133,17 @@ export default class StoreOfficerHome extends React.Component {
               <StoreOfficerPalette
                 onClickPlacePurchaseOrder = {() => this.setState({flag:1, update: 1})}
                 onClickVendors = {() => this.fetchAllEntities("Vendor",this.state._id)}
-                onClickItems = {() => this.fetchAllEntities("AllItems")}
                 onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
                 onClickAddVendor = {() => this.setState({flag:6})}
-                onClickAddItem = {() => this.setState({flag:7})}
-                onClickDeleteItem = {() => this.setState({flag:8})}
                 onClickProfile = {() => this.getProfileInfo(this)}
+                onClickLogout={() => this.logout()}
               />
 
               { this.placePurchaseOrder() }
               { this.showVendors() }
-              { this.showItems() }
+              { this.showIC() }
               { this.showPurchaseOrders() }
               { this.addVendor() }
-              { this.addItem() }
-              { this.deleteItem() }
               { this.showProfile() }
               { this.cancelPOconfirmation() }
               { this.rejectionPoReason() }
@@ -140,6 +154,13 @@ export default class StoreOfficerHome extends React.Component {
       </div>
 
     );
+  }
+
+  logout(){
+    localStorage.clear();
+    this.props.history.replace({
+      pathname : '/'
+    });
   }
 
   cancelPOconfirmation = () => {
@@ -193,7 +214,7 @@ export default class StoreOfficerHome extends React.Component {
               <div style={styles.boxStyle}>
                 <TextField
                   hintText="Order_Number"
-                  floatingLabelText="Order_Number"
+                  floatingLabelText="*Order_Number"
                   value = {this.state.order_number}
                   onChange = {(event,newValue) => this.setState({order_number:newValue })}
                   style={styles.textFieldStyle}
@@ -201,8 +222,8 @@ export default class StoreOfficerHome extends React.Component {
               </div>
               <div style={styles.boxStyle}>
                 <TextField
-                  hintText="Order_Date"
-                  floatingLabelText="Order_Date"
+                  hintText="YYYY-MM-DD"
+                  floatingLabelText="*Order_Date"
                   value= {this.state.order_date}
                   onChange = {(event,newValue) => this.setState({order_date:newValue})}
                   style={styles.textFieldStyle}
@@ -217,7 +238,7 @@ export default class StoreOfficerHome extends React.Component {
               <div style={styles.boxStyle}>
                 <TextField
                   hintText="Item Specification"
-                  floatingLabelText="Specification"
+                  floatingLabelText="*Specification"
                   name="specification"
                   multiLine={true}
                   rows={6}
@@ -230,21 +251,21 @@ export default class StoreOfficerHome extends React.Component {
               <div style={styles.boxStyle}>
                 <TextField
                   hintText="Quantity/Rate"
-                  floatingLabelText="Quantity/Rate"
+                  floatingLabelText="*Quantity/Rate"
                   value= {this.state.quantity_rate}
                   onChange = {(event,newValue) => this.setState({quantity_rate:newValue })}
                   style={styles.textFieldStyle}
                 />
                 <TextField
                   hintText="Duties/Charges"
-                  floatingLabelText="Duties/Charges"
+                  floatingLabelText="*Duties/Charges"
                   value= {this.state.duties_charges}
                   onChange = {(event,newValue) => this.setState({duties_charges:newValue })}
                   style={styles.textFieldStyle}
                 />
                 <TextField
-                  hintText="Delivery Date"
-                  floatingLabelText="Delivery Date"
+                  hintText="YYYY-MM-DD"
+                  floatingLabelText="*Delivery Date"
                   value= {this.state.delivery_date}
                   onChange = {(event,newValue) => this.setState({delivery_date:newValue })}
                   style={styles.textFieldStyle}
@@ -269,21 +290,21 @@ export default class StoreOfficerHome extends React.Component {
                   <span style={styles.textLabel}>Tender Details:</span>
                   <TextField
                     hintText="Tender number"
-                    floatingLabelText="Tender number"
+                    floatingLabelText="*Tender number"
                     value= {this.state.tender_no}
                     onChange = {(event,newValue) => this.setState({tender_no:newValue })}
                     style={styles.textFieldStyle}
                   />
                   <TextField
                     hintText="Tender type"
-                    floatingLabelText="Tender type"
+                    floatingLabelText="*Tender type"
                     value= {this.state.tender_type}
                     onChange = {(event,newValue) => this.setState({tender_type:newValue })}
                     style={styles.textFieldStyle}
                   />
                   <TextField
-                    hintText="Opened on"
-                    floatingLabelText="Opened on"
+                    hintText="YYYY-MM-DD"
+                    floatingLabelText="*Opened on"
                     value= {this.state.opened_on}
                     onChange = {(event,newValue) => this.setState({opened_on:newValue })}
                     style={styles.textFieldStyle}
@@ -299,7 +320,7 @@ export default class StoreOfficerHome extends React.Component {
               <div style={styles.boxStyle}>
                 <TextField
                   hintText="Offer_No"
-                  floatingLabelText="Offer_No"
+                  floatingLabelText="*Offer_No"
                   value= {this.state.offer_no}
                   onChange = {(event,newValue) => this.setState({offer_no:newValue })}
                   style={styles.textFieldStyle}
@@ -307,8 +328,8 @@ export default class StoreOfficerHome extends React.Component {
               </div>
               <div style={styles.boxStyle}>
                 <TextField
-                  hintText="Offer_Date"
-                  floatingLabelText="Offer_Date"
+                  hintText="YYYY-MM-DD"
+                  floatingLabelText="*Offer_Date"
                   value= {this.state.offer_date}
                   onChange = {(event,newValue) => this.setState({offer_date:newValue })}
                   style={styles.textFieldStyle}
@@ -343,6 +364,7 @@ export default class StoreOfficerHome extends React.Component {
           <span style={styles.headingStyle}>List of Vendors</span>
         </div>
         <div style={styles.itemHeaderContainer}>
+          <span style={styles.textCellContainer}>S.No.</span>
           <span style={styles.textCellContainer}>Code</span>
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
@@ -353,6 +375,7 @@ export default class StoreOfficerHome extends React.Component {
           this.state.responseDataArray.map((member,key) => {
             return (
               <div style={styles.itemContainer}>
+                <span style={styles.textCellContainer}>{key + 1}</span>
                 <span style={styles.textCellContainer}>{member.vendor_code}</span>
                 <span style={styles.textCellContainer}>{member.name}</span>
                 <span style={styles.textCellContainer}>{member.email}</span>
@@ -367,37 +390,9 @@ export default class StoreOfficerHome extends React.Component {
 
   }
 
-  showItems = () => {
-
-    if(this.state.flag == 4)
-      return (
-        <div style={{flex : 1}}>
-          <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of Items</span>
-          </div>
-          <div style={styles.itemHeaderContainer}>
-            <span style={styles.textCellContainer}>Model_number</span>
-            <span style={styles.textCellContainer}>Item_Name</span>
-            <span style={styles.textCellContainer}>Quantity</span>
-          </div>
-          {
-            this.state.responseDataArray.map((member,key) => {
-              return (
-                <div style={styles.itemContainer}>
-                  <span style={styles.textCellContainer}>{member.model_number}</span>
-                  <span style={styles.textCellContainer}>{member.name}</span>
-                  <span style={styles.textCellContainer}>{member.quantity}</span>
-                </div>
-              )
-            })
-          }
-        </div>
-      );
-  }
-
   showPurchaseOrders = () => {
 
-    let statusArray = ["Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
+    let statusArray = ["IC Generated","Approved","Items Dispatched","Items Accepted","Items Rejected","Amendment Requested","Amendment Inspector Nominated","Corrigendum Generated","Finished"];
 
     if(this.state.flag == 5)
       return(
@@ -441,7 +436,7 @@ export default class StoreOfficerHome extends React.Component {
                       <span style={styles.purchaseCell}>Address: {member.vendor_info.address}</span>
                     </div>
                     {
-                      (member.status == "Assigned" || member.status == "Intimated" || member.status == "Visited" || member.status == "Passed" || member.status == "Rejected" || statusArray.some(x => x == member.status)) ?
+                      ( member.inspected_by != undefined || member.inspected_by != null ) ?
                         <div style={styles.boxStyle}>
                           <span style={styles.textStyle}>Inspector Details</span>
                           <span style={styles.purchaseCell}>Name: {member.inspected_by.name}</span>
@@ -466,40 +461,54 @@ export default class StoreOfficerHome extends React.Component {
                     </div>
                       : null
                   }
-                  
+
                   {
-                    (statusArray.some(x => x == member.status)) ?
+                    member.ic_id != undefined ?
                       <div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-                          <span style={styles.textLabel}>Inspection Certificate Details</span>
+                          <span style={styles.textLabel}>Latest Inspection Certificate Details</span>
                         </div>
                         <div style={styles.dividerStyle}/>
                         <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
                           <div style={styles.icBoxStyle}>
-                            <span style={styles.purchaseCell}>Quantity Offered: {member.ic_id.quantity_offered}</span>
-                            <span style={styles.purchaseCell}>Quantity Approved: {member.ic_id.quantity_approved}</span>
-                            <span style={styles.purchaseCell}>Quantity On Order: {member.ic_id.quantity_on_order}</span>
-                            <span style={styles.purchaseCell}>Quantity Supplied So Far: {member.ic_id.quantity_supplied_so_far}</span>
+                            <span>Quantity Offered: {member.ic_id.quantity_offered}</span>
+                            <span>Quantity Accepted: {member.ic_id.quantity_approved}</span>
+                            <span>Quantity On Order: {member.ic_id.quantity_on_order}</span>
+                            <span>Quantity Supplied/Inspected So Far: {member.ic_id.quantity_supplied_so_far}</span>
+                            <span>Balance Quantity: {member.ic_id.balance_quantity}</span>
+                            <span>Date when materials were offered for inspection: {member.ic_id.materials_offered_date}</span>
 
                           </div>
                           <div style={styles.icBoxStyle}>
-                            <span style={styles.purchaseCell}>Balance Quantity: {member.ic_id.balance_quantity}</span>
-                            <span style={styles.purchaseCell}>Unit Price: {member.ic_id.unit_price}</span>
-                            <span style={styles.purchaseCell}>Inspection Date: {member.ic_id.inspection_date}</span>
-                            <span style={styles.purchaseCell}>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                            <span>Unit Price: {member.ic_id.unit_price}</span>
+                            <span>Inspection Date: {member.ic_id.inspection_date}</span>
+                            <span>IC Signed On: {member.ic_id.ic_signed_on}</span>
+                            <span>Inspecting Officer Name: {member.ic_id.inspector_name}</span>
+                            <span>Inspecting Officer Mobile: {member.ic_id.inspector_mobile}</span>
+                            <span>Remarks: {member.ic_id.remarks}</span>
+
                           </div>
                         </div>
 
-                        <div style={styles.icBoxStyle}>
-                          <span style={styles.purchaseCell}>Location of Seal: {member.ic_id.location_of_seal}</span>
+                        <div style={{marginTop : 10, marginLeft:60}}>
+                          <span>Location of Seal: {member.ic_id.location_of_seal}</span>
                         </div>
-                        { member.rejection_reason!='' ?
-                        <div style={styles.icBoxStyle}>
-                          <span style={styles.purchaseCell}>Rejection Reason: {member.rejection_reason}</span>
+                        { member.ic_id.rejection_reason != undefined ?
+                        <div style={{marginTop : 10, marginLeft:60}}>
+                          <span>Rejection Reason: {member.ic_id.rejection_reason}</span>
                         </div>
                         :null
                         }
+                        <div style={styles.buttonContainerStyle}>
+                          <RaisedButton
+                            label="SEE ALL ICs"
+                            primary={true}
+                            style={styles.buttonStyle}
+                            onClick={() => this.fetchAllEntities("AllIC",member.order_number)}
+                          />
+                        </div>
+
                       </div>
                     : null
                   }
@@ -507,23 +516,10 @@ export default class StoreOfficerHome extends React.Component {
                     member.status == "Items Dispatched" ?
                     <div style={styles.textCellStyle}>
                       <RaisedButton label="Accept Items" primary={true} style={styles.buttonStyle} onClick={() => this.updatePoStatus("Items Accepted",member.order_number)} />
-                      <RaisedButton label="Reject Items" primary={true} style={styles.buttonStyle} onClick={() => this.setState({flag : 11 , order_number : member.order_number})} />
+                      <RaisedButton label="Reject Items" primary={true} style={styles.buttonStyle} onClick={() => this.setState({flag : 11 , order_number : member.order_number , ic_id : member.ic_id._id})} />
                     </div>
                     :null
                   }
-                  {
-                    ((member.status == "Corrigendum Generated" || (member.status == "Finished" && member.corrigendum_flag == "1")) && this.state.corrigendum_flag != 1) ?
-                    <div style={styles.buttonContainerStyle}>
-                      <br/>
-                      <RaisedButton
-                        label="See Corrigendum"
-                        primary={true}
-                        onClick={() => this.getCorrigendum(member.order_number)}
-                      />
-                    </div>
-                    : null
-                  }
-                  { this.showCorrigendumTable(member.status,member.order_number)}
 
                 </div>
               )
@@ -533,22 +529,23 @@ export default class StoreOfficerHome extends React.Component {
       );
   }
 
-  showCorrigendumTable = (status,orderNumber) => {
-    if(this.state.corrigendum_flag == 1 && this.state.corrigendum_array.order_number == orderNumber)
+  showCorrigendumTable = () => {
+    if(this.state.corrigendum_flag == 1)
       return (
-        <div>
-          <div style={styles.dividerStyle}/>
-          <div style={{display:'flex', flexDirection:'row',justifyContent:'center'}}>
-            <span style={styles.textLabel}>Corrigendum Details</span>
+        <div style={{border : '2px solid #989898' , borderRadius : 4 , boxShadow : '1px 3px 5px', padding : '20px', margin:'10px'}}>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'flex-end'}}>
+            <span style={styles.corrigendumLabel}>Corrigendum Details</span>
+            <span style={{flex : 1}}><span style={{fontWeight : 'bold' , color : '#000099'}}>Corrigendum No.: </span>{this.state.corrigendum_array.corrigendum_number}</span>
           </div>
           <div style={styles.dividerStyle}/>
           <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
-            <div style={styles.icBoxStyle}>
-              <span style={styles.purchaseCell}>Corrigendum No.: {this.state.corrigendum_array.corrigendum_number}</span>
-              <span style={styles.purchaseCell}>Remarks: {this.state.corrigendum_array.remarks}</span>
+            <div style={{display : 'flex' , flexDirection : 'column' , justifyContent : 'space-around'}}>
+              <span><span style={styles.BoldText}>Inspector Name: </span>{this.state.corrigendum_array.generated_by.name}</span>
+              <span><span style={styles.BoldText}>Inspector Mobile: </span>{this.state.corrigendum_array.generated_by.mobile}</span>
             </div>
-            <div style={styles.icBoxStyle}>
-              <span style={styles.purchaseCell}>Updates: {this.state.corrigendum_array.update_values}</span>
+            <div style={{display : 'flex' , flexDirection : 'column' }}>
+              <span><span style={styles.BoldText}>Updates: </span>{this.state.corrigendum_array.update_values}</span>
+              <span><span style={styles.BoldText}>Remarks: </span>{this.state.corrigendum_array.remarks}</span>
             </div>
           </div>
         </div>
@@ -570,7 +567,7 @@ export default class StoreOfficerHome extends React.Component {
                style={styles.rejectReasonStyle}
              />
              <div style={{display:'flex',flexDirection:'row',justifyContent:'space-around'}}>
-               <RaisedButton label="Submit" primary={true} style={styles.reasonButtonStyle} onClick={(event) => {this.updatePoStatus("Items Rejected",this.state.order_number)}} />
+               <RaisedButton label="Submit" primary={true} style={styles.reasonButtonStyle} onClick={(event) => {this.updateIC(this.state.rejection_reason , this.state.order_number ,this.state.ic_id)}} />
                <RaisedButton label="Back" primary={true} style={styles.reasonButtonStyle} onClick={(event) => {this.fetchAllEntities("Purchase_Order",this.state._id)}} />
 
              </div>
@@ -587,128 +584,63 @@ export default class StoreOfficerHome extends React.Component {
       return (
         <div style={styles.outerContainerStyle}>
           <span style={styles.headingStyle}>Vendor Panel</span>
-          <div style={styles.innerContainerStyle}>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Vendor Code"
-                floatingLabelText="Code"
-                onChange = {(event,newValue) => this.setState({vendor_code:newValue})}
-                style={styles.textFieldStyle}
-              />
+          <div style={styles.innerContainerStyleUpdate}>
+            <div style={styles.childContainer}>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Vendor Code"
+                  floatingLabelText="*Vendor Code"
+                  onChange = {(event,newValue) => this.setState({vendor_code:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Name"
+                  floatingLabelText="*Name"
+                  onChange = {(event,newValue) => this.setState({name:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Email"
+                  floatingLabelText="*Email"
+                  onChange = {(event,newValue) => this.setState({email:newValue })}
+                  style={styles.textFieldStyle}
+                />
+              </div>
             </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdPerson size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Name"
-                floatingLabelText="Name"
-                onChange = {(event,newValue) => this.setState({name:newValue})}
-                style={styles.textFieldStyle}
-              />
+            <div style={styles.childContainer}>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Mobile"
+                  floatingLabelText="*Mobile"
+                  onChange = {(event,newValue) => this.setState({mobile:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
+              <div style={styles.textCellStyle}>
+                <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
+                <TextField
+                  hintText="Address"
+                  floatingLabelText="Address"
+                  onChange = {(event,newValue) => this.setState({address:newValue})}
+                  style={styles.textFieldStyle}
+                />
+              </div>
             </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdMail size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Email"
-                floatingLabelText="Email"
-                onChange = {(event,newValue) => this.setState({email:newValue })}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdPhoneIphone size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Mobile"
-                floatingLabelText="Mobile"
-                onChange = {(event,newValue) => this.setState({mobile:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Address"
-                floatingLabelText="Address"
-                onChange = {(event,newValue) => this.setState({address:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <br/>
-            <div style={styles.textCellStyle}>
-              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addVendorFunc(event)}} />
-            </div>
-          </div>
-        </div>
-      );
-  }
-
-  addItem = () => {
-
-    if(this.state.flag == 7)
-      return (
-        <div style={styles.outerContainerStyle}>
-          <span style={styles.headingStyle}>Item Addition</span>
-          <div style={styles.innerContainerStyle}>
-          <div style={styles.textCellStyle}>
-            <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Model_number"
-                floatingLabelText="Model_number"
-                onChange = {(event,newValue) => this.setState({model_number:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Name"
-                floatingLabelText="Name"
-                onChange = {(event,newValue) => this.setState({name:newValue })}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <div style={styles.textCellStyle}>
-              <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
-              <TextField
-                hintText="Quantity"
-                floatingLabelText="Quantity"
-                onChange = {(event,newValue) => this.setState({quantity:newValue})}
-                style={styles.textFieldStyle}
-              />
-            </div>
-            <br/>
-            <div style={styles.textCellStyle}>
-              <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addItemFunc(event)}} />
-            </div>
-          </div>
-        </div>
-      );
-  }
-
-  deleteItem = () => {
-    if(this.state.flag == 8)
-    return (
-      <div style={styles.outerContainerStyle}>
-        <div style={styles.innerContainerStyle}>
-        <span style={styles.headingStyle}>Item Deletion</span>
-
-        <div style={styles.textCellStyle}>
-          <MaterialIcon.MdMap size={styles.iconSize} style={styles.iconStyle}/>
-            <TextField
-              hintText="model_number"
-              floatingLabelText="model_number"
-              onChange = {(event,newValue) => this.setState({model_number:newValue})}
-              style={styles.textFieldStyle}
-            />
           </div>
           <br/>
           <div style={styles.textCellStyle}>
-            <RaisedButton label="DELETE" primary={true} style={styles.buttonStyle} onClick={(event) => {this.deleteItemFunc(event)}} />
+            <RaisedButton label="ADD" primary={true} style={styles.buttonStyle} onClick={(event) => {this.addVendorFunc(event)}} />
           </div>
         </div>
-      </div>
-
-    );
+      );
   }
 
   showProfile = () => {
@@ -787,11 +719,126 @@ export default class StoreOfficerHome extends React.Component {
 
   }
 
+  showIC = () => {
+
+    if(this.state.flag == 12)
+      return (
+        <div style={{flex : 1}}>
+          <div style={styles.dividerStyle}/>
+          <div style={{display:'flex', flexDirection:'row',justifyContent:'center',marginTop:20}}>
+            <span style={styles.ICLabel}>Inspection Certificate Details</span>
+          </div>
+          <div style={styles.dividerStyle}/>
+          {
+            this.state.responseDataArray.map((member,key) => {
+              return (
+                <div style={{border : '2px solid #989898' , borderRadius : 4 , boxShadow : '1px 3px 5px', padding : '20px', margin:'10px'}}>
+                  <div style={{display:'flex', flexDirection:'row',justifyContent:'space-around'}}>
+                    <div style={styles.icBoxStyle}>
+                      <span><span style={styles.BoldText}>Quantity Offered: </span>{member.quantity_offered}</span>
+                      <span><span style={styles.BoldText}>Quantity Accepted: </span>{member.quantity_approved}</span>
+                      <span><span style={styles.BoldText}>Quantity On Order: </span>{member.quantity_on_order}</span>
+                      <span><span style={styles.BoldText}>Quantity Supplied/Inspected So Far: </span>{member.quantity_supplied_so_far}</span>
+                      <span><span style={styles.BoldText}>Balance Quantity: </span>{member.balance_quantity}</span>
+                      <span><span style={styles.BoldText}>Date when materials were offered for inspection: </span>{member.materials_offered_date}</span>
+
+                    </div>
+                    <div style={styles.icBoxStyle}>
+                      <span><span style={styles.BoldText}>Unit Price: </span>{member.unit_price}</span>
+                      <span><span style={styles.BoldText}>Inspection Date: </span>{member.inspection_date}</span>
+                      <span><span style={styles.BoldText}>IC Signed On: </span>{member.ic_signed_on}</span>
+                      <span><span style={styles.BoldText}>Inspecting Officer Name: </span>{member.inspector_name}</span>
+                      <span><span style={styles.BoldText}>Inspecting Officer Mobile: </span>{member.inspector_mobile}</span>
+                      <span><span style={styles.BoldText}>Remarks: </span>{member.remarks}</span>
+
+                    </div>
+                  </div>
+                  <div style={{marginTop : 10, marginLeft:60}}>
+                    <span><span style={styles.BoldText}>Location of Seal: </span>{member.location_of_seal}</span>
+                  </div>
+                  {
+                    member.rejection_reason != undefined ?
+                      <div style={{marginTop : 10, marginLeft:60}}>
+                        <span><span style={styles.BoldText}>Rejection Reason: </span>{member.rejection_reason}</span>
+                      </div>
+                    :null
+                  }
+                  <div style={styles.dividerStyle}/>
+                  {
+                    member.corrigendum_id != undefined ?
+                      <div style={styles.buttonContainerStyle}>
+                        <br/>
+                        <RaisedButton
+                          label="See Corrigendum"
+                          primary={true}
+                          onClick={() => this.getCorrigendum(member.corrigendum_id)}
+                        />
+                      </div>
+                    : null
+                  }
+                  {
+                    member.corrigendum_id != undefined && member.corrigendum_id == this.state.corrigendum_array._id ?
+                      this.showCorrigendumTable()
+                    : null
+                  }
+                </div>
+              );
+            })
+          }
+        </div>
+      );
+  }
+
+  getCorrigendum(corrigendum_id){
+
+    var that = this;
+    var apiUrl = baseUrl + oneCorrigendumUrl + corrigendum_id;
+
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      that.setState({ corrigendum_array : response.data , corrigendum_flag : 1});
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+updateIC(rejection_reason,orderNumber,ic_id){
+
+  var that = this;
+  var apiUrl = baseUrl + updateICInfoUrl;
+
+  const headers = {
+    SECURITY_TOKEN: that.state._id
+  };
+
+  axios.post(apiUrl,{
+    "order_number": orderNumber,
+    "ic_id" : ic_id,
+    "rejection_reason" : rejection_reason
+  },{headers})
+  .then(function (response) {
+    console.log(response);
+    if(response.status == 200){
+      that.updatePoStatus("Items Rejected",orderNumber);
+    }
+  })
+  .catch(function (error) {
+    console.log(error.response);
+    alert(error.response.data.message);
+  });
+}
 vendorByStoreOfficer(userId) {
   var that = this;
   var apiUrl = baseUrl + VendorByStoreOfficerUrl + userId;
 
-  axios.get(apiUrl)
+  const headers = {
+    SECURITY_TOKEN: that.state._id
+  };
+
+  axios.get(apiUrl,{headers})
   .then(function (response) {
     console.log(response);
     if(response.status == 200){
@@ -808,6 +855,12 @@ vendorByStoreOfficer(userId) {
 }
   addVendorFunc(event){
     var that=this;
+
+    if(that.state.vendor_code == '' || that.state.name == '' || that.state.email == '' || that.state.mobile == ''){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
+
     var apiUrl=baseUrl + addVendorUrl;
     var body = {
       "vendor_code" : that.state.vendor_code,
@@ -818,10 +871,15 @@ vendorByStoreOfficer(userId) {
       "storeofficer_id" : that.state._id,
       "address" : that.state.address
     };
-    axios.post(apiUrl, body)
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl, body, {headers})
    .then(response => {
        if(response.status == 200){
-          that.fetchAllEntities("Vendor",that.state._id);
+          that.clearVendorFields();
          }
          else if(response.status == 204) {
            alert("Vendor is already present!");
@@ -836,9 +894,14 @@ vendorByStoreOfficer(userId) {
  cancelPOFunc(event){
    var that=this;
    var apiUrl=baseUrl + deletePOUrl;
+
+   const headers = {
+     SECURITY_TOKEN: that.state._id
+   };
+
    axios.post(apiUrl,{
       "order_number" : that.state.order_number
-    })
+    },{headers})
     .then(response => {
       if(response.status == 200){
          that.fetchAllEntities("Purchase_Order", that.state._id);
@@ -852,67 +915,47 @@ vendorByStoreOfficer(userId) {
     })
  }
 
- deleteItemFunc(event){
-   var that=this;
-   var apiUrl=baseUrl + deleteItemUrl;
-   axios.post(apiUrl,{
-      "model_number" : that.state.model_number
-    })
-    .then(response => {
-      if(response.status == 200){
-         alert("Item deleted successfully!");
-        }
-        else if(response.status == 404) {
-          alert("Item is not present!");
-        }
-    })
-    .catch(error => {
-      alert(error.response.data.message);
-    })
- }
-
-
-  addItemFunc(event){
-    var that=this;
-    var apiUrl=baseUrl + addItemUrl;
-    axios.post(apiUrl,{
-        "model_number" : that.state.model_number ,
-        "name" : that.state.name,
-        "quantity" : that.state.quantity
-    })
-   .then(response => {
-       if(response.status == 200){
-          alert("Item added successfully!");
-         }
-         else if(response.status == 204) {
-           alert("Item is already present!");
-         }
-      })
-   .catch(error => {
-     alert(error.response.data.message);
-   });
-
-  }
-
-  getCorrigendum(orderNumber){
-
-    var that = this;
-    var apiUrl = baseUrl + oneCorrigendumUrl + orderNumber;
-
-    console.log(apiUrl);
-    axios.get(apiUrl)
-    .then( response => {
-      console.log(response);
-      that.setState({ corrigendum_array: response.data , corrigendum_flag : 1});
-    })
-    .catch(error => {
-      console.log(error.response);
-      alert(error.response.data.message);
-    });
-  }
-
   place_order(event){
     var that=this;
+
+    if(
+      that.state.specification == '' ||
+      that.state.quantity_rate == '' ||
+      that.state.duties_charges == '' ||
+      that.state.delivery_date == '' ||
+      that.state.tender_no == '' ||
+      that.state.tender_type == '' ||
+      that.state.opened_on == '' ||
+      that.state.order_number == '' ||
+      that.state.order_date == '' ||
+      that.state.offer_no == '' ||
+      that.state.offer_date == '' ||
+      that.state._id == ''
+    ){
+      alert("Required fields shouldn't be empty!!");
+      return;
+    }
+    if(that.state.delivery_date.charAt(4) != '-' || that.state.delivery_date.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 1});
+      return;
+    }
+    if(that.state.order_date.charAt(4) != '-' || that.state.order_date.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 1});
+      return;
+    }
+    if(that.state.offer_date.charAt(4) != '-' || that.state.offer_date.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 1});
+      return;
+    }
+    if(that.state.opened_on.charAt(4) != '-' || that.state.opened_on.charAt(7) != '-'){
+      alert("Date should be in the YYYY-MM-DD format!!");
+      that.setState({flag : 1});
+      return;
+    }
+
     var apiUrl=baseUrl + addPurchaseOrderUrl;
     var itemdetails = {
       specification: that.state.specification,
@@ -943,17 +986,19 @@ vendorByStoreOfficer(userId) {
       "offer_no" :        that.state.offer_no,
       "offer_date" :      that.state.offer_date,
       "storeofficer_id" : that.state._id,
-      "status":           "Initiated",
-      "corrigendum_flag" : "0"
+      "status":           "Initiated"
     };
 
     console.log(body);
 
-    axios.post(apiUrl,body)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl,body,{headers})
    .then(response => {
        if(response.status == 200){
-          //alert("Order placed successfully!");
-          that.fetchAllEntities("Purchase_Order", that.state._id);
+          that.clearPurchaseFields();
          }
          else if(response.status == 204) {
            alert("Order is already present!");
@@ -970,7 +1015,11 @@ vendorByStoreOfficer(userId) {
     var that = this;
     var apiUrl = baseUrl + onePurchaseOrderUrl + order_number;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1027,6 +1076,10 @@ vendorByStoreOfficer(userId) {
       opened_on: that.state.opened_on
     };
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number" : that.state.order_number ,
       "order_date" :  that.state.order_date,
@@ -1036,12 +1089,11 @@ vendorByStoreOfficer(userId) {
       "offer_no" :    that.state.offer_no,
       "offer_date" : that.state.offer_date,
       "storeofficer_id" : that.state.storeofficer_id
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
         that.fetchAllEntities("Purchase_Order", that.state._id);
-      //  alert("Information is updated successfully!");
       }
       else if(response.status == 204) {
         alert("Purchase Order to be updated is not present!");
@@ -1058,11 +1110,14 @@ vendorByStoreOfficer(userId) {
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
 
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
     axios.post(apiUrl,{
       "order_number": orderNumber,
-      "status" : status,
-      "rejection_reason" : that.state.rejection_reason
-    })
+      "status" : status
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1081,9 +1136,13 @@ vendorByStoreOfficer(userId) {
   getProfileInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + getInfoUrl + that.state._id;
+    var apiUrl = baseUrl + getStoreOfficerInfoUrl + that.state._id;
 
-    axios.get(apiUrl)
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.get(apiUrl,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1102,7 +1161,11 @@ vendorByStoreOfficer(userId) {
   updateInfo(event){
 
     var that = this;
-    var apiUrl = baseUrl + updateInfoUrl;
+    var apiUrl = baseUrl + updateStoreOfficerInfoUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
 
     axios.post(apiUrl,{
       "_id" : that.state._id,
@@ -1112,7 +1175,7 @@ vendorByStoreOfficer(userId) {
       "password" : that.state.password,
       "role" : "StoreOfficer",
       "location" : that.state.location
-    })
+    },{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
@@ -1140,12 +1203,12 @@ vendorByStoreOfficer(userId) {
     else if(type == "Purchase_Order"){
       apiUrl += POUrlByStoreOfficer + userId;
     }
-    else if(type == "AllItems"){
-      apiUrl += allItemUrl;
+    else if(type == "AllIC"){
+      apiUrl += allIcUrl + userId;
     }
 
     const headers = {
-      SECURITY_TOKEN: userId
+      SECURITY_TOKEN: that.state._id
     };
 
     axios.get(apiUrl, { headers })
@@ -1154,8 +1217,8 @@ vendorByStoreOfficer(userId) {
       if(response.status == 200 && type == "Vendor"){
         that.setState({ responseDataArray : response.data , vendors_info : response.data, flag :3});
       }
-      else if(response.status == 200 && type == "AllItems"){
-        that.setState({ responseDataArray : response.data , flag :4});
+      else if(response.status == 200 && type == "AllIC"){
+        that.setState({ responseDataArray : response.data, flag :12});
       }
       else if(response.status == 200 && type == "Purchase_Order"){
         that.setState({
@@ -1202,6 +1265,9 @@ vendorByStoreOfficer(userId) {
     }
     else if(status == 'Approved'){
       return styles.approvedStyle;
+    }
+    else if(status == 'IR Partial'){
+      return styles.IRPartialStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -1260,7 +1326,7 @@ const styles = {
     width : '18%',
     borderRadius : 5,
     textAlign : 'center',
-    marginRight : 15
+    marginRight : 15,
   },
   itemHeaderContainer: {
     display : 'flex',
@@ -1293,6 +1359,22 @@ const styles = {
     fontWeight: 'Bold',
     color: '#006266',
     textAlign : 'center'
+  },
+  BoldText:{
+    fontWeight : 'Bold'
+  },
+  corrigendumLabel: {
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#ff5719',
+    fontSize : '18px',
+    flex : 2
+  },
+  ICLabel:{
+    fontFamily: 'Montserrat',
+    fontWeight: 'Bold',
+    color: '#FF1493',
+    fontSize : '20px'
   },
   textStyle:{
     fontFamily: 'Montserrat',
@@ -1388,6 +1470,16 @@ const styles = {
   },
   assignedStyle: {
     backgroundColor : 'rgb(180, 75, 12)',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  IRPartialStyle: {
+    backgroundColor : '#420420',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,
@@ -1533,12 +1625,12 @@ const styles = {
     display: 'flex',
     flex: 1,
     flexDirection: 'column',
-    alignItems : 'center'
+    alignItems : 'left',
+    marginLeft : '60px'
   },
   rejectReasonStyle: {
     margin: 15,
-    padding: 8,
-    paddingRight:8,
+    padding: 4,
     boxShadow : '1px 3px 5px #A9A9A9',
     border : '1px solid #D3D3D3'
   },
@@ -1552,8 +1644,7 @@ const styles = {
   },
   corriStyle: {
     margin: 15,
-    padding: 8,
-    paddingRight:8,
+    padding: 4,
     boxShadow : '1px 3px 5px #A9A9A9',
     border : '1px solid #D3D3D3'
   },
