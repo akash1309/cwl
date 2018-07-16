@@ -27,7 +27,8 @@ import {
   POUrlByStoreOfficer,
   oneCorrigendumUrl,
   updateICInfoUrl,
-  allIcUrl
+  allIcUrl,
+  removeVisitUrl
 } from './../../config/url';
 
 export default class StoreOfficerHome extends React.Component {
@@ -72,10 +73,12 @@ export default class StoreOfficerHome extends React.Component {
 
  };
 
-  handleOpen(orderNumber){
+  handleOpen(orderNumber,vendor_code,vendor_email){
     this.setState({
       open: true,
-      order_number: orderNumber
+      order_number: orderNumber,
+      vendor_code : vendor_code,
+      vendor_email : vendor_email
     });
   };
 
@@ -458,7 +461,7 @@ export default class StoreOfficerHome extends React.Component {
 
                   { member.status == 'Initiated' ?
                     <div style={styles.buttonPOContainerStyle}>
-                      <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number)}}/>
+                      <RaisedButton label="Cancel Order" primary={true} style={styles.buttonStyle} onClick={() => {this.handleOpen(member.order_number, member.vendor_info.code, member.vendor_info.email)}}/>
                       <RaisedButton label="Update Order" primary={true} style={styles.buttonStyle} onClick={(event) => {this.getOrderInfo(event,member.order_number)}}/>
                     </div>
                       : null
@@ -517,8 +520,8 @@ export default class StoreOfficerHome extends React.Component {
                   {
                     member.status == "Items Dispatched" ?
                     <div style={styles.textCellStyle}>
-                      <RaisedButton label="Accept Items" primary={true} style={styles.buttonStyle} onClick={() => this.updatePoStatus("Items Accepted",member.order_number)} />
-                      <RaisedButton label="Reject Items" primary={true} style={styles.buttonStyle} onClick={() => this.setState({flag : 11 , order_number : member.order_number , ic_id : member.ic_id._id})} />
+                      <RaisedButton label="Accept Items" primary={true} style={styles.buttonStyle} onClick={() => this.updatePoStatus("Items Accepted",member.order_number,member.vendor_info.email)} />
+                      <RaisedButton label="Reject Items" primary={true} style={styles.buttonStyle} onClick={() => this.setState({flag : 11 , order_number : member.order_number , ic_id : member.ic_id._id, vendor_email : member.vendor_info.email, vendor_code : member.vendor_info.code})} />
                     </div>
                     :null
                   }
@@ -824,7 +827,7 @@ updateIC(rejection_reason,orderNumber,ic_id){
   .then(function (response) {
     console.log(response);
     if(response.status == 200){
-      that.updatePoStatus("Items Rejected",orderNumber);
+      that.removeVisit(orderNumber,that.state.vendor_code,that.state.vendor_email);
     }
   })
   .catch(function (error) {
@@ -846,12 +849,9 @@ vendorByStoreOfficer(userId) {
     if(response.status == 200){
       that.setState({vendors_info : response.data});
     }
-    else if(response.status == 404) {
-      alert("No Vendors found with this id");
-    }
   })
   .catch(function (error) {
-      alert(error.response.data.message);
+      console.log(error.response.data.message);
   })
 
 }
@@ -902,7 +902,9 @@ vendorByStoreOfficer(userId) {
    };
 
    axios.post(apiUrl,{
-      "order_number" : that.state.order_number
+      "order_number" : that.state.order_number,
+      "vendor_code" : that.state.vendor_code,
+      "email" : that.state.vendor_email
     },{headers})
     .then(response => {
       if(response.status == 200){
@@ -1114,7 +1116,7 @@ vendorByStoreOfficer(userId) {
     });
   }
 
-  updatePoStatus(status,orderNumber){
+  updatePoStatus(status,orderNumber, email){
 
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
@@ -1125,7 +1127,8 @@ vendorByStoreOfficer(userId) {
 
     axios.post(apiUrl,{
       "order_number": orderNumber,
-      "status" : status
+      "status" : status,
+      "email" : email
     },{headers})
     .then(function (response) {
       console.log(response);
@@ -1134,6 +1137,34 @@ vendorByStoreOfficer(userId) {
       }
       else if(response.status == 204) {
         alert("Purchase Order to be updated is not present!");
+      }
+    })
+    .catch(function (error) {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+  }
+
+  removeVisit(orderNumber,vendor_code,vendor_email)
+  {
+    var that = this;
+    let apiUrl = baseUrl + removeVisitUrl;
+
+    const headers = {
+      SECURITY_TOKEN: that.state._id
+    };
+
+    axios.post(apiUrl,{
+      "order_number": orderNumber,
+      "vendor_code" : vendor_code
+    },{headers})
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+            that.updatePoStatus("Items Rejected",orderNumber,that.state.vendor_email);
+      }
+      else if(response.status == 204) {
+        alert("Visit to be removed is not present!");
       }
     })
     .catch(function (error) {
@@ -1277,6 +1308,9 @@ vendorByStoreOfficer(userId) {
     }
     else if(status == 'IR Partial'){
       return styles.IRPartialStyle;
+    }
+    else if(status == 'IC Generated'){
+      return styles.ICGeneratedStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -1489,6 +1523,16 @@ const styles = {
   },
   IRPartialStyle: {
     backgroundColor : '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor : '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

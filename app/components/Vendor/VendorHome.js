@@ -13,7 +13,9 @@ import {
   updatePOInfoUrl,
   getVisitUrl,
   oneCorrigendumUrl,
-  removeVisitUrl
+  removeVisitUrl,
+  getDyceeEmailUrl,
+  getStoreOfficerByVendorUrl,
 } from './../../config/url';
 
 import {
@@ -32,7 +34,7 @@ export default class VendorHome extends Component {
       name : '',
       email : '',
       mobile : '',
-      location : '',
+      address : '',
       password : '',
       flag : 4,
       code : ''
@@ -55,7 +57,7 @@ export default class VendorHome extends Component {
             <div style={{ display: 'flex', flexDirection: 'row', height: '100vh'}}>
 
               <VendorPalette
-                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order", this.state.code)}
+                onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order", this.state.code, this.state._id)}
                 onClickVisits = {() => this.getVisits()}
                 onClickProfile = {() => this.getProfileInfo()}
                 onClickLogout={() => this.logout()}
@@ -134,10 +136,10 @@ export default class VendorHome extends Component {
             <div style={styles.textCellStyle}>
               <MaterialIcon.MdLocationOn size={styles.iconSize} style={styles.iconStyle}/>
               <TextField
-                hintText="Enter location"
-                floatingLabelText="Location"
-                value = {this.state.location}
-                onChange = {(event,newValue) => this.setState({location:newValue})}
+                hintText="Enter address"
+                floatingLabelText="Address"
+                value = {this.state.address}
+                onChange = {(event,newValue) => this.setState({address:newValue})}
                 style={styles.textFieldStyle}
               />
             </div>
@@ -313,7 +315,7 @@ export default class VendorHome extends Component {
                           label="Process"
                           primary={true}
                           style={styles.buttonStyle}
-                          onClick={() => this.updatePoStatus("Processed",member.order_number)}
+                          onClick={() => this.getStoreOfficerByVendor("Processed",member.order_number)}
                         />
                       : null
                     }
@@ -377,7 +379,7 @@ export default class VendorHome extends Component {
                         label="Items Dispatched"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={() => this.updatePoStatus("Items Dispatched",member.order_number)}
+                        onClick={() => this.getStoreOfficerByVendor("Items Dispatched",member.order_number)}
                       />
                     </div>
                     : null
@@ -389,13 +391,13 @@ export default class VendorHome extends Component {
                         label="OK"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick = {() => this.checkBalanceQty(member.ic_id.balance_quantity,member.order_number,member.vendor_info.code)}
+                        onClick = {() => this.checkBalanceQty(member.ic_id.balance_quantity,member.order_number,member.vendor_info)}
                       />
                       <RaisedButton
                         label="Request Amendment"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={() => this.updatePoStatus("Amendment Requested",member.order_number)}
+                        onClick={() => this.getStoreOfficerByVendor("Amendment Requested",member.order_number)}
                       />
                     </div>
                     : null
@@ -534,6 +536,9 @@ export default class VendorHome extends Component {
     else if(status == 'IR Partial'){
       return styles.IRPartialStyle;
     }
+    else if(status == 'IC Generated'){
+      return styles.ICGeneratedStyle;
+    }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
     }
@@ -557,17 +562,17 @@ export default class VendorHome extends Component {
     }
   }
 
-  checkBalanceQty(balance_quantity,orderNumber,vendor_code){
+  checkBalanceQty(balance_quantity,orderNumber,vendor_info){
     if(balance_quantity == 0)
     {
-      this.updatePoStatus("Finished",orderNumber);
+      this.updatePoStatus("Finished",orderNumber,vendor_info.email,vendor_info.code,vendor_info);
     }
     else {
-      this.removeVisit(orderNumber,vendor_code);
+      this.removeVisit(orderNumber,vendor_code,vendor_email);
     }
   }
 
-  removeVisit(orderNumber,vendor_code)
+  removeVisit(orderNumber,vendor_code,vendor_email)
   {
     var that = this;
     let apiUrl = baseUrl + removeVisitUrl;
@@ -583,7 +588,7 @@ export default class VendorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-            that.updatePoStatus("Approved",orderNumber);
+            that.updatePoStatus("Approved",orderNumber,vendor_email);
       }
       else if(response.status == 204) {
         alert("Visit to be removed is not present!");
@@ -593,6 +598,49 @@ export default class VendorHome extends Component {
       console.log(error.response);
       alert(error.response.data.message);
     });
+  }
+
+  getStoreOfficerByVendor(status,order_number){
+    var that = this;
+    var apiUrl = baseUrl + getStoreOfficerByVendorUrl + that.state._id;
+
+    axios.get(apiUrl)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          if(status == "Processed" || status == "Amendment Requested"){
+            that.getDyceeByStoreOfficer(status,order_number, response.data._id);
+          }
+          else if(status == "Items Dispatched"){
+            that.updatePoStatus(status,order_number,response.data.email);
+          }
+      }
+      else if(response.status == 404) {
+        alert("No StoreOfficer found with this id");
+      }
+    })
+    .catch(function (error) {
+        alert(error.response.data.message);
+    })
+  }
+
+  getDyceeByStoreOfficer(status, order_number, storeofficer_id){
+    var that = this;
+    var apiUrl = baseUrl + getDyceeEmailUrl + storeofficer_id;
+
+    axios.get(apiUrl)
+    .then(function (response) {
+      console.log(response);
+      if(response.status == 200){
+          that.updatePoStatus(status,order_number,response.data.email);
+      }
+      else if(response.status == 404) {
+        alert("No Dycee found with this id");
+      }
+    })
+    .catch(function (error) {
+        alert(error.response.data.message);
+    })
   }
 
   getProfileInfo(event){
@@ -612,7 +660,7 @@ export default class VendorHome extends Component {
             name : response.data.name ,
             email : response.data.email,
             mobile : response.data.mobile,
-            location : response.data.location,
+            address : response.data.address,
             password : response.data.password,
             flag: 1
           });
@@ -642,7 +690,7 @@ export default class VendorHome extends Component {
       "email" : that.state.email,
       "password" : that.state.password,
       "role" : "Vendor",
-      "location" : that.state.location
+      "address" : that.state.address
     },{headers})
     .then(function (response) {
       console.log(response);
@@ -718,7 +766,7 @@ export default class VendorHome extends Component {
   }
 
 
-  updatePoStatus(status,orderNumber){
+  updatePoStatus(status,orderNumber,email,vendor_code,vendor_info){
 
     var that = this;
     var apiUrl = baseUrl + updatePOInfoUrl;
@@ -727,14 +775,28 @@ export default class VendorHome extends Component {
       SECURITY_TOKEN: that.state._id
     };
 
-    axios.post(apiUrl,{
-      "order_number": orderNumber,
-      "status" : status
-    },{headers})
+    let body = {};
+
+    if(status == "Finished"){
+      body = {
+        "order_number": orderNumber,
+        "status" : status,
+        "email" : email,
+        'vendor_info' : vendor_info
+      };
+    }
+    else{
+      body = {
+        "order_number": orderNumber,
+        "status" : status,
+        "email" : email
+      };
+    }
+    axios.post(apiUrl,body,{headers})
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        that.fetchAllEntities("Purchase_Order", that.state.code);
+        that.fetchAllEntities("Purchase_Order", that.state.code, that.state._id);
       }
       else if(response.status == 204) {
         alert("Purchase Order to be updated is not present!");
@@ -901,6 +963,15 @@ const styles = {
   },
   IRPartialStyle: {
     backgroundColor : '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },ICGeneratedStyle: {
+    backgroundColor : '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

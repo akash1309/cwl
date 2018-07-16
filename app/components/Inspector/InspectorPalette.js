@@ -12,12 +12,6 @@ export default class InspectorPalette extends React.Component {
     return (
       <div style={{ width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height : '100vh'}}>
 
-        <a onClick={this.props.onClickVendors} style={styles.innerContainerStyle}>
-          <MaterialIcon.MdPeopleOutline size={styles.iconSize} style={styles.iconStyle}/>
-          <span style={styles.textStyle}>Vendors</span>
-        </a>
-        <div style={styles.dividerStyle}/>
-
         <a onClick={this.props.onClickPurchaseOrders} style={styles.innerContainerStyle}>
           <MaterialIcon.MdChromeReaderMode size={styles.iconSize} style={styles.iconStyle}/>
           <span style={styles.textStyle}>Purchase Orders</span>

@@ -14,7 +14,8 @@ import {
    oneCorrigendumUrl,
    icGenerateUrl,
    allIcUrl,
-   updateICInfoUrl
+   updateICInfoUrl,
+   getDyceeEmailUrl
    } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
@@ -474,7 +475,7 @@ export default class InspectorHome extends Component {
                         label="Visit"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number, vendor_code : member.vendor_info.code})}}
+                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number, vendor_code : member.vendor_info.code, vendor_email : member.vendor_info.email})}}
                       />
                     </div>
                     : null
@@ -498,7 +499,7 @@ export default class InspectorHome extends Component {
                         label="Add Inspection Report"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={(event) => this.setState({flag : 4 , order_number : member.order_number , vendor_code : member.vendor_info.code})}
+                        onClick={(event) => this.setState({flag : 4 , order_number : member.order_number , vendor_code : member.vendor_info.code, vendor_email : member.vendor_info.email})}
                       />
                     </div>
                     : null
@@ -514,7 +515,8 @@ export default class InspectorHome extends Component {
                           flag :7,
                           order_number:member.order_number,
                           inspector_name:member.inspected_by.name,
-                          inspector_mobile : member.inspected_by.mobile
+                          inspector_mobile : member.inspected_by.mobile,
+                          vendor_email : member.vendor_info.email
                         })}
                       />
                     </div>
@@ -943,7 +945,7 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        this.setState({
+        that.setState({
           quantity_offered: '',
           quantity_approved:'',
           location_of_seal:'',
@@ -961,7 +963,8 @@ export default class InspectorHome extends Component {
         var body = {
           "order_number": that.state.order_number,
           "ic_id": response.data._id,
-          "status" : "IC Generated"
+          "status" : "IC Generated",
+          "email" : that.state.vendor_email
         };
         that.updatePoStatus(body);
       }
@@ -1094,11 +1097,7 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        var corr_body = {
-          "order_number": that.state.order_number,
-          "status" : "Corrigendum Generated"
-        };
-        that.updatePoStatus(corr_body);
+        that.getDyceeEmail(that.state._id);
       }
     })
     .catch(function (error) {
@@ -1107,6 +1106,28 @@ export default class InspectorHome extends Component {
     });
   }
 
+  getDyceeEmail(inspector_id){
+
+    var that = this;
+    var apiUrl = baseUrl + getDyceeEmailUrl + inspector_id;
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      var corr_body = {
+        "order_number": that.state.order_number,
+        "status" : "Corrigendum Generated",
+        "email" : response.data.email
+      };
+      that.updatePoStatus(corr_body);
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
   getCorrigendum(corrigendum_id){
 
     var that = this;
@@ -1202,7 +1223,8 @@ export default class InspectorHome extends Component {
       if(response.status == 200){
             var body = {
               "order_number": orderNumber,
-              "status" : status
+              "status" : status,
+              "email" : that.state.vendor_email
             };
             that.updatePoStatus(body);
       }
@@ -1279,7 +1301,8 @@ export default class InspectorHome extends Component {
          that.setState({date : '', time: ''});
          var body1 = {
            "order_number": that.state.order_number,
-           "status" : "Intimated"
+           "status" : "Intimated",
+           "email" : that.state.vendor_email
          };
           that.updatePoStatus(body1);
          }
@@ -1315,6 +1338,9 @@ export default class InspectorHome extends Component {
     }
     else if(status == 'IR Partial'){
       return styles.IRPartialStyle;
+    }
+    else if(status == 'IC Generated'){
+      return styles.ICGeneratedStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -1546,6 +1572,16 @@ const styles = {
   },
   IRPartialStyle: {
     backgroundColor : '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor : '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

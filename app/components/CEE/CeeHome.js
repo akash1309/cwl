@@ -161,7 +161,17 @@ export default class CeeHome extends Component {
           <span style={styles.textCellContainer}>Name</span>
           <span style={styles.textCellContainer}>Email</span>
           <span style={styles.textCellContainer}>Mobile</span>
-          <span style={styles.textCellContainer}>Location</span>
+          {
+            this.state.type == "Vendor" ?
+              <span style={styles.textCellContainer}>Address</span>
+            :
+              <span style={styles.textCellContainer}>Location</span>
+          }
+          {
+            this.state.type == "Vendor" ?
+              <span style={styles.textCellContainer}>PO_Remaining</span>
+            : null
+          }
         </div>
         {
           this.state.responseDataArray.map((member,key) => {
@@ -176,7 +186,17 @@ export default class CeeHome extends Component {
                 <span style={styles.textCellContainer}>{member.name}</span>
                 <span style={styles.textCellContainer}>{member.email}</span>
                 <span style={styles.textCellContainer}>{member.mobile}</span>
-                <span style={styles.textCellContainer}>{member.location}</span>
+                {
+                  this.state.type == "Vendor" ?
+                    <span style={styles.textCellContainer}>{member.address}</span>
+                  :
+                    <span style={styles.textCellContainer}>{member.location}</span>
+                }
+                {
+                  this.state.type == "Vendor" ?
+                    <span style={styles.textCellContainer}>{member.po_remaining}</span>
+                  : null
+                }
               </div>
             )
           })
@@ -612,6 +632,9 @@ export default class CeeHome extends Component {
     else if(status == 'IR Partial'){
       return styles.IRPartialStyle;
     }
+    else if(status == 'IC Generated'){
+      return styles.ICGeneratedStyle;
+    }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
     }
@@ -874,6 +897,16 @@ const styles = {
   },
   IRPartialStyle: {
     backgroundColor : '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor : '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,
