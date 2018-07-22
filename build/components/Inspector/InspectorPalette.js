@@ -41,17 +41,6 @@ var InspectorPalette = function (_React$Component) {
         { style: { width: '280px', backgroundColor: '#f7f1e3', padding: '20px', height: '100vh' } },
         _react2.default.createElement(
           'a',
-          { onClick: this.props.onClickVendors, style: styles.innerContainerStyle },
-          _react2.default.createElement(MaterialIcon.MdPeopleOutline, { size: styles.iconSize, style: styles.iconStyle }),
-          _react2.default.createElement(
-            'span',
-            { style: styles.textStyle },
-            'Vendors'
-          )
-        ),
-        _react2.default.createElement('div', { style: styles.dividerStyle }),
-        _react2.default.createElement(
-          'a',
           { onClick: this.props.onClickPurchaseOrders, style: styles.innerContainerStyle },
           _react2.default.createElement(MaterialIcon.MdChromeReaderMode, { size: styles.iconSize, style: styles.iconStyle }),
           _react2.default.createElement(

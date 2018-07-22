@@ -129,11 +129,11 @@ var VendorHome = function (_Component) {
               { style: styles.textCellStyle },
               _react2.default.createElement(MaterialIcon.MdLocationOn, { size: styles.iconSize, style: styles.iconStyle }),
               _react2.default.createElement(_materialUi.TextField, {
-                hintText: 'Enter location',
-                floatingLabelText: 'Location',
-                value: _this.state.location,
+                hintText: 'Enter address',
+                floatingLabelText: 'Address',
+                value: _this.state.address,
                 onChange: function onChange(event, newValue) {
-                  return _this.setState({ location: newValue });
+                  return _this.setState({ address: newValue });
                 },
                 style: styles.textFieldStyle
               })
@@ -569,7 +569,7 @@ var VendorHome = function (_Component) {
                   primary: true,
                   style: styles.buttonStyle,
                   onClick: function onClick() {
-                    return _this.updatePoStatus("Processed", member.order_number);
+                    return _this.getStoreOfficerByVendor("Processed", member.order_number);
                   }
                 }) : null
               ),
@@ -713,7 +713,7 @@ var VendorHome = function (_Component) {
                   primary: true,
                   style: styles.buttonStyle,
                   onClick: function onClick() {
-                    return _this.updatePoStatus("Items Dispatched", member.order_number);
+                    return _this.getStoreOfficerByVendor("Items Dispatched", member.order_number);
                   }
                 })
               ) : null,
@@ -725,7 +725,7 @@ var VendorHome = function (_Component) {
                   primary: true,
                   style: styles.buttonStyle,
                   onClick: function onClick() {
-                    return _this.checkBalanceQty(member.ic_id.balance_quantity, member.order_number, member.vendor_info.code);
+                    return _this.checkBalanceQty(member.ic_id.balance_quantity, member.order_number, member.vendor_info);
                   }
                 }),
                 _react2.default.createElement(_materialUi.RaisedButton, {
@@ -733,7 +733,7 @@ var VendorHome = function (_Component) {
                   primary: true,
                   style: styles.buttonStyle,
                   onClick: function onClick() {
-                    return _this.updatePoStatus("Amendment Requested", member.order_number);
+                    return _this.getStoreOfficerByVendor("Amendment Requested", member.order_number);
                   }
                 })
               ) : null
@@ -928,7 +928,7 @@ var VendorHome = function (_Component) {
       name: '',
       email: '',
       mobile: '',
-      location: '',
+      address: '',
       password: '',
       flag: 4,
       code: ''
@@ -941,7 +941,7 @@ var VendorHome = function (_Component) {
     value: function componentDidMount() {
       var userInfo = JSON.parse(localStorage.getItem('userInfo'));
       this.setState({ _id: userInfo.userId, code: userInfo.code });
-      this.fetchAllEntities("Purchase_Order", userInfo.code);
+      this.fetchAllEntities("Purchase_Order", userInfo.code, userInfo.userId);
     }
   }, {
     key: 'render',
@@ -963,7 +963,7 @@ var VendorHome = function (_Component) {
               { style: { display: 'flex', flexDirection: 'row', height: '100vh' } },
               _react2.default.createElement(_VendorPalette2.default, {
                 onClickPurchaseOrders: function onClickPurchaseOrders() {
-                  return _this2.fetchAllEntities("Purchase_Order", _this2.state.code);
+                  return _this2.fetchAllEntities("Purchase_Order", _this2.state.code, _this2.state._id);
                 },
                 onClickVisits: function onClickVisits() {
                   return _this2.getVisits();
@@ -1032,6 +1032,8 @@ var VendorHome = function (_Component) {
         return styles.approvedStyle;
       } else if (status == 'IR Partial') {
         return styles.IRPartialStyle;
+      } else if (status == 'IC Generated') {
+        return styles.ICGeneratedStyle;
       } else if (status == 'Items Dispatched') {
         return styles.dispatchedStyle;
       } else if (status == 'Items Accepted') {
@@ -1050,16 +1052,16 @@ var VendorHome = function (_Component) {
     }
   }, {
     key: 'checkBalanceQty',
-    value: function checkBalanceQty(balance_quantity, orderNumber, vendor_code) {
+    value: function checkBalanceQty(balance_quantity, orderNumber, vendor_info) {
       if (balance_quantity == 0) {
-        this.updatePoStatus("Finished", orderNumber);
+        this.updatePoStatus("Finished", orderNumber, vendor_info.email, vendor_info.code, vendor_info);
       } else {
-        this.removeVisit(orderNumber, vendor_code);
+        this.removeVisit(orderNumber, vendor_code, vendor_email);
       }
     }
   }, {
     key: 'removeVisit',
-    value: function removeVisit(orderNumber, vendor_code) {
+    value: function removeVisit(orderNumber, vendor_code, vendor_email) {
       var that = this;
       var apiUrl = _url.baseUrl + _url.removeVisitUrl;
 
@@ -1073,12 +1075,50 @@ var VendorHome = function (_Component) {
       }, { headers: headers }).then(function (response) {
         console.log(response);
         if (response.status == 200) {
-          that.updatePoStatus("Approved", orderNumber);
+          that.updatePoStatus("Approved", orderNumber, vendor_email);
         } else if (response.status == 204) {
           alert("Visit to be removed is not present!");
         }
       }).catch(function (error) {
         console.log(error.response);
+        alert(error.response.data.message);
+      });
+    }
+  }, {
+    key: 'getStoreOfficerByVendor',
+    value: function getStoreOfficerByVendor(status, order_number) {
+      var that = this;
+      var apiUrl = _url.baseUrl + _url.getStoreOfficerByVendorUrl + that.state._id;
+
+      _axios2.default.get(apiUrl).then(function (response) {
+        console.log(response);
+        if (response.status == 200) {
+          if (status == "Processed" || status == "Amendment Requested") {
+            that.getDyceeByStoreOfficer(status, order_number, response.data._id);
+          } else if (status == "Items Dispatched") {
+            that.updatePoStatus(status, order_number, response.data.email);
+          }
+        } else if (response.status == 404) {
+          alert("No StoreOfficer found with this id");
+        }
+      }).catch(function (error) {
+        alert(error.response.data.message);
+      });
+    }
+  }, {
+    key: 'getDyceeByStoreOfficer',
+    value: function getDyceeByStoreOfficer(status, order_number, storeofficer_id) {
+      var that = this;
+      var apiUrl = _url.baseUrl + _url.getDyceeEmailUrl + storeofficer_id;
+
+      _axios2.default.get(apiUrl).then(function (response) {
+        console.log(response);
+        if (response.status == 200) {
+          that.updatePoStatus(status, order_number, response.data.email);
+        } else if (response.status == 404) {
+          alert("No Dycee found with this id");
+        }
+      }).catch(function (error) {
         alert(error.response.data.message);
       });
     }
@@ -1100,7 +1140,7 @@ var VendorHome = function (_Component) {
             name: response.data.name,
             email: response.data.email,
             mobile: response.data.mobile,
-            location: response.data.location,
+            address: response.data.address,
             password: response.data.password,
             flag: 1
           });
@@ -1129,7 +1169,7 @@ var VendorHome = function (_Component) {
         "email": that.state.email,
         "password": that.state.password,
         "role": "Vendor",
-        "location": that.state.location
+        "address": that.state.address
       }, { headers: headers }).then(function (response) {
         console.log(response);
         if (response.status == 200) {
@@ -1144,19 +1184,19 @@ var VendorHome = function (_Component) {
     }
   }, {
     key: 'fetchAllEntities',
-    value: function fetchAllEntities(type, userId) {
+    value: function fetchAllEntities(type, userCode, userId) {
 
       var that = this;
       var apiUrl = _url.baseUrl;
 
       if (type == "Purchase_Order") {
-        apiUrl = apiUrl + _url.vendorPOUrl + userId;
+        apiUrl = apiUrl + _url.vendorPOUrl + userCode;
       } else if (type == "AllIC") {
-        apiUrl += _url.allIcUrl + userId;
+        apiUrl += _url.allIcUrl + userCode;
       }
 
       var headers = {
-        SECURITY_TOKEN: that.state._id
+        SECURITY_TOKEN: userId
       };
 
       _axios2.default.get(apiUrl, { headers: headers }).then(function (response) {
@@ -1195,7 +1235,7 @@ var VendorHome = function (_Component) {
     }
   }, {
     key: 'updatePoStatus',
-    value: function updatePoStatus(status, orderNumber) {
+    value: function updatePoStatus(status, orderNumber, email, vendor_code, vendor_info) {
 
       var that = this;
       var apiUrl = _url.baseUrl + _url.updatePOInfoUrl;
@@ -1204,13 +1244,26 @@ var VendorHome = function (_Component) {
         SECURITY_TOKEN: that.state._id
       };
 
-      _axios2.default.post(apiUrl, {
-        "order_number": orderNumber,
-        "status": status
-      }, { headers: headers }).then(function (response) {
+      var body = {};
+
+      if (status == "Finished") {
+        body = {
+          "order_number": orderNumber,
+          "status": status,
+          "email": email,
+          'vendor_info': vendor_info
+        };
+      } else {
+        body = {
+          "order_number": orderNumber,
+          "status": status,
+          "email": email
+        };
+      }
+      _axios2.default.post(apiUrl, body, { headers: headers }).then(function (response) {
         console.log(response);
         if (response.status == 200) {
-          that.fetchAllEntities("Purchase_Order", that.state.code);
+          that.fetchAllEntities("Purchase_Order", that.state.code, that.state._id);
         } else if (response.status == 204) {
           alert("Purchase Order to be updated is not present!");
         }
@@ -1378,6 +1431,15 @@ var styles = {
   },
   IRPartialStyle: {
     backgroundColor: '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight: 'bold',
+    color: 'white'
+  }, ICGeneratedStyle: {
+    backgroundColor: '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

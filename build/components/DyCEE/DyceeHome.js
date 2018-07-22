@@ -97,13 +97,15 @@ var DyCeeHome = function (_React$Component) {
             body = {
               "order_number": _this.state.order_number,
               "inspected_by": _this.state.inspectorArray[_this.state.selectedInspectorPos]._id,
-              "status": "Assigned"
+              "status": "Assigned",
+              "email": _this.state.inspectorArray[_this.state.selectedInspectorPos].email
             };
           } else if (_this.state.updateflag == "amendmentInspector") {
             body = {
               "order_number": _this.state.order_number,
               "status": "Amendment Inspector Nominated",
-              "amendmentInspector": _this.state.inspectorArray[_this.state.selectedInspectorPos]._id
+              "amendmentInspector": _this.state.inspectorArray[_this.state.selectedInspectorPos]._id,
+              "email": _this.state.inspectorArray[_this.state.selectedInspectorPos].email
             };
           }
           _this.updatePoStatus(body);
@@ -151,8 +153,7 @@ var DyCeeHome = function (_React$Component) {
           _react2.default.createElement(
             'span',
             { style: styles.headingStyle },
-            'List of ',
-            _this.state.type + 's'
+            'List of Vendors'
           )
         ),
         _react2.default.createElement(
@@ -204,7 +205,7 @@ var DyCeeHome = function (_React$Component) {
           _react2.default.createElement(
             'span',
             { style: styles.textCellContainer },
-            'Location'
+            'Address'
           ),
           _react2.default.createElement(
             'span',
@@ -244,12 +245,12 @@ var DyCeeHome = function (_React$Component) {
             _react2.default.createElement(
               'span',
               { style: styles.textCellContainer },
-              member.location
+              member.address
             ),
             _react2.default.createElement(
               'span',
               { style: styles.textCellContainer },
-              _this.POCount(member.vendor_code)
+              member.po_remaining
             )
           );
         })
@@ -267,8 +268,7 @@ var DyCeeHome = function (_React$Component) {
           _react2.default.createElement(
             'span',
             { style: styles.headingStyle },
-            'List of ',
-            _this.state.type + 's'
+            'List of Inspectors'
           )
         ),
         _react2.default.createElement(
@@ -345,8 +345,7 @@ var DyCeeHome = function (_React$Component) {
           _react2.default.createElement(
             'span',
             { style: styles.headingStyle },
-            'List of ',
-            _this.state.type + 's'
+            'List of StoreOfficers'
           )
         ),
         _react2.default.createElement(
@@ -863,7 +862,7 @@ var DyCeeHome = function (_React$Component) {
                   primary: true,
                   style: styles.buttonStyle,
                   onClick: function onClick() {
-                    return _this.fetchAllEntities("AllIC", member.order_number, member.vendor_info.code, member.status);
+                    return _this.fetchAllEntities("AllIC", member.order_number, member.vendor_info.code, member.status, member.vendor_info.email, member.vendor_info);
                   }
                 })
               )
@@ -971,7 +970,7 @@ var DyCeeHome = function (_React$Component) {
             primary: true,
             style: styles.buttonStyle,
             onClick: function onClick() {
-              return _this.checkBalanceQty(_this.state.corrigendum_array.ic_id.balance_quantity, _this.state.corrigendum_array.order_number, _this.state.vendor_code);
+              return _this.checkBalanceQty(_this.state.corrigendum_array.ic_id.balance_quantity, _this.state.corrigendum_array.order_number, _this.state.vendor_code, _this.state.vendor_info);
             }
           })
         ) : null
@@ -1440,6 +1439,8 @@ var DyCeeHome = function (_React$Component) {
         return styles.approvedStyle;
       } else if (status == 'IR Partial') {
         return styles.IRPartialStyle;
+      } else if (status == 'IC Generated') {
+        return styles.ICGeneratedStyle;
       } else if (status == 'Items Dispatched') {
         return styles.dispatchedStyle;
       } else if (status == 'Items Accepted') {
@@ -1474,11 +1475,13 @@ var DyCeeHome = function (_React$Component) {
     }
   }, {
     key: 'checkBalanceQty',
-    value: function checkBalanceQty(balance_quantity, orderNumber, vendor_code) {
+    value: function checkBalanceQty(balance_quantity, orderNumber, vendor_code, vendor_info) {
       if (balance_quantity == 0) {
         var body = {
           "status": "Finished",
-          "order_number": orderNumber
+          "order_number": orderNumber,
+          "vendor_info": vendor_info,
+          "email": this.state.vendor_email
         };
         this.updatePoStatus(body);
       } else {
@@ -1503,7 +1506,8 @@ var DyCeeHome = function (_React$Component) {
         if (response.status == 200) {
           var body = {
             "order_number": orderNumber,
-            "status": "Approved"
+            "status": "Approved",
+            "email": that.state.vendor_email
           };
           that.updatePoStatus(body);
         } else if (response.status == 204) {
@@ -1693,7 +1697,7 @@ var DyCeeHome = function (_React$Component) {
     }
   }, {
     key: 'fetchAllEntities',
-    value: function fetchAllEntities(type, userId, vendor_code, status) {
+    value: function fetchAllEntities(type, userId, vendor_code, status, vendor_email, vendor_info) {
 
       var that = this;
       var apiUrl = _url.baseUrl;
@@ -1728,7 +1732,7 @@ var DyCeeHome = function (_React$Component) {
         } else if (response.status == 200 && type == "StoreOfficer") {
           that.setState({ storeOfficerArray: response.data, flag: 11 });
         } else if (response.status == 200 && type == "AllIC") {
-          that.setState({ responseDataArray: response.data, status: status, vendor_code: vendor_code, flag: 6 });
+          that.setState({ responseDataArray: response.data, status: status, vendor_code: vendor_code, vendor_email: vendor_email, vendor_info: vendor_info, flag: 6 });
         } else if (response.status == 200 && type == "Purchase_Order") {
           that.setState({
             responseDataArray: response.data,
@@ -1916,6 +1920,16 @@ var styles = {
   },
   IRPartialStyle: {
     backgroundColor: '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor: '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

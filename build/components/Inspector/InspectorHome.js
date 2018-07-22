@@ -70,92 +70,6 @@ var InspectorHome = function (_Component) {
       }
     };
 
-    _this.showVendors = function () {
-      if (_this.state.flag == 1) return _react2.default.createElement(
-        'div',
-        { style: { flex: 1 } },
-        _react2.default.createElement(
-          'div',
-          { style: styles.outerContainerStyle },
-          _react2.default.createElement(
-            'span',
-            { style: styles.headingStyle },
-            'List of Vendors'
-          )
-        ),
-        _react2.default.createElement(
-          'div',
-          { style: styles.itemHeaderContainer },
-          _react2.default.createElement(
-            'span',
-            { style: styles.textCellContainer },
-            'S.No.'
-          ),
-          _react2.default.createElement(
-            'span',
-            { style: styles.textCellContainer },
-            'Code'
-          ),
-          _react2.default.createElement(
-            'span',
-            { style: styles.textCellContainer },
-            'Name'
-          ),
-          _react2.default.createElement(
-            'span',
-            { style: styles.textCellContainer },
-            'Email'
-          ),
-          _react2.default.createElement(
-            'span',
-            { style: styles.textCellContainer },
-            'Mobile'
-          ),
-          _react2.default.createElement(
-            'span',
-            { style: styles.textCellContainer },
-            'Location'
-          )
-        ),
-        _this.state.responseDataArray.map(function (member, key) {
-          return _react2.default.createElement(
-            'div',
-            { style: styles.itemContainer },
-            _react2.default.createElement(
-              'span',
-              { style: styles.textCellContainer },
-              key + 1
-            ),
-            _react2.default.createElement(
-              'span',
-              { style: styles.textCellContainer },
-              member.vendor_code
-            ),
-            _react2.default.createElement(
-              'span',
-              { style: styles.textCellContainer },
-              member.name
-            ),
-            _react2.default.createElement(
-              'span',
-              { style: styles.textCellContainer },
-              member.email
-            ),
-            _react2.default.createElement(
-              'span',
-              { style: styles.textCellContainer },
-              member.mobile
-            ),
-            _react2.default.createElement(
-              'span',
-              { style: styles.textCellContainer },
-              member.location
-            )
-          );
-        })
-      );
-    };
-
     _this.showProfile = function () {
       if (_this.state.flag == 2) return _react2.default.createElement(
         'div',
@@ -704,7 +618,7 @@ var InspectorHome = function (_Component) {
                 primary: true,
                 style: styles.buttonStyle,
                 onClick: function onClick(event) {
-                  _this.setState({ flag: 6, order_number: member.order_number, vendor_code: member.vendor_info.code });
+                  _this.setState({ flag: 6, order_number: member.order_number, vendor_code: member.vendor_info.code, vendor_email: member.vendor_info.email });
                 }
               })
             ) : null,
@@ -728,7 +642,7 @@ var InspectorHome = function (_Component) {
                 primary: true,
                 style: styles.buttonStyle,
                 onClick: function onClick(event) {
-                  return _this.setState({ flag: 4, order_number: member.order_number, vendor_code: member.vendor_info.code });
+                  return _this.setState({ flag: 4, order_number: member.order_number, vendor_code: member.vendor_info.code, vendor_email: member.vendor_info.email });
                 }
               })
             ) : null,
@@ -744,7 +658,8 @@ var InspectorHome = function (_Component) {
                     flag: 7,
                     order_number: member.order_number,
                     inspector_name: member.inspected_by.name,
-                    inspector_mobile: member.inspected_by.mobile
+                    inspector_mobile: member.inspected_by.mobile,
+                    vendor_email: member.vendor_info.email
                   });
                 }
               })
@@ -1496,9 +1411,6 @@ var InspectorHome = function (_Component) {
             'div',
             { style: { display: 'flex', flexDirection: 'row' } },
             _react2.default.createElement(_InspectorPalette2.default, {
-              onClickVendors: function onClickVendors() {
-                return _this2.fetchAllEntities("Vendor");
-              },
               onClickPurchaseOrders: function onClickPurchaseOrders() {
                 return _this2.fetchAllEntities("Purchase_Order", _this2.state._id);
               },
@@ -1509,7 +1421,6 @@ var InspectorHome = function (_Component) {
                 return _this2.logout();
               }
             }),
-            this.showVendors(),
             this.showPurchaseOrders(),
             this.createIC(),
             this.showIC(),
@@ -1579,7 +1490,7 @@ var InspectorHome = function (_Component) {
       }, { headers: headers }).then(function (response) {
         console.log(response);
         if (response.status == 200) {
-          this.setState({
+          that.setState({
             quantity_offered: '',
             quantity_approved: '',
             location_of_seal: '',
@@ -1597,7 +1508,8 @@ var InspectorHome = function (_Component) {
           var body = {
             "order_number": that.state.order_number,
             "ic_id": response.data._id,
-            "status": "IC Generated"
+            "status": "IC Generated",
+            "email": that.state.vendor_email
           };
           that.updatePoStatus(body);
         }
@@ -1722,12 +1634,29 @@ var InspectorHome = function (_Component) {
       }, { headers: headers }).then(function (response) {
         console.log(response);
         if (response.status == 200) {
-          var corr_body = {
-            "order_number": that.state.order_number,
-            "status": "Corrigendum Generated"
-          };
-          that.updatePoStatus(corr_body);
+          that.getDyceeEmail(that.state._id);
         }
+      }).catch(function (error) {
+        console.log(error.response);
+        alert(error.response.data.message);
+      });
+    }
+  }, {
+    key: 'getDyceeEmail',
+    value: function getDyceeEmail(inspector_id) {
+
+      var that = this;
+      var apiUrl = _url.baseUrl + _url.getDyceeEmailUrl + inspector_id;
+
+      console.log(apiUrl);
+      _axios2.default.get(apiUrl).then(function (response) {
+        console.log(response);
+        var corr_body = {
+          "order_number": that.state.order_number,
+          "status": "Corrigendum Generated",
+          "email": response.data.email
+        };
+        that.updatePoStatus(corr_body);
       }).catch(function (error) {
         console.log(error.response);
         alert(error.response.data.message);
@@ -1817,7 +1746,8 @@ var InspectorHome = function (_Component) {
         if (response.status == 200) {
           var body = {
             "order_number": orderNumber,
-            "status": status
+            "status": status,
+            "email": that.state.vendor_email
           };
           that.updatePoStatus(body);
         } else if (response.status == 204) {
@@ -1835,24 +1765,20 @@ var InspectorHome = function (_Component) {
       var that = this;
       var apiUrl = _url.baseUrl;
 
-      if (type == "Vendor") {
-        apiUrl += _url.allVendorUrl;
-      } else if (type == "Purchase_Order") {
+      if (type == "Purchase_Order") {
         apiUrl = apiUrl + _url.inspectorPOUrl + userId;
       } else if (type == "AllIC") {
         apiUrl += _url.allIcUrl + userId;
       }
 
       var headers = {
-        SECURITY_TOKEN: userId || that.state._id
+        SECURITY_TOKEN: userId
       };
 
       console.log(apiUrl);
       _axios2.default.get(apiUrl, { headers: headers }).then(function (response) {
         console.log(response);
-        if (response.status == 200 && type == "Vendor") {
-          that.setState({ responseDataArray: response.data, flag: 1 });
-        } else if (response.status == 200 && type == "Purchase_Order") {
+        if (response.status == 200 && type == "Purchase_Order") {
           that.setState({ responseDataArray: response.data, flag: 5 });
         } else if (response.status == 200 && type == "AllIC") {
           that.setState({ responseDataArray: response.data, flag: 8 });
@@ -1892,7 +1818,8 @@ var InspectorHome = function (_Component) {
           that.setState({ date: '', time: '' });
           var body1 = {
             "order_number": that.state.order_number,
-            "status": "Intimated"
+            "status": "Intimated",
+            "email": that.state.vendor_email
           };
           that.updatePoStatus(body1);
         } else if (response.status == 204) {
@@ -1920,6 +1847,8 @@ var InspectorHome = function (_Component) {
         return styles.approvedStyle;
       } else if (status == 'IR Partial') {
         return styles.IRPartialStyle;
+      } else if (status == 'IC Generated') {
+        return styles.ICGeneratedStyle;
       } else if (status == 'Items Dispatched') {
         return styles.dispatchedStyle;
       } else if (status == 'Items Accepted') {
@@ -2143,6 +2072,16 @@ var styles = {
   },
   IRPartialStyle: {
     backgroundColor: '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor: '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

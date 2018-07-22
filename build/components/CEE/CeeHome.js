@@ -117,7 +117,7 @@ var CeeHome = function (_Component) {
             'div',
             { style: styles.textCellStyle },
             _react2.default.createElement(_materialUi.RaisedButton, { label: 'ADD', primary: true, style: styles.buttonStyle, onClick: function onClick(event) {
-                _this.addDyCEEFunc(event);
+                _this.addDyCEEFunc();
               } })
           )
         )
@@ -167,11 +167,20 @@ var CeeHome = function (_Component) {
             { style: styles.textCellContainer },
             'Mobile'
           ),
-          _react2.default.createElement(
+          _this.state.type == "Vendor" ? _react2.default.createElement(
+            'span',
+            { style: styles.textCellContainer },
+            'Address'
+          ) : _react2.default.createElement(
             'span',
             { style: styles.textCellContainer },
             'Location'
-          )
+          ),
+          _this.state.type == "Vendor" ? _react2.default.createElement(
+            'span',
+            { style: styles.textCellContainer },
+            'PO_Remaining'
+          ) : null
         ),
         _this.state.responseDataArray.map(function (member, key) {
           return _react2.default.createElement(
@@ -202,11 +211,20 @@ var CeeHome = function (_Component) {
               { style: styles.textCellContainer },
               member.mobile
             ),
-            _react2.default.createElement(
+            _this.state.type == "Vendor" ? _react2.default.createElement(
+              'span',
+              { style: styles.textCellContainer },
+              member.address
+            ) : _react2.default.createElement(
               'span',
               { style: styles.textCellContainer },
               member.location
-            )
+            ),
+            _this.state.type == "Vendor" ? _react2.default.createElement(
+              'span',
+              { style: styles.textCellContainer },
+              member.po_remaining
+            ) : null
           );
         })
       );
@@ -901,7 +919,7 @@ var CeeHome = function (_Component) {
           primary: true,
           style: styles.buttonStyle,
           onClick: function onClick(event) {
-            return _this.updateInfo(event);
+            return _this.updateInfo();
           }
         })
       );
@@ -926,7 +944,7 @@ var CeeHome = function (_Component) {
     value: function componentDidMount() {
       var userInfo = JSON.parse(localStorage.getItem('userInfo'));
       this.setState({ _id: userInfo.userId });
-      this.fetchAllEntities("Purchase_Order");
+      this.fetchAllEntities("Purchase_Order", userInfo.userId);
     }
   }, {
     key: 'render',
@@ -951,22 +969,22 @@ var CeeHome = function (_Component) {
                   return _this2.setState({ flag: 1 });
                 },
                 onClickDycee: function onClickDycee() {
-                  return _this2.fetchAllEntities("DyCEE");
+                  return _this2.fetchAllEntities("DyCEE", _this2.state._id);
                 },
                 onClickVendors: function onClickVendors() {
-                  return _this2.fetchAllEntities("Vendor");
+                  return _this2.fetchAllEntities("Vendor", _this2.state._id);
                 },
                 onClickInspectors: function onClickInspectors() {
-                  return _this2.fetchAllEntities("Inspector");
+                  return _this2.fetchAllEntities("Inspector", _this2.state._id);
                 },
                 onClickStoreOfficers: function onClickStoreOfficers() {
-                  return _this2.fetchAllEntities("StoreOfficer");
+                  return _this2.fetchAllEntities("StoreOfficer", _this2.state._id);
                 },
                 onClickPurchaseOrders: function onClickPurchaseOrders() {
-                  return _this2.fetchAllEntities("Purchase_Order");
+                  return _this2.fetchAllEntities("Purchase_Order", _this2.state._id);
                 },
                 onClickProfile: function onClickProfile() {
-                  return _this2.getProfileInfo(_this2);
+                  return _this2.getProfileInfo();
                 },
                 onClickLogout: function onClickLogout() {
                   return _this2.logout();
@@ -1008,7 +1026,7 @@ var CeeHome = function (_Component) {
     }
   }, {
     key: 'addDyCEEFunc',
-    value: function addDyCEEFunc(event) {
+    value: function addDyCEEFunc() {
       var that = this;
 
       if (that.state.name == '' || that.state.email == '' || that.state.mobile == '') {
@@ -1031,7 +1049,7 @@ var CeeHome = function (_Component) {
       }, { headers: headers }).then(function (response) {
         if (response.status == 200) {
           that.setState({ name: '', mobile: '', email: '', location: '' });
-          that.fetchAllEntities("DyCEE");
+          that.fetchAllEntities("DyCEE", that.state._id);
         } else if (response.status == 204) {
           alert("DyCee is already present!");
         }
@@ -1041,7 +1059,7 @@ var CeeHome = function (_Component) {
     }
   }, {
     key: 'getProfileInfo',
-    value: function getProfileInfo(event) {
+    value: function getProfileInfo() {
 
       var that = this;
       var apiUrl = _url.baseUrl + _url.getCeeInfoUrl + that.state._id;
@@ -1068,7 +1086,7 @@ var CeeHome = function (_Component) {
     }
   }, {
     key: 'updateInfo',
-    value: function updateInfo(event) {
+    value: function updateInfo() {
 
       console.log("inside updateInfo");
 
@@ -1124,6 +1142,8 @@ var CeeHome = function (_Component) {
         return styles.approvedStyle;
       } else if (status == 'IR Partial') {
         return styles.IRPartialStyle;
+      } else if (status == 'IC Generated') {
+        return styles.ICGeneratedStyle;
       } else if (status == 'Items Dispatched') {
         return styles.dispatchedStyle;
       } else if (status == 'Items Accepted') {
@@ -1166,7 +1186,7 @@ var CeeHome = function (_Component) {
       }
 
       var headers = {
-        SECURITY_TOKEN: that.state._id
+        SECURITY_TOKEN: userId
       };
 
       _axios2.default.get(apiUrl, { headers: headers }).then(function (response) {
@@ -1370,6 +1390,16 @@ var styles = {
   },
   IRPartialStyle: {
     backgroundColor: '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight: 'bold',
+    color: 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor: '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

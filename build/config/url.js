@@ -4,13 +4,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 //export const baseUrl = "http://localhost:8000";
-var baseUrl = exports.baseUrl = "http://cwl-cwl.193b.starter-ca-central-1.openshiftapps.com";
+var baseUrl = exports.baseUrl = "https://cwl-cwl.193b.starter-ca-central-1.openshiftapps.com";
 
 ////////////////////////////// DYCEE ////////////////////////////
 var allDyCeeUrl = exports.allDyCeeUrl = "/dycee/all/";
 var addDyCEEUrl = exports.addDyCEEUrl = "/dycee/add/";
 var oneDyCeeUrl = exports.oneDyCeeUrl = "/dycee/one/";
 var someDyCeeUrl = exports.someDyCeeUrl = "/dycee/some/";
+var getDyceeEmailUrl = exports.getDyceeEmailUrl = '/dycee/email/';
 
 ///////////////////////////// INSPECTOR ////////////////////////
 var allInspectorUrl = exports.allInspectorUrl = "/inspector/all/";
@@ -25,6 +26,7 @@ var addStoreOfficerUrl = exports.addStoreOfficerUrl = "/storeofficer/add/";
 var oneStoreOfficerUrl = exports.oneStoreOfficerUrl = "/storeofficer/one/";
 var someStoreOfficerUrl = exports.someStoreOfficerUrl = "/storeofficer/some/";
 var storeOfficerUrl = exports.storeOfficerUrl = "/storeofficer/";
+var getStoreOfficerByVendorUrl = exports.getStoreOfficerByVendorUrl = '/storeofficer/vendor/';
 
 //////////////////////// PURCHASE ORDER //////////////////////
 var addPurchaseOrderUrl = exports.addPurchaseOrderUrl = "/purchaseorder/add/";
