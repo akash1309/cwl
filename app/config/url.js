@@ -6,6 +6,7 @@ export const allDyCeeUrl="/dycee/all/";
 export const addDyCEEUrl="/dycee/add/";
 export const oneDyCeeUrl="/dycee/one/";
 export const someDyCeeUrl="/dycee/some/";
+export const getDyceeEmailUrl = '/dycee/email/';
 
 ///////////////////////////// INSPECTOR ////////////////////////
 export const allInspectorUrl="/inspector/all/";
@@ -20,7 +21,7 @@ export const addStoreOfficerUrl="/storeofficer/add/";
 export const oneStoreOfficerUrl="/storeofficer/one/";
 export const someStoreOfficerUrl="/storeofficer/some/";
 export const storeOfficerUrl="/storeofficer/";
-
+export const getStoreOfficerByVendorUrl = '/storeofficer/vendor/';
 
 //////////////////////// PURCHASE ORDER //////////////////////
 export const addPurchaseOrderUrl ="/purchaseorder/add/";

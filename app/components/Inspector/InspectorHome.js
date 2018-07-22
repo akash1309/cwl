@@ -4,7 +4,6 @@ import {
    baseUrl,
    getInspectorInfoUrl,
    updateInspectorInfoUrl ,
-   allVendorUrl ,
    generateCorrigendumUrl ,
    addInspectionReportUrl,
    inspectorPOUrl,
@@ -15,7 +14,8 @@ import {
    oneCorrigendumUrl,
    icGenerateUrl,
    allIcUrl,
-   updateICInfoUrl
+   updateICInfoUrl,
+   getDyceeEmailUrl
    } from './../../config/url';
 import * as MaterialIcon from 'react-icons/lib/md';
 import InspectorPalette from './InspectorPalette';
@@ -108,13 +108,11 @@ export default class InspectorHome extends Component {
           <div style={{ display: 'flex', flexDirection: 'row'}}>
 
             <InspectorPalette
-              onClickVendors = {() => this.fetchAllEntities("Vendor")}
               onClickPurchaseOrders = {() => this.fetchAllEntities("Purchase_Order",this.state._id)}
               onClickProfile = {() => this.getProfileInfo(this)}
               onClickLogout={() => this.logout()}
             />
 
-            { this.showVendors() }
             { this.showPurchaseOrders() }
             { this.createIC() }
             { this.showIC() }
@@ -134,39 +132,6 @@ export default class InspectorHome extends Component {
     this.props.history.replace({
       pathname : '/'
     });
-  }
-
-  showVendors = () => {
-    if(this.state.flag == 1)
-    return(
-      <div style={{flex : 1}}>
-        <div style = {styles.outerContainerStyle}>
-          <span style={styles.headingStyle}>List of Vendors</span>
-        </div>
-        <div style={styles.itemHeaderContainer}>
-          <span style={styles.textCellContainer}>S.No.</span>
-          <span style={styles.textCellContainer}>Code</span>
-          <span style={styles.textCellContainer}>Name</span>
-          <span style={styles.textCellContainer}>Email</span>
-          <span style={styles.textCellContainer}>Mobile</span>
-          <span style={styles.textCellContainer}>Location</span>
-        </div>
-        {
-          this.state.responseDataArray.map((member,key) => {
-            return (
-              <div style={styles.itemContainer}>
-                <span style={styles.textCellContainer}>{key + 1}</span>
-                <span style={styles.textCellContainer}>{member.vendor_code}</span>
-                <span style={styles.textCellContainer}>{member.name}</span>
-                <span style={styles.textCellContainer}>{member.email}</span>
-                <span style={styles.textCellContainer}>{member.mobile}</span>
-                <span style={styles.textCellContainer}>{member.location}</span>
-              </div>
-            )
-          })
-        }
-      </div>
-    );
   }
 
   showProfile = () => {
@@ -510,7 +475,7 @@ export default class InspectorHome extends Component {
                         label="Visit"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number, vendor_code : member.vendor_info.code})}}
+                        onClick={(event) => {this.setState({flag : 6 , order_number :member.order_number, vendor_code : member.vendor_info.code, vendor_email : member.vendor_info.email})}}
                       />
                     </div>
                     : null
@@ -534,7 +499,7 @@ export default class InspectorHome extends Component {
                         label="Add Inspection Report"
                         primary={true}
                         style={styles.buttonStyle}
-                        onClick={(event) => this.setState({flag : 4 , order_number : member.order_number , vendor_code : member.vendor_info.code})}
+                        onClick={(event) => this.setState({flag : 4 , order_number : member.order_number , vendor_code : member.vendor_info.code, vendor_email : member.vendor_info.email})}
                       />
                     </div>
                     : null
@@ -550,7 +515,8 @@ export default class InspectorHome extends Component {
                           flag :7,
                           order_number:member.order_number,
                           inspector_name:member.inspected_by.name,
-                          inspector_mobile : member.inspected_by.mobile
+                          inspector_mobile : member.inspected_by.mobile,
+                          vendor_email : member.vendor_info.email
                         })}
                       />
                     </div>
@@ -979,7 +945,7 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        this.setState({
+        that.setState({
           quantity_offered: '',
           quantity_approved:'',
           location_of_seal:'',
@@ -997,7 +963,8 @@ export default class InspectorHome extends Component {
         var body = {
           "order_number": that.state.order_number,
           "ic_id": response.data._id,
-          "status" : "IC Generated"
+          "status" : "IC Generated",
+          "email" : that.state.vendor_email
         };
         that.updatePoStatus(body);
       }
@@ -1130,11 +1097,7 @@ export default class InspectorHome extends Component {
     .then(function (response) {
       console.log(response);
       if(response.status == 200){
-        var corr_body = {
-          "order_number": that.state.order_number,
-          "status" : "Corrigendum Generated"
-        };
-        that.updatePoStatus(corr_body);
+        that.getDyceeEmail(that.state._id);
       }
     })
     .catch(function (error) {
@@ -1143,6 +1106,28 @@ export default class InspectorHome extends Component {
     });
   }
 
+  getDyceeEmail(inspector_id){
+
+    var that = this;
+    var apiUrl = baseUrl + getDyceeEmailUrl + inspector_id;
+
+    console.log(apiUrl);
+    axios.get(apiUrl)
+    .then( response => {
+      console.log(response);
+      var corr_body = {
+        "order_number": that.state.order_number,
+        "status" : "Corrigendum Generated",
+        "email" : response.data.email
+      };
+      that.updatePoStatus(corr_body);
+    })
+    .catch(error => {
+      console.log(error.response);
+      alert(error.response.data.message);
+    });
+
+  }
   getCorrigendum(corrigendum_id){
 
     var that = this;
@@ -1238,7 +1223,8 @@ export default class InspectorHome extends Component {
       if(response.status == 200){
             var body = {
               "order_number": orderNumber,
-              "status" : status
+              "status" : status,
+              "email" : that.state.vendor_email
             };
             that.updatePoStatus(body);
       }
@@ -1256,10 +1242,7 @@ export default class InspectorHome extends Component {
     var that = this;
     let apiUrl = baseUrl;
 
-    if(type == "Vendor"){
-      apiUrl += allVendorUrl;
-    }
-    else if(type == "Purchase_Order"){
+    if(type == "Purchase_Order"){
       apiUrl = apiUrl + inspectorPOUrl + userId;
     }
     else if(type == "AllIC"){
@@ -1267,17 +1250,14 @@ export default class InspectorHome extends Component {
     }
 
     const headers = {
-      SECURITY_TOKEN: userId || that.state._id
+      SECURITY_TOKEN: userId
     };
 
     console.log(apiUrl);
     axios.get(apiUrl, { headers })
     .then( response => {
       console.log(response);
-      if(response.status == 200 && type == "Vendor"){
-        that.setState({ responseDataArray : response.data , flag : 1});
-      }
-      else if(response.status == 200 && type == "Purchase_Order"){
+      if(response.status == 200 && type == "Purchase_Order"){
         that.setState({ responseDataArray : response.data , flag : 5});
       }
       else if(response.status == 200 && type == "AllIC"){
@@ -1321,7 +1301,8 @@ export default class InspectorHome extends Component {
          that.setState({date : '', time: ''});
          var body1 = {
            "order_number": that.state.order_number,
-           "status" : "Intimated"
+           "status" : "Intimated",
+           "email" : that.state.vendor_email
          };
           that.updatePoStatus(body1);
          }
@@ -1357,6 +1338,9 @@ export default class InspectorHome extends Component {
     }
     else if(status == 'IR Partial'){
       return styles.IRPartialStyle;
+    }
+    else if(status == 'IC Generated'){
+      return styles.ICGeneratedStyle;
     }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
@@ -1588,6 +1572,16 @@ const styles = {
   },
   IRPartialStyle: {
     backgroundColor : '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor : '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,

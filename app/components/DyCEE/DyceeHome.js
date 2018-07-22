@@ -149,7 +149,8 @@ export default class DyCeeHome extends React.Component {
             body = {
             "order_number": this.state.order_number,
             "inspected_by": this.state.inspectorArray[this.state.selectedInspectorPos]._id,
-            "status" : "Assigned"
+            "status" : "Assigned",
+            "email" : this.state.inspectorArray[this.state.selectedInspectorPos].email
             };
           }
           else if(this.state.updateflag == "amendmentInspector")
@@ -157,7 +158,8 @@ export default class DyCeeHome extends React.Component {
             body = {
               "order_number" : this.state.order_number,
               "status" : "Amendment Inspector Nominated",
-              "amendmentInspector" : this.state.inspectorArray[this.state.selectedInspectorPos]._id
+              "amendmentInspector" : this.state.inspectorArray[this.state.selectedInspectorPos]._id,
+              "email" : this.state.inspectorArray[this.state.selectedInspectorPos].email
             }
           }
           this.updatePoStatus(body)}}
@@ -221,7 +223,7 @@ export default class DyCeeHome extends React.Component {
       return(
         <div style={{flex : 1}}>
           <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+            <span style={styles.headingStyle}>List of Vendors</span>
           </div>
 
           <div style={styles.comboStyle}>
@@ -242,7 +244,7 @@ export default class DyCeeHome extends React.Component {
             <span style={styles.textCellContainer}>Name</span>
             <span style={styles.textCellContainer}>Email</span>
             <span style={styles.textCellContainer}>Mobile</span>
-            <span style={styles.textCellContainer}>Location</span>
+            <span style={styles.textCellContainer}>Address</span>
             <span style={styles.textCellContainer}>PO Remaining</span>
           </div>
 
@@ -255,8 +257,8 @@ export default class DyCeeHome extends React.Component {
                   <span style={styles.textCellContainer}>{member.name}</span>
                   <span style={styles.textCellContainer}>{member.email}</span>
                   <span style={styles.textCellContainer}>{member.mobile}</span>
-                  <span style={styles.textCellContainer}>{member.location}</span>
-                  <span style={styles.textCellContainer}>{this.POCount(member.vendor_code)}</span>
+                  <span style={styles.textCellContainer}>{member.address}</span>
+                  <span style={styles.textCellContainer}>{member.po_remaining}</span>
                 </div>
               )
             })
@@ -271,7 +273,7 @@ export default class DyCeeHome extends React.Component {
       return(
         <div style={{flex : 1}}>
           <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+            <span style={styles.headingStyle}>List of Inspectors</span>
           </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>S.No.</span>
@@ -303,7 +305,7 @@ export default class DyCeeHome extends React.Component {
       return(
         <div style={{flex : 1}}>
           <div style = {styles.outerContainerStyle}>
-            <span style={styles.headingStyle}>List of {this.state.type + 's'}</span>
+            <span style={styles.headingStyle}>List of StoreOfficers</span>
           </div>
           <div style={styles.itemHeaderContainer}>
             <span style={styles.textCellContainer}>S.No.</span>
@@ -526,7 +528,7 @@ export default class DyCeeHome extends React.Component {
                             label="SEE ALL ICs"
                             primary={true}
                             style={styles.buttonStyle}
-                            onClick={() => this.fetchAllEntities("AllIC",member.order_number,member.vendor_info.code, member.status)}
+                            onClick={() => this.fetchAllEntities("AllIC",member.order_number,member.vendor_info.code, member.status, member.vendor_info.email, member.vendor_info)}
                           />
                         </div>
 
@@ -582,7 +584,7 @@ export default class DyCeeHome extends React.Component {
                 label="Approve"
                 primary={true}
                 style={styles.buttonStyle}
-                onClick = {() => this.checkBalanceQty(this.state.corrigendum_array.ic_id.balance_quantity,this.state.corrigendum_array.order_number,this.state.vendor_code)}
+                onClick = {() => this.checkBalanceQty(this.state.corrigendum_array.ic_id.balance_quantity,this.state.corrigendum_array.order_number,this.state.vendor_code, this.state.vendor_info)}
               />
             </div>
             : null
@@ -788,6 +790,9 @@ export default class DyCeeHome extends React.Component {
     else if(status == 'IR Partial'){
       return styles.IRPartialStyle;
     }
+    else if(status == 'IC Generated'){
+      return styles.ICGeneratedStyle;
+    }
     else if(status == 'Items Dispatched'){
       return styles.dispatchedStyle;
     }
@@ -828,12 +833,14 @@ export default class DyCeeHome extends React.Component {
     })
   }
 
-  checkBalanceQty(balance_quantity,orderNumber,vendor_code){
+  checkBalanceQty(balance_quantity,orderNumber,vendor_code, vendor_info){
     if(balance_quantity == 0)
     {
       var body = {
         "status" : "Finished",
-        "order_number" : orderNumber
+        "order_number" : orderNumber,
+        "vendor_info" : vendor_info,
+        "email" : this.state.vendor_email
       };
       this.updatePoStatus(body);
     }
@@ -860,7 +867,8 @@ export default class DyCeeHome extends React.Component {
       if(response.status == 200){
             var body = {
               "order_number": orderNumber,
-              "status" : "Approved"
+              "status" : "Approved",
+              "email" : that.state.vendor_email
             };
             that.updatePoStatus(body);
       }
@@ -1065,7 +1073,7 @@ export default class DyCeeHome extends React.Component {
 
   }
 
-  fetchAllEntities(type, userId , vendor_code , status){
+  fetchAllEntities(type, userId , vendor_code , status, vendor_email, vendor_info){
 
     var that = this;
     let apiUrl = baseUrl;
@@ -1108,7 +1116,7 @@ export default class DyCeeHome extends React.Component {
         that.setState({ storeOfficerArray : response.data, flag :11});
       }
       else if(response.status == 200 && type == "AllIC"){
-        that.setState({ responseDataArray : response.data, status : status , vendor_code : vendor_code , flag :6});
+        that.setState({ responseDataArray : response.data, status : status , vendor_code : vendor_code , vendor_email : vendor_email, vendor_info : vendor_info, flag :6});
       }
       else if(response.status == 200 && type == "Purchase_Order"){
         that.setState({
@@ -1295,6 +1303,16 @@ const styles = {
   },
   IRPartialStyle: {
     backgroundColor : '#420420',
+    borderRadius: 2,
+    padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
+    margin: 10,
+    fontWeight : 'bold',
+    color : 'white'
+  },
+  ICGeneratedStyle: {
+    backgroundColor : '#8a496b',
     borderRadius: 2,
     padding: 5,
     paddingLeft: 10,
