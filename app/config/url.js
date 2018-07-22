@@ -1,4 +1,4 @@
-export const baseUrl = "http://localhost:8000";
+export const baseUrl = "http://localhost:8080";
 
 ////////////////////////////// DYCEE ////////////////////////////
 export const allDyCeeUrl="/dycee/all/";
