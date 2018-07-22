@@ -1,4 +1,5 @@
-export const baseUrl = "http://localhost:8000";
+//export const baseUrl = "http://localhost:8000";
+export const baseUrl = "http://cwl-cwl.193b.starter-ca-central-1.openshiftapps.com";
 
 ////////////////////////////// DYCEE ////////////////////////////
 export const allDyCeeUrl="/dycee/all/";
