@@ -9,7 +9,7 @@
     "build:watch": "babel ./app -d build --watch",
     "build:client": "webpack --config ./webpack.config.js/",
     "build:watch:client": "webpack --config ./webpack.config.js/ --watch",
-    "build:prod": "npm run build && npm run build:client",
+    "build:prod": "npm run build",
     "start": "npm run build:prod && NODE_ENV=production && node ./build/server/index.js",
     "start:dev": "parallelshell 'npm run build:watch' 'npm run build:watch:client' 'nodemon ./build/server/index.js'"
   },
