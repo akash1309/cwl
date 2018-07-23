@@ -26,6 +26,9 @@ var server = http.createServer(app);
 //const port = process.env.PORT || 8080;
 var port = 8080;
 
+// Commenting consoles in production
+console.log = function () {};
+
 var assets = _express2.default.static(_path2.default.join(__dirname, '../'));
 
 app.use((0, _cors2.default)());

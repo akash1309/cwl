@@ -10,6 +10,9 @@ const server = http.createServer(app);
 //const port = process.env.PORT || 8080;
 const port = 8080;
 
+// Commenting consoles in production
+  console.log = function(){};
+
 const assets = express.static(path.join(__dirname, '../'));
 
 app.use(cors());
