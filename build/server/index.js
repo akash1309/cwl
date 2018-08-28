@@ -27,7 +27,7 @@ var server = http.createServer(app);
 var port = 8080;
 
 // Commenting consoles in production
-console.log = function () {};
+//  console.log = function(){};
 
 var assets = _express2.default.static(_path2.default.join(__dirname, '../'));
 

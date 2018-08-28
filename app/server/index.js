@@ -11,7 +11,7 @@ const server = http.createServer(app);
 const port = 8080;
 
 // Commenting consoles in production
-  console.log = function(){};
+//  console.log = function(){};
 
 const assets = express.static(path.join(__dirname, '../'));
 

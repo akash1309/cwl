@@ -3,8 +3,8 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-//export const baseUrl = "http://localhost:8000";
-var baseUrl = exports.baseUrl = "https://cwl-cwl.193b.starter-ca-central-1.openshiftapps.com";
+var baseUrl = exports.baseUrl = "http://localhost:8000";
+//export const baseUrl = "https://cwl-cwl.193b.starter-ca-central-1.openshiftapps.com";
 
 ////////////////////////////// DYCEE ////////////////////////////
 var allDyCeeUrl = exports.allDyCeeUrl = "/dycee/all/";
